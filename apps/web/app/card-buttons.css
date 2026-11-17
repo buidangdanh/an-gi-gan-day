@@ -1,0 +1,6 @@
+.dish-page-grid .directory-card:nth-child(1) { --visit-color: #16634c; --visit-hover: #104b3a; }
+.dish-page-grid .directory-card:nth-child(2) { --visit-color: #2459a6; --visit-hover: #1b4582; }
+.dish-page-grid .directory-card:nth-child(3) { --visit-color: #b54b20; --visit-hover: #913916; }
+.dish-page-grid .directory-card:nth-child(4) { --visit-color: #72449c; --visit-hover: #583278; }
+.dish-page-grid .directory-card > .primary { background: var(--visit-color); color: #fff; }
+.dish-page-grid .directory-card > .primary:hover { background: var(--visit-hover); }
