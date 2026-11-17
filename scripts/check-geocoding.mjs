@@ -1,0 +1,4 @@
+const key=process.env.GOOGLE_MAPS_GEOCODING_API_KEY;
+if(!key){console.log('Chưa có key cấu hình.');process.exit(1);}
+const url=new URL('https://maps.googleapis.com/maps/api/geocode/json');url.searchParams.set('address','368 Đội Cấn, Ba Đình, Hà Nội, Việt Nam');url.searchParams.set('region','vn');url.searchParams.set('language','vi');url.searchParams.set('key',key);
+try{const r=await fetch(url,{signal:AbortSignal.timeout(7000)});const data=await r.json();console.log(JSON.stringify({http:r.status,status:data.status,message:data.error_message?String(data.error_message).replaceAll(key,'[hidden]'):null,results:(data.results||[]).map(x=>({formatted_address:x.formatted_address,location:x.geometry?.location,location_type:x.geometry?.location_type,partial_match:!!x.partial_match}))},null,2));if(data.status!=='OK')process.exitCode=1;}catch{console.log('Không kết nối được dịch vụ Geocoding trong thời gian cho phép.');process.exitCode=1;}

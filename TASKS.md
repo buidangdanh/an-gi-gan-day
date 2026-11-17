@@ -2,6 +2,8 @@
 
 ## Bổ sung dữ liệu ngày 17/11/2026
 
+- [x] Cấu hình key Geocoding do người dùng gửi trong `.env.local` bị ignore và thử một địa chỉ thật. Google từ chối do key bị giới hạn referrer; chưa chạy danh sách 400. Cần key/server restriction theo IP phù hợp trước khi tiếp tục.
+
 - [x] Đọc nguồn Word trên Drive do người dùng gửi; lưu bản trích chữ, JSON và CSV, không tải ảnh.
 - [x] Chuẩn hóa đủ 400 địa điểm, 20 nhóm × 20 dòng; giữ nguồn, lưu ý, ngày và giá tham khảo ở cấp nhóm món.
 - [x] Migration 004 + importer idempotent; đã nhập PostgreSQL và chạy lại không nhân đôi, đọc lại đủ 400 pending / 20 nhóm; 30 quán seed giữ nguyên.

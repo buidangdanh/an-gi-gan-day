@@ -1,5 +1,9 @@
 # Biên bản kiểm chứng MVP — 17/11/2026
 
+## Kiểm tra key Geocoding người dùng cung cấp
+
+Đã lưu key vào `.env.local` riêng trên máy, Git ignore; không đưa vào mã nguồn, client hay ZIP. Gọi thật một địa chỉ từ danh sách (368 Đội Cấn, Hà Nội). Google trả HTTP 200 nhưng trạng thái `REQUEST_DENIED`: `API keys with referer restrictions cannot be used with this API.` Vì key đang dùng hạn chế referrer, chưa thể sử dụng cho Geocoding web service phía server. Không tiếp tục gọi 400 địa chỉ, không ghi tọa độ giả và không đổi trạng thái xác minh. Có thể chạy lại sau khi cấu hình key server với hạn chế IP phù hợp và API restriction cho Geocoding: `node --env-file=.env.local scripts/check-geocoding.mjs`.
+
 ## Bổ sung nhập dữ liệu Hà Nội
 
 Đã đọc bản chữ từ tài liệu Word do người dùng cung cấp, trích đủ 400 bản ghi thuộc 20 nhóm (mỗi nhóm 20). Parser kiểm tra cấu trúc, thứ tự và hash nguồn. Importer chạy hai lần trên PostgreSQL thật; readback vẫn 400 dòng/20 nhóm, toàn bộ `pending_verification`; bảng public `restaurants` vẫn có 30 quán seed. Tọa độ, giá từng quán, giờ, bestseller và điểm không được tự gán. Không tải ảnh hoặc gọi Geocoding. Chi tiết trong `data/imports/ha-noi-2026-11-17/README.md`.
