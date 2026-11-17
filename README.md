@@ -1,5 +1,7 @@
 # Ăn gì gần đây?
 
+Mỗi lượt 4 thẻ luôn khác món. Quán được gom theo món và chọn luân phiên giữa các món; trong mỗi món vẫn giữ thứ tự nguồn/khoảng cách. Nút “Quán ngon khác” chuyển sang nhóm mới. Kiểm chứng: `node node_modules/tsx/dist/cli.mjs scripts/check-diverse-pages.ts`.
+
 **Vị trí hiện tại:** trang 4 thẻ xin quyền định vị trình duyệt, cập nhật vị trí khi thiết bị di chuyển và tính khoảng cách Haversine ngay trên thiết bị. Không gửi tọa độ GPS đến API/Google/Cloudflare, không lưu vào tài khoản. Khi chưa lấy được quyền/vị trí, thẻ không hiện số khoảng cách và không tự dùng Hồ Gươm. Cần HTTPS để định vị trên điện thoại; bản thử HTTPS đi qua gateway chỉ mở chức năng khách, admin/auth/payment vẫn bị chặn. Mở bằng Chrome/Safari và chọn cho phép vị trí.
 
 Bản HTTPS dùng Cloudflare Quick Tunnel tạm thời: cần giữ các tiến trình Node và cloudflared hoạt động; hostname đổi khi tạo tunnel mới. `PHONE_PREVIEW_HOST=127.0.0.1`, `PHONE_PREVIEW_PORT=3181`, `PHONE_PREVIEW_ORIGIN=<origin HTTPS chính xác>` cho gateway HTTPS. cloudflared trỏ tới `http://127.0.0.1:3181` với `--http-host-header 127.0.0.1:3181`. Có thể đặt `PHONE_PREVIEW_REDIRECT=<origin HTTPS>` trên gateway LAN để chuyển trang sang HTTPS. Không đưa binary/tokens vào source; binary dùng khi thiết lập lấy từ release chính thức Cloudflare, đã kiểm SHA-256 và chữ ký số. Đây là preview, chưa phải hosting production.

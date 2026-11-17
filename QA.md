@@ -1,5 +1,9 @@
 # Biên bản kiểm chứng MVP — 17/11/2026
 
+## Không trùng món trong bốn thẻ
+
+Gom quán theo tên món chuẩn hóa dấu/hoa/thường, chọn luân phiên một quán mỗi món cho mỗi nhóm 4. Dùng thứ tự khoảng cách/nguồn hiện có trong từng món. Kiểm tra trên 400 hồ sơ: 100 lượt × 4 món khác nhau, đủ 400 ID không lặp, không sửa dữ liệu nguồn; xử lý cả dữ liệu trống và nhóm ít món. Build/typecheck đạt. Browser HTTPS đã thử 3 lượt liên tiếp, mỗi lượt đều đúng 4 món khác nhau; nút đổi quán vẫn thay toàn bộ nhóm.
+
 ## Tính từ vị trí đang đứng
 
 Trang 4 thẻ đã bỏ điểm Hồ Gươm. Tải danh sách bằng `/api/directory` không có lat/lng: `reference=null`, mọi distance từ server là null. Sau khi người dùng cấp vị trí, tính Haversine ngay trên trình duyệt và xếp quán theo khoảng cách từ GPS hiện tại; watchPosition cập nhật khi di chuyển, không gửi GPS về API, không lưu. Không có quyền/vị trí thì hiển thị chờ vị trí hoặc thông báo lỗi, không bịa số khoảng cách. Quán chưa có tọa độ được ghi riêng.

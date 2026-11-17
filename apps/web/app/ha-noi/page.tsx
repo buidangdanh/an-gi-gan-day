@@ -2,6 +2,7 @@
 import {useEffect,useMemo,useRef,useState} from 'react';
 import {api,Restaurant} from '../api';
 import {currentDistanceMeters} from '../current-distance';
+import {diversePages} from '../diverse-pages';
 
 export default function Hanoi(){
  const [data,setData]=useState<{items:Restaurant[]}|null>(null);
@@ -23,10 +24,11 @@ export default function Hanoi(){
  }
  useEffect(()=>{load();locate();return()=>{if(watchId.current!==undefined)navigator.geolocation.clearWatch(watchId.current);};},[]);
  const orderedItems=useMemo(()=>data?.items.map(r=>({...r,distance:position?currentDistanceMeters(position,r):null})).sort((a,b)=>Number(!!b.import_record_id)-Number(!!a.import_record_id)||(a.distance??Infinity)-(b.distance??Infinity))||[],[data,position]);
- const visibleItems=Array.from({length:Math.min(4,orderedItems.length)},(_,i)=>orderedItems[(pageStart+i)%orderedItems.length]);
+ const pages=useMemo(()=>diversePages(orderedItems),[orderedItems]);
+ const visibleItems=pages.length?pages[pageStart%pages.length]:[];
  function nextFour(){
-  if(!data?.items.length)return;
-  setPageStart(start=>(start+4)%data.items.length);setGate('');setError('');
+  if(!pages.length)return;
+  setPageStart(start=>(start+1)%pages.length);setGate('');setError('');
   window.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
  }
  async function visit(r:Restaurant){
@@ -51,7 +53,7 @@ export default function Hanoi(){
     <button className="primary full" disabled={busy} onClick={()=>visit(r)}>Ghé thăm quán ↗</button>
     {r.lat===null&&<small className="fine-print">Maps sẽ tìm theo địa chỉ.</small>}
    </article>)}</div>
-   <button className="primary full next-four-button" onClick={nextFour} disabled={busy||data.items.length<=4}>Quán ngon khác <span aria-hidden>↻</span></button>
+   <button className="primary full next-four-button" onClick={nextFour} disabled={busy||pages.length<=1}>Quán ngon khác <span aria-hidden>↻</span></button>
   </>}
   <footer className="dish-first-footer"><a href="/goi-y">Chọn món & tìm quanh vị trí khác ↗</a><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors · ODbL</a></footer>
  </main>;

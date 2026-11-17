@@ -1,5 +1,7 @@
 # Tiến độ MVP
 
+- [x] Mỗi nhóm 4 thẻ là 4 món khác nhau; luân phiên nhóm món khi đổi quán, giữ thứ tự ưu tiên trong từng món. Đã kiểm tra đủ 400 hồ sơ thành 100 lượt không trùng món trong lượt và không trùng ID giữa các lượt.
+
 - [x] Trang 4 thẻ dùng vị trí hiện tại của thiết bị; GPS tính khoảng cách trên client, không gửi ra ngoài, không tự dùng Hồ Gươm khi chưa có quyền. Watch vị trí không tự kéo người dùng về 4 quán đầu mỗi lần GPS rung nhẹ.
 - [x] Bật preview HTTPS có gateway chặn admin/auth/payment; đã kiểm HTTP/smoke/SSL và trạng thái không lấy được vị trí trong trình duyệt. Cần người dùng chọn cho phép vị trí trên điện thoại để có GPS thực tế.
 
