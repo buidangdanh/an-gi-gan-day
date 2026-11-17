@@ -1,5 +1,7 @@
 # Tiến độ MVP
 
+- [x] Theo yêu cầu ưu tiên dữ liệu: danh sách 400 quán thành trang mở đầu; chuyển gợi ý 3 quán sang `/goi-y`; xếp dữ liệu nhập trước quán minh họa sau khi lọc đủ điều kiện. Thêm kiểm thử giữ bán kính/giá/giờ/exclude.
+
 ## Dùng danh sách thật và tính khoảng cách miễn phí
 
 - [x] Nạp toàn bộ 400 hồ sơ vào ứng dụng, phân biệt với quán hư cấu; mở trang `/ha-noi`, 20 nhóm món, tìm tên/món/địa chỉ, xem thêm theo trang.

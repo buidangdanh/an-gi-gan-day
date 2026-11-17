@@ -7,6 +7,7 @@ async function request(path,{method='GET',origin=base}={}){
  const raw=await response.text();let data;try{data=JSON.parse(raw);}catch{data=raw;}return {status:response.status,data};
 }
 assert.equal((await request('/')).status,200);
+assert.equal((await request('/goi-y')).status,200);
 assert.equal((await request('/ha-noi')).status,200);
 const directory=await request('/api/directory?lat=21.0285&lng=105.8542');assert.equal(directory.status,200);assert.equal(directory.data.datasetTotal,400);assert.ok(directory.data.located>0);assert.equal(directory.data.located+directory.data.missing,400);
 const session=await request('/api/session');assert.equal(session.status,200);assert.equal(session.data.config.development,false);assert.equal(session.data.user,null);

@@ -14,7 +14,7 @@ const server=http.createServer((req,res)=>{
  if(!['GET','HEAD'].includes(method)&&req.headers.origin!==origin){res.writeHead(403);res.end('Nguồn yêu cầu không hợp lệ');return;}
  const publicRead=pathname==='/api/session'||pathname==='/api/health'||pathname==='/api/directory'||pathname==='/api/restaurants'||/^\/api\/restaurants\/[a-f0-9-]{36}$/.test(pathname);
  const publicWrite=pathname==='/api/locations/resolve'||/^\/api\/restaurants\/[a-f0-9-]{36}\/visit$/.test(pathname);
- const page=pathname==='/'||pathname==='/ha-noi'||pathname==='/about'||pathname.startsWith('/_next/')||pathname==='/favicon.ico';
+ const page=pathname==='/'||pathname==='/ha-noi'||pathname==='/goi-y'||pathname==='/about'||pathname.startsWith('/_next/')||pathname==='/favicon.ico';
  if(!(method==='POST'?publicWrite:publicRead||page)){res.writeHead(403,{'Content-Type':'text/plain; charset=utf-8'});res.end('Bản xem trên điện thoại chỉ mở tìm quán, chi tiết và chọn ghé thăm. Tài khoản/quản trị dùng riêng trên máy tính.');return;}
  const headers={...req.headers,host:'127.0.0.1:3100'};
  delete headers.authorization;delete headers['x-forwarded-for'];delete headers['x-forwarded-host'];delete headers['x-forwarded-proto'];

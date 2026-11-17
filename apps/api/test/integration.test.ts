@@ -137,3 +137,12 @@ test('dữ liệu thật thiếu tọa độ vẫn có trong danh sách; khoản
  assert.equal((await call('/restaurants/'+missing)).status,200);
  const intent=await call('/restaurants/'+missing+'/visit',{method:'POST',cookie:await guest()});assert.equal(intent.status,200);assert.equal(new URL(intent.data.url).searchParams.get('destination'),'49 Bát Đàn, Hà Nội');
 });
+test('ưu tiên dữ liệu người dùng trước quán minh họa sau khi lọc, không vượt bán kính/giá/giờ',async()=>{
+ const id=randomUUID();await db.query(`INSERT INTO restaurants(id,name,address,lat,lng,dishes,hours,source,demo,import_record_id) VALUES($1,'Quán ưu tiên từ tài liệu','Địa chỉ test hư cấu',10.7831,106.6983,$2,NULL,'Tài liệu người dùng - fixture test',false,'priority-test')`,[id,JSON.stringify([{name:'Phở ưu tiên',group:'phở',tags:['nước','nóng'],price:30000,bestsellerSource:null}])]);
+ const path='/restaurants?lat=10.7731&lng=106.6983&radius=2000';
+ const all=await call(path);assert.equal(all.data.items[0].id,id);assert.ok(all.data.items[0].distance>1000);assert.ok(all.data.items.some((r:any)=>r.demo));assert.deepEqual(all.data.ranking.sourcePriority,['user_import','non_demo','demo']);
+ assert.equal((await call(path+'&open=true')).data.items.some((r:any)=>r.id===id),false);
+ assert.equal((await call(path+'&budget=10000')).data.items.some((r:any)=>r.id===id),false);
+ assert.equal((await call(path.replace('radius=2000','radius=500'))).data.items.some((r:any)=>r.id===id),false);
+ assert.equal((await call(path+'&exclude='+id)).data.items.some((r:any)=>r.id===id),false);
+});

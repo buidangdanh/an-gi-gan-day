@@ -37,7 +37,7 @@ export class FoodService{
  async status(s:Session){return {user:await this.user(s),config:authConfig(),distinctVisits:Number((await pool.query('SELECT count(*) FROM visits WHERE session_id=$1',[s.id])).rows[0].count),pending:s.pending_restaurant,dataset:'Danh sách Hà Nội do người dùng cung cấp, chưa xác minh hoạt động; quán seed hư cấu được ghi nhãn riêng.'};}
  async directory(raw:Record<string,unknown>){
   const f=coordinate.extend({q:z.string().max(120).default(''),group:z.enum(groups).optional()}).parse(raw);
-  const result=await pool.query(`SELECT r.*,a.count,a.average,CASE WHEN r.location IS NOT NULL THEN ST_Distance(r.location,ST_SetSRID(ST_MakePoint($1,$2),4326)::geography) ELSE NULL END AS distance FROM restaurants r LEFT JOIN review_aggregates a ON a.restaurant_id=r.id WHERE r.active AND NOT r.demo ORDER BY distance ASC NULLS LAST,r.name`,[f.lng,f.lat]);
+  const result=await pool.query(`SELECT r.*,a.count,a.average,CASE WHEN r.location IS NOT NULL THEN ST_Distance(r.location,ST_SetSRID(ST_MakePoint($1,$2),4326)::geography) ELSE NULL END AS distance FROM restaurants r LEFT JOIN review_aggregates a ON a.restaurant_id=r.id WHERE r.active AND NOT r.demo ORDER BY (r.import_record_id IS NOT NULL) DESC,distance ASC NULLS LAST,r.name`,[f.lng,f.lat]);
   const query=normalize(f.q);const all=result.rows;
   const items=all.filter(r=>(!f.group||r.dishes.some((d:Dish)=>d.group===f.group))&&(!query||normalize(r.name+' '+r.address+' '+r.dishes.map((d:Dish)=>d.name).join(' ')).includes(query))).map(r=>({...this.publicRestaurant(r),distance:r.distance===null?null:Math.round(r.distance),open:isOpen(r.hours)}));
   return {items,total:items.length,datasetTotal:all.length,located:all.filter(r=>r.lat!==null).length,missing:all.filter(r=>r.lat===null).length,attribution:'© OpenStreetMap contributors · ODbL',reference:{lat:f.lat,lng:f.lng},notice:'Danh sách địa điểm theo tài liệu, chưa xác minh hoạt động. Chỉ tính khoảng cách khi khớp địa chỉ; không dùng điểm trung tâm phố để thay vị trí quán.'};
@@ -58,8 +58,8 @@ export class FoodService{
    if(!dishes.length)return [];
    const score=rankScore(row.distance,f.radius,row.average??null,row.count||0,row.prior??null,query||selected.length||f.group?1:.7,(now.getTime()-row.updated_at.getTime())/86400000);
    return [{...this.publicRestaurant(row),open,distance:Math.round(row.distance),matchedDishes:dishes,score,reasons:[`Cách khoảng ${Math.round(row.distance)} m đường thẳng`,...(f.budget!==undefined?['Có món trong ngân sách']:[]),...(selected.length||f.group||query?['Khớp món và khẩu vị bạn chọn']:['Một lựa chọn để đổi vị']),...(!row.count?['Quán chưa có đánh giá nội bộ']:[])]}];
-  }).sort((a,b)=>b.score-a.score||a.id.localeCompare(b.id));
-  return {items:rows,total:rows.length,emptySuggestion:rows.length?null:'Không có quán khớp đầy đủ. Bạn có thể chủ động tăng bán kính hoặc đổi bộ lọc.',ranking:{weights:{distance:35,quality:25,match:20,interest:0,freshness:10},interestDisabled:true},location:{lat:f.lat,lng:f.lng}};
+  }).sort((a,b)=>Number(!!b.import_record_id)-Number(!!a.import_record_id)||Number(a.demo)-Number(b.demo)||b.score-a.score||a.id.localeCompare(b.id));
+  return {items:rows,total:rows.length,emptySuggestion:rows.length?null:'Không có quán khớp đầy đủ. Bạn có thể chủ động tăng bán kính hoặc đổi bộ lọc.',ranking:{sourcePriority:['user_import','non_demo','demo'],weights:{distance:35,quality:25,match:20,interest:0,freshness:10},interestDisabled:true},location:{lat:f.lat,lng:f.lng}};
  }
  publicRestaurant(row:any){const {location,prior,score,...r}=row;return {...r,count:row.count||0,average:row.average??null};}
  async detail(id:string){

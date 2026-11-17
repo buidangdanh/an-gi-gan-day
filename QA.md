@@ -1,5 +1,9 @@
 # Biên bản kiểm chứng MVP — 17/11/2026
 
+## Ưu tiên danh sách người dùng
+
+Trang mở đầu `/` hiển thị danh sách 400 hồ sơ, `/ha-noi` giữ nguyên và `/goi-y` chứa luồng gợi ý 3 quán. API tìm quán sắp nhóm nguồn `user_import → non_demo → demo` sau khi áp dụng đầy đủ bộ lọc; mỗi nhóm vẫn xếp theo điểm. Kiểm thử mới dùng quán dữ liệu ở xa hơn quán minh họa, xác nhận dữ liệu lên trước nhưng không vượt bán kính, ngân sách, giờ hoặc exclude.
+
 ## Sử dụng 400 địa điểm và API miễn phí
 
 Đã bổ sung trang `/ha-noi` và endpoint `/api/directory`, nạp 400 hồ sơ do người dùng cung cấp vào `restaurants` với nhãn chưa xác minh hoạt động. Hồ sơ thiếu tọa độ vẫn có trong danh sách; PostGIS chỉ tính khoảng cách và tìm gần với tọa độ khớp rõ. Tọa độ mặc định là Hồ Gươm, ghi rõ điểm tham chiếu. Có thể nhập lại lat/lng để đổi điểm xuất phát. Quán seed TP.HCM vẫn được ghi nhãn hư cấu riêng.
@@ -70,3 +74,6 @@ Tests dùng database tạm riêng trên PostgreSQL/PostGIS thực, HTTP Nest lis
 - Không có deploy full stack lên Sites: runtime Workers không phù hợp Nest/PostGIS TCP. Không publish demo/admin.
 - Chưa test thiết bị điện thoại vật lý, browser matrix, tải lớn, hoặc audit accessibility bằng công cụ chuyên dụng.
 - Chưa làm CTR, cá nhân hóa dài hạn, CSV import, merchant checkout, RBAC nhiều admin và vòng đời yêu cầu xóa dữ liệu.
+
+Kiểm chứng bản ưu tiên: 14/14 nhóm test đạt; build/typecheck và smoke LAN đạt; trình duyệt tại URL gốc hiện 400 địa điểm cùng liên kết /goi-y.
+

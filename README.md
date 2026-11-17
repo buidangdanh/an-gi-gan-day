@@ -1,5 +1,7 @@
 # Ăn gì gần đây?
 
+**Ưu tiên hiển thị:** trang mở đầu `/` là danh sách 400 địa điểm từ dữ liệu người dùng; `/ha-noi` vẫn giữ cùng danh sách. Luồng gợi ý 3 quán ở `/goi-y`. Sau khi lọc đủ điều kiện, kết quả tìm kiếm ưu tiên hồ sơ nhập từ dữ liệu người dùng, rồi quán không minh họa khác, cuối cùng quán minh họa; trong từng nhóm mới dùng điểm xếp hạng. Ưu tiên nguồn không bỏ qua bán kính, ngân sách, giờ mở, món/nhãn hoặc danh sách loại trừ.
+
 MVP tiếng Việt, ưu tiên điện thoại, dùng **Next.js + TypeScript / NestJS + TypeScript / PostgreSQL + PostGIS**. Toàn bộ thông tin quán là chữ. Có backend và lưu trữ thật; không dùng localStorage để thay thế tài khoản, phiên hoặc cơ sở dữ liệu.
 
 Đã sử dụng danh sách người dùng cung cấp gồm **400 địa điểm Hà Nội / 20 nhóm món** trong ứng dụng, độc lập với 30 quán seed hư cấu ở TP.HCM. Xem đủ danh sách tại `/ha-noi`, hoặc tìm gần quanh điểm mặc định Hồ Gươm/tọa độ bạn chọn. Tra địa chỉ miễn phí qua **Photon/OpenStreetMap** một lần có cache, không dùng key Google. Chỉ hồ sơ khớp địa chỉ rõ mới được gán tọa độ để tính khoảng cách; còn lại vẫn hiển thị nhưng ghi chưa tính được. Toàn bộ quán Hà Nội vẫn được ghi **chưa xác minh hoạt động**. Xem [nguồn danh sách](data/imports/ha-noi-2026-11-17/README.md) và [quy trình/giấy phép tọa độ](data/geocoding/README.md).
@@ -173,7 +175,7 @@ npm run smoke
 npm audit --omit=dev
 ```
 
-Kết quả ngày 17/11/2026: **13/13 nhóm kiểm thử đạt**, typecheck đạt, build API + Next đạt, smoke xuyên **Next → Nest → PostGIS** đạt, audit production dependencies báo 0 lỗ hổng ở thời điểm kiểm tra. Tests tự tạo DB tên `angiday_test_<random>` trên PostgreSQL local và xóa đúng DB đó sau khi xong; yêu cầu user DB có CREATEDB. Không dùng in-memory/mock DB và không chỉnh dữ liệu DB demo cho nghiệp vụ test. Các lỗi token giả được kiểm tra; chưa kiểm thử xác thực nhà cung cấp hoặc Google Geocoding thành công; Photon/OpenStreetMap đã được gọi thật cho danh sách Hà Nội, xem QA.md.
+Kết quả ngày 17/11/2026: **14/14 nhóm kiểm thử đạt**, typecheck đạt, build API + Next đạt, smoke xuyên **Next → Nest → PostGIS** đạt, audit production dependencies báo 0 lỗ hổng ở thời điểm kiểm tra. Tests tự tạo DB tên `angiday_test_<random>` trên PostgreSQL local và xóa đúng DB đó sau khi xong; yêu cầu user DB có CREATEDB. Không dùng in-memory/mock DB và không chỉnh dữ liệu DB demo cho nghiệp vụ test. Các lỗi token giả được kiểm tra; chưa kiểm thử xác thực nhà cung cấp hoặc Google Geocoding thành công; Photon/OpenStreetMap đã được gọi thật cho danh sách Hà Nội, xem QA.md.
 
 Đã quan sát giao diện bằng công cụ trình duyệt ở desktop và 390×844: đúng tiếng Việt sau khi tự host font, không tràn ngang toàn trang, không có thẻ ảnh; đổi ba quán không lặp, tìm “pho”, empty giữ điều kiện, menu/giờ/nguồn, login development, lưu yêu thích và thư viện Free, địa chỉ thiếu cấu hình. Không cấp quyền vị trí hệ điều hành hoặc gọi Google API trong QA. Kiểm tra gate/race/Pro/moderation/webhook được thực hiện qua HTTP backend thật. Xem `QA.md` để biết phạm vi và giới hạn.
 
