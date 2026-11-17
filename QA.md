@@ -1,5 +1,17 @@
 # Biên bản kiểm chứng MVP — 17/11/2026
 
+## Sử dụng 400 địa điểm và API miễn phí
+
+Đã bổ sung trang `/ha-noi` và endpoint `/api/directory`, nạp 400 hồ sơ do người dùng cung cấp vào `restaurants` với nhãn chưa xác minh hoạt động. Hồ sơ thiếu tọa độ vẫn có trong danh sách; PostGIS chỉ tính khoảng cách và tìm gần với tọa độ khớp rõ. Tọa độ mặc định là Hồ Gươm, ghi rõ điểm tham chiếu. Có thể nhập lại lat/lng để đổi điểm xuất phát. Quán seed TP.HCM vẫn được ghi nhãn hư cấu riêng.
+
+Lượt tra miễn phí dùng Photon/OSM (Nominatim public không phân giải DNS được), một máy/một luồng, nghỉ 2.1 giây sau phản hồi, cache các lần tra và không tự chạy định kỳ. Chỉ đối chiếu số nhà/đường hoặc POI rõ, thành phố Hà Nội; loại sai số nhà, sai phố/tỉnh, tâm phố và ứng viên mơ hồ. Không dùng Google key cho lượt này. Attribution và giấy phép ODbL được giữ trong UI và `data/geocoding/README.md`.
+
+Kết quả cuối: **400 địa chỉ khác nhau đã được tra**; **77 khớp rõ**, 309 cần xem lại, 7 mơ hồ và 7 không có kết quả. SQL đọc lại xác nhận 400 hồ sơ Hà Nội, 77 có tọa độ, 323 tọa độ null; tất cả vẫn chưa xác minh hoạt động. Báo cáo từng dòng: `data/geocoding/hanoi-location-report.json`. Không dùng tâm phố để nâng giả số lượng thành công. Giao diện cuối hiện đúng 77/400, 323 cần đối chiếu.
+
+**13/13 nhóm kiểm thử backend đạt**, gồm 11 nhóm ban đầu và 2 nhóm mới: chống nhận tọa độ sai/mơ hồ; danh sách với tọa độ null, khoảng cách thật PostGIS, giá/giờ chưa biết, chỉ đường fallback bằng địa chỉ và tra địa chỉ cục bộ không gọi Google. Build và typecheck đạt.
+
+Đã kiểm tra trình duyệt trên địa chỉ LAN ở 390×844: đủ 400 hồ sơ, không ảnh/không tràn ngang; lọc “Bát Đàn” thấy quán nguồn; Phở Gia Truyền Bát Đàn cách Hồ Gươm khoảng 992 m, sau nhập điểm 21.0336/105.8463 thì còn 9 m. Phở bò Quân Hà 368 Đội Cấn không có điểm khớp và hiện “Chưa tính được khoảng cách”, không nhận kết quả API sai số nhà 179 cùng phố. Trang chủ chuyển sang vùng Hồ Gươm và gợi ý quán trong tài liệu. Smoke LAN đạt; admin/auth/payment/file nguồn riêng vẫn bị chặn.
+
 ## Kiểm tra key Geocoding người dùng cung cấp
 
 Đã lưu key vào `.env.local` riêng trên máy, Git ignore; không đưa vào mã nguồn, client hay ZIP. Gọi thật một địa chỉ từ danh sách (368 Đội Cấn, Hà Nội). Google trả HTTP 200 nhưng trạng thái `REQUEST_DENIED`: `API keys with referer restrictions cannot be used with this API.` Vì key đang dùng hạn chế referrer, chưa thể sử dụng cho Geocoding web service phía server. Không tiếp tục gọi 400 địa chỉ, không ghi tọa độ giả và không đổi trạng thái xác minh. Có thể chạy lại sau khi cấu hình key server với hạn chế IP phù hợp và API restriction cho Geocoding: `node --env-file=.env.local scripts/check-geocoding.mjs`.

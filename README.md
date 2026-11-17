@@ -2,7 +2,9 @@
 
 MVP tiếng Việt, ưu tiên điện thoại, dùng **Next.js + TypeScript / NestJS + TypeScript / PostgreSQL + PostGIS**. Toàn bộ thông tin quán là chữ. Có backend và lưu trữ thật; không dùng localStorage để thay thế tài khoản, phiên hoặc cơ sở dữ liệu.
 
-Đã lưu thêm danh sách người dùng cung cấp gồm **400 địa điểm Hà Nội / 20 nhóm món** vào kho chờ xác minh (migration 004), độc lập với 30 quán seed đang hiển thị. Xem [hồ sơ dữ liệu và cách nhập](data/imports/ha-noi-2026-11-17/README.md). Dữ liệu chưa có tọa độ nên chưa xuất hiện trong tìm kiếm gần đây; không tự gán giá từng quán, bestseller, giờ mở hoặc điểm.
+Đã sử dụng danh sách người dùng cung cấp gồm **400 địa điểm Hà Nội / 20 nhóm món** trong ứng dụng, độc lập với 30 quán seed hư cấu ở TP.HCM. Xem đủ danh sách tại `/ha-noi`, hoặc tìm gần quanh điểm mặc định Hồ Gươm/tọa độ bạn chọn. Tra địa chỉ miễn phí qua **Photon/OpenStreetMap** một lần có cache, không dùng key Google. Chỉ hồ sơ khớp địa chỉ rõ mới được gán tọa độ để tính khoảng cách; còn lại vẫn hiển thị nhưng ghi chưa tính được. Toàn bộ quán Hà Nội vẫn được ghi **chưa xác minh hoạt động**. Xem [nguồn danh sách](data/imports/ha-noi-2026-11-17/README.md) và [quy trình/giấy phép tọa độ](data/geocoding/README.md).
+
+Khoảng cách được tính bởi PostGIS từ tọa độ điểm tìm kiếm đến tọa độ địa chỉ, là đường thẳng ước tính, không phải quãng đường/thời gian đi xe. Điểm mặc định Hồ Gươm luôn ghi rõ là điểm tham chiếu, không giả định đó là vị trí hiện tại. Tìm địa điểm phía người dùng chỉ tra dữ liệu quán có tọa độ đã lưu (miễn phí, không gọi dịch vụ ngoài); vẫn nhập lat/lng thủ công được.
 
 **30 quán seed hoàn toàn hư cấu** trong vùng tọa độ trung tâm TP.HCM. Tên, địa chỉ, món, bestseller, giá và giờ đều minh họa, chưa xác minh. Không dùng để tìm đến quán thật. Không có ảnh, upload ảnh, image storage, dữ liệu cào mạng hoặc sao/đánh giá Google. Không seed review.
 
@@ -136,11 +138,12 @@ Mọi route dưới `/api`. Mutations JSON bắt buộc `Origin=WEB_ORIGIN`; pro
 | --- | --- |
 | `GET /session` | Khởi tạo/đọc phiên, user, Pro và cấu hình khả dụng |
 | `GET /restaurants?lat=&lng=&radius=&q=&budget=&open=&group=&tags=&exclude=` | Tìm, khách dùng được |
+| `GET /directory?lat=&lng=&q=&group=` | Toàn bộ 400 hồ sơ Hà Nội; điểm đã khớp được tính khoảng cách, còn lại distance=null; không áp dụng bán kính ngầm |
 | `GET /restaurants/:id` | Chi tiết, khách dùng được |
 | `POST /restaurants/:id/visit` | Gate, trả `requiresLogin` hoặc URL chỉ đường |
 | `POST /auth/login` | `{provider, token}`; development chỉ khi bật ngoài production |
 | `POST /auth/logout`, `POST /auth/otp` | Logout; OTP hiện trả 503 sau rate limit |
-| `POST /locations/resolve` | Tìm địa chỉ server, 5/10 phút/phiên + 10/10 phút/IP; không lưu |
+| `POST /locations/resolve` | Tra tên/địa chỉ trong tọa độ quán đã lưu; không gọi dịch vụ ngoài; 5/10 phút/phiên + 10/10 phút/IP |
 | `GET /library`, `POST/DELETE /restaurants/:id/favorite` | Free đã đăng nhập |
 | `GET /compare?ids=id1,id2&group=phở`, `POST /filters` | Pro active |
 | `GET /restaurants/:id/eligibility`, `POST /restaurants/:id/reviews` | Điều kiện review, tạo/cập nhật Pro |
@@ -170,7 +173,7 @@ npm run smoke
 npm audit --omit=dev
 ```
 
-Kết quả ngày 17/11/2026: **11/11 nhóm kiểm thử đạt**, typecheck đạt, build API + Next đạt, smoke xuyên **Next → Nest → PostGIS** đạt, audit production dependencies báo 0 lỗ hổng ở thời điểm kiểm tra. Tests tự tạo DB tên `angiday_test_<random>` trên PostgreSQL local và xóa đúng DB đó sau khi xong; yêu cầu user DB có CREATEDB. Không dùng in-memory/mock DB và không chỉnh dữ liệu DB demo cho nghiệp vụ test. Các lỗi token giả được kiểm tra; chưa kiểm thử xác thực nhà cung cấp hoặc geocoding thật.
+Kết quả ngày 17/11/2026: **13/13 nhóm kiểm thử đạt**, typecheck đạt, build API + Next đạt, smoke xuyên **Next → Nest → PostGIS** đạt, audit production dependencies báo 0 lỗ hổng ở thời điểm kiểm tra. Tests tự tạo DB tên `angiday_test_<random>` trên PostgreSQL local và xóa đúng DB đó sau khi xong; yêu cầu user DB có CREATEDB. Không dùng in-memory/mock DB và không chỉnh dữ liệu DB demo cho nghiệp vụ test. Các lỗi token giả được kiểm tra; chưa kiểm thử xác thực nhà cung cấp hoặc Google Geocoding thành công; Photon/OpenStreetMap đã được gọi thật cho danh sách Hà Nội, xem QA.md.
 
 Đã quan sát giao diện bằng công cụ trình duyệt ở desktop và 390×844: đúng tiếng Việt sau khi tự host font, không tràn ngang toàn trang, không có thẻ ảnh; đổi ba quán không lặp, tìm “pho”, empty giữ điều kiện, menu/giờ/nguồn, login development, lưu yêu thích và thư viện Free, địa chỉ thiếu cấu hình. Không cấp quyền vị trí hệ điều hành hoặc gọi Google API trong QA. Kiểm tra gate/race/Pro/moderation/webhook được thực hiện qua HTTP backend thật. Xem `QA.md` để biết phạm vi và giới hạn.
 

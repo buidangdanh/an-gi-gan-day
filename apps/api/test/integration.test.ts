@@ -4,6 +4,7 @@ import {Pool} from 'pg';
 import {readFileSync} from 'node:fs';
 import {randomUUID,createHash,createHmac} from 'node:crypto';
 import {isOpen,rankScore,mapsUrl} from '../src/domain';
+import {chooseAddressLocation} from '../src/geocode-match';
 import type {INestApplication} from '@nestjs/common';
 let app:INestApplication,db:Pool,adminDb:Pool,base:string,dbName:string;
 const origin='http://127.0.0.1:3100';const adminKey='test-only-'+randomUUID();
@@ -19,6 +20,8 @@ before(async()=>{
  const connection=process.env.DATABASE_URL||'postgresql://angiday:local_demo_only@127.0.0.1:55439/angiday';if(!['127.0.0.1','localhost'].includes(new URL(connection).hostname))throw Error('Test chỉ dùng DB local, không chạy trên dữ liệu production');adminDb=new Pool({connectionString:connection});dbName='angiday_test_'+randomUUID().replace(/-/g,'');await adminDb.query(`CREATE DATABASE ${dbName}`);const url=new URL(connection);url.pathname='/'+dbName;process.env.DATABASE_URL=url.toString();db=new Pool({connectionString:url.toString()});await db.query(readFileSync('db/001_initial.sql','utf8'));await db.query(readFileSync('db/002_users.sql','utf8'));
  for(let i=0;i<8;i++){const id=randomUUID();ids.push(id);await db.query('INSERT INTO restaurants(id,name,address,lat,lng,dishes,hours,price_min,price_max,source) VALUES($1,$2,$3,$4,$5,$6,$7,30000,70000,$8)',[id,'Quán test '+i,'Địa chỉ hư cấu test '+i,10.7731+i*.001,106.6983,JSON.stringify([{name:'Phở bò',group:'phở',tags:['nước','nóng','sáng','ăn nhanh'],price:30000,bestsellerSource:null},{name:'Chè',group:'ăn vặt',tags:['nước','lạnh','ăn nhẹ'],price:70000,bestsellerSource:null}]),JSON.stringify(Array.from({length:7},(_,day)=>({day,open:0,close:1440}))),'Test tự động hư cấu']);}
  await db.query(readFileSync('db/003_filter_privacy.sql','utf8'));
+ await db.query(readFileSync('db/004_restaurant_imports.sql','utf8'));
+ await db.query(readFileSync('db/005_live_hanoi.sql','utf8'));
  const {createApp}=require('../src/main');app=await createApp();await app.listen(0,'127.0.0.1');base=await app.getUrl();
 });
 after(async()=>{await app?.close();if(db)await db.end();const {pool}=require('../src/db');await pool.end();if(adminDb){if(dbName)await adminDb.query(`DROP DATABASE ${dbName} WITH (FORCE)`);await adminDb.end();}});
@@ -110,4 +113,27 @@ test('webhook HMAC raw body, timestamp, idempotency và event đổi payload',as
  const duplicate=await Promise.all(Array.from({length:5},()=>call('/payments/webhook',{method:'POST',body,headers:signed(body)})));assert.ok(duplicate.every(r=>r.data.duplicate));assert.equal((await call('/session',{cookie:l.cookie})).data.user.pro,true);
  const changed={...body,expires_at:new Date(Date.now()+2*86400000).toISOString()};assert.equal((await call('/payments/webhook',{method:'POST',body:changed,headers:signed(changed)})).status,409);
  assert.equal((await call('/payments/webhook',{method:'POST',body,headers:signed(body,String(Math.floor(Date.now()/1000)-600))})).status,401);
+});
+test('geocoding chỉ nhận số nhà/đường rõ; không dùng sai số nhà, tâm phố, thành phố hoặc kết quả mơ hồ',()=>{
+ const row={name:'Phở A',address:'49 Bát Đàn, Hà Nội'};
+ const feature=(house:string,road:string,lat=21.0336,lng=105.8463)=>({properties:{housenumber:house,street:road,countrycode:'VN',city:'Hà Nội',name:'Phở A',osm_id:1,osm_type:'N'},geometry:{coordinates:[lng,lat]}});
+ assert.equal(chooseAddressLocation(row,[feature('49','Phố Bát Đàn')]).status,'matched_address');
+ assert.equal(chooseAddressLocation(row,[feature('51','Phố Bát Đàn')]).location,null);
+ assert.equal(chooseAddressLocation(row,[feature('49','Hàng Vôi')]).location,null);
+ assert.equal(chooseAddressLocation(row,[{properties:{type:'street',name:'Phố Bát Đàn',countrycode:'VN'},geometry:{coordinates:[105.8463,21.0336]}}]).location,null);
+ assert.equal(chooseAddressLocation(row,[feature('49','Bát Đàn',10,106)]).location,null);
+ const wrongCity=feature('49','Bát Đàn');wrongCity.properties.city='Bắc Ninh';assert.equal(chooseAddressLocation(row,[wrongCity]).location,null);
+ assert.equal(chooseAddressLocation(row,[feature('49','Bát Đàn'),feature('49','Bát Đàn',21.034,105.847)]).status,'ambiguous');
+ assert.equal(chooseAddressLocation(row,[feature('49','Bát Đàn'),feature('49','Bát Đàn',21.03361,105.84631)]).status,'matched_address');
+ assert.equal(chooseAddressLocation(row,[]).status,'not_found');
+});
+test('dữ liệu thật thiếu tọa độ vẫn có trong danh sách; khoảng cách chỉ khi biết điểm, Maps fallback địa chỉ',async()=>{
+ const located=randomUUID(),missing=randomUUID();
+ for(const [id,lat,lng] of [[located,21.0285,105.8542],[missing,null,null]] as const)await db.query(`INSERT INTO restaurants(id,name,address,lat,lng,dishes,hours,source,demo,location_source) VALUES($1,$2,'49 Bát Đàn, Hà Nội',$3,$4,$5,NULL,'Tài liệu người dùng · chưa xác minh',false,$6)`,[id,'Quán Hà Nội '+id,lat,lng,JSON.stringify([{name:'Phở bò',group:'phở bò',tags:[],price:null,bestsellerSource:null}]),lat===null?'none':'osm_address']);
+ const directory=await call('/directory?lat=21.0285&lng=105.8542');assert.equal(directory.status,200);assert.equal(directory.data.datasetTotal,2);assert.equal(directory.data.located,1);assert.equal(directory.data.items.find((r:any)=>r.id===missing).distance,null);assert.equal(directory.data.items.find((r:any)=>r.id===located).distance,0);
+ const near=await call('/restaurants?lat=21.0285&lng=105.8542&radius=2000&group='+encodeURIComponent('phở bò'));assert.equal(near.data.items.length,1);assert.equal(near.data.items[0].id,located);
+ const filtered=await call('/restaurants?lat=21.0285&lng=105.8542&radius=2000&budget=100000');assert.equal(filtered.data.items.length,0);
+ const cached=await call('/locations/resolve',{method:'POST',cookie:await guest(),body:{address:'49 Bát Đàn'}});assert.equal(cached.status,200);assert.ok(cached.data.candidates.some((c:any)=>c.coordinates.lat===21.0285));assert.match(cached.data.storage,/không gọi API Google/);
+ assert.equal((await call('/restaurants/'+missing)).status,200);
+ const intent=await call('/restaurants/'+missing+'/visit',{method:'POST',cookie:await guest()});assert.equal(intent.status,200);assert.equal(new URL(intent.data.url).searchParams.get('destination'),'49 Bát Đàn, Hà Nội');
 });

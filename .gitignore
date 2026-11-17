@@ -8,3 +8,4 @@ secrets/
 *.log
 *.tsbuildinfo
 coverage/
+data/geocoding/*.lock

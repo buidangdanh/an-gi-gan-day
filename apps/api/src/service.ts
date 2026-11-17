@@ -34,7 +34,14 @@ export class FoodService{
  }
  async requireUser(s:Session,pro=false){const u=await this.user(s);if(!u)fail('Bạn cần đăng nhập tài khoản miễn phí.',401);if(pro&&!u.pro)fail('Tính năng cần Pro đang còn hạn.',403);return u;}
  admin(req:Request){const key=process.env.ADMIN_TOKEN;const given=req.headers.authorization?.replace(/^Bearer /,'')||'';if(!key||key.length<32||given.length!==key.length||!timingSafeEqual(Buffer.from(key),Buffer.from(given)))fail('Không có quyền quản trị.',403);}
- async status(s:Session){return {user:await this.user(s),config:authConfig(),distinctVisits:Number((await pool.query('SELECT count(*) FROM visits WHERE session_id=$1',[s.id])).rows[0].count),pending:s.pending_restaurant,dataset:'Dữ liệu minh họa — toàn bộ quán seed là hư cấu'};}
+ async status(s:Session){return {user:await this.user(s),config:authConfig(),distinctVisits:Number((await pool.query('SELECT count(*) FROM visits WHERE session_id=$1',[s.id])).rows[0].count),pending:s.pending_restaurant,dataset:'Danh sách Hà Nội do người dùng cung cấp, chưa xác minh hoạt động; quán seed hư cấu được ghi nhãn riêng.'};}
+ async directory(raw:Record<string,unknown>){
+  const f=coordinate.extend({q:z.string().max(120).default(''),group:z.enum(groups).optional()}).parse(raw);
+  const result=await pool.query(`SELECT r.*,a.count,a.average,CASE WHEN r.location IS NOT NULL THEN ST_Distance(r.location,ST_SetSRID(ST_MakePoint($1,$2),4326)::geography) ELSE NULL END AS distance FROM restaurants r LEFT JOIN review_aggregates a ON a.restaurant_id=r.id WHERE r.active AND NOT r.demo ORDER BY distance ASC NULLS LAST,r.name`,[f.lng,f.lat]);
+  const query=normalize(f.q);const all=result.rows;
+  const items=all.filter(r=>(!f.group||r.dishes.some((d:Dish)=>d.group===f.group))&&(!query||normalize(r.name+' '+r.address+' '+r.dishes.map((d:Dish)=>d.name).join(' ')).includes(query))).map(r=>({...this.publicRestaurant(r),distance:r.distance===null?null:Math.round(r.distance),open:isOpen(r.hours)}));
+  return {items,total:items.length,datasetTotal:all.length,located:all.filter(r=>r.lat!==null).length,missing:all.filter(r=>r.lat===null).length,attribution:'© OpenStreetMap contributors · ODbL',reference:{lat:f.lat,lng:f.lng},notice:'Danh sách địa điểm theo tài liệu, chưa xác minh hoạt động. Chỉ tính khoảng cách khi khớp địa chỉ; không dùng điểm trung tâm phố để thay vị trí quán.'};
+ }
  async restaurants(raw:Record<string,unknown>){
   const f=searchSchema.parse(raw);const selected=f.tags?f.tags.split(','):[];for(const tag of selected)z.enum(tags).parse(tag);
   const excluded=f.exclude?f.exclude.split(',').map(x=>uuid.parse(x)):[];
@@ -124,7 +131,13 @@ export class FoodService{
  async moderate(req:Request,id:string){this.admin(req);uuid.parse(id);const b=z.object({status:z.enum(['approved','rejected','pending']),reason:z.string().trim().min(3).max(500)}).strict().parse(req.body);await transaction(async c=>{const r=(await c.query('SELECT * FROM reviews WHERE id=$1 FOR UPDATE',[id])).rows[0];if(!r)fail('Không có đánh giá.',404);await c.query('INSERT INTO review_history(review_id,snapshot) VALUES($1,$2)',[id,JSON.stringify(r)]);await c.query('UPDATE reviews SET status=$2 WHERE id=$1',[id,b.status]);await c.query("INSERT INTO audit(actor,action,target,detail) VALUES('admin','review-moderation',$1,$2)",[id,JSON.stringify(b)]);});return {ok:true};}
  async resolve(req:Request,id:string){this.admin(req);uuid.parse(id);await transaction(async c=>{const r=await c.query("UPDATE reports SET status='resolved' WHERE id=$1 RETURNING id",[id]);if(!r.rowCount)fail('Không có báo cáo.',404);await c.query("INSERT INTO audit(actor,action,target) VALUES('admin','report-resolve',$1)",[id]);});return {ok:true};}
  async geocode(req:Request,publicSession?:Session){
-  if(publicSession){await this.rate('geocode-user:'+publicSession.id,5,600);await this.rate('geocode-ip:'+(req.ip||'local'),10,600);}else{this.admin(req);await this.rate('geocode-admin',10,60);}const b=z.object({address:z.string().trim().min(5).max(300)}).strict().parse(req.body);const key=process.env.GOOGLE_MAPS_GEOCODING_API_KEY;if(!key)fail('Tìm địa chỉ chưa được cấu hình. Hãy chọn vùng minh họa hoặc nhập tọa độ thủ công.',503);
+  if(publicSession){await this.rate('geocode-user:'+publicSession.id,5,600);await this.rate('geocode-ip:'+(req.ip||'local'),10,600);}else{this.admin(req);await this.rate('geocode-admin',10,60);}const b=z.object({address:z.string().trim().min(5).max(300)}).strict().parse(req.body);
+  if(publicSession){
+   const rows=(await pool.query('SELECT name,address,lat,lng,location_source FROM restaurants WHERE active AND lat IS NOT NULL')).rows;
+   const query=normalize(b.address);const candidates=rows.filter(r=>normalize(r.name+' '+r.address).includes(query)).slice(0,5).map(r=>({coordinates:{lat:r.lat,lng:r.lng},label:r.name+' · '+r.address,provider:r.location_source.startsWith('osm')?'OpenStreetMap':'Tọa độ hồ sơ',partial:true}));
+   return {status:candidates.length>1?'AMBIGUOUS':candidates.length?'OK':'ZERO_RESULTS',candidates,provenance:'Dữ liệu quán đã tra tọa độ',storage:'Tra dữ liệu cục bộ, không gọi API Google hoặc dịch vụ ngoài.'};
+  }
+  const key=process.env.GOOGLE_MAPS_GEOCODING_API_KEY;if(!key)fail('Geocoding quản trị chưa được cấu hình.',503);
   // No automatic persistence or cache of provider coordinates. Results only shown in admin.
   const url=new URL('https://maps.googleapis.com/maps/api/geocode/json');url.searchParams.set('address',b.address);url.searchParams.set('region','vn');url.searchParams.set('key',key!);
   for(let attempt=0;attempt<2;attempt++){

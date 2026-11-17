@@ -1,5 +1,7 @@
 # Danh sách quán Hà Nội được người dùng cung cấp
 
+**Cập nhật sử dụng trong app:** 400 hồ sơ đã được đưa vào danh sách `/ha-noi` theo yêu cầu tiếp theo của người dùng. Trạng thái `publishable=false`/lat,lng=null trong JSON/CSV dưới đây là **bản chụp dữ liệu nguồn ban đầu**, không phải trạng thái ứng dụng hiện tại. Tọa độ và kết quả đối chiếu mới ở `../../geocoding/hanoi-location-report.json`; bản cache/giấy phép tại `../../geocoding/README.md`. Hồ sơ không khớp rõ vẫn giữ tọa độ null trên app và không tính khoảng cách. Chưa xác minh hoạt động của quán.
+
 Đã lưu ngày 17/11/2026 từ [tài liệu nguồn](https://docs.google.com/document/d/1AowweHdwdHUNa-nKYxlSTJKugRM-01tM/edit). File nguồn trên Drive là Word .docx. Chỉ trích xuất và lưu chữ; không tải/lưu ảnh hoặc bản nhị phân tài liệu.
 
 - **400 dòng địa điểm**, 20 nhóm món × 20 địa điểm, 400 cặp tên–địa chỉ khác nhau theo đối chiếu chính xác. Chưa xác minh các tên gần giống có phải cùng quán.

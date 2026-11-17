@@ -1,0 +1,2800 @@
+{
+  "updated_at": "2026-11-17T10:41:09.335Z",
+  "total": 400,
+  "counts": {
+    "needs_review": 309,
+    "matched_address": 77,
+    "ambiguous": 7,
+    "not_found": 7
+  },
+  "provider": "Photon / OpenStreetMap",
+  "attribution": "© OpenStreetMap contributors · ODbL",
+  "note": "Khớp địa chỉ tự động không chứng minh quán còn hoạt động; chỉ điểm khớp số nhà/đường hoặc tên POI chính xác mới được tính khoảng cách.",
+  "records": [
+    {
+      "record_id": "hn-20261117-01-01",
+      "name": "Phở bò Quân Hà",
+      "address": "368 Đội Cấn, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-01-02",
+      "name": "Phở Thìn Bờ Hồ",
+      "address": "19 Hàng Vôi, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0302317,
+      "lng": 105.8566268,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 997997587
+    },
+    {
+      "record_id": "hn-20261117-01-03",
+      "name": "Phở Lâm Hàng Vải",
+      "address": "48 Hàng Vải, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0356438,
+      "lng": 105.846433,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 10298693329
+    },
+    {
+      "record_id": "hn-20261117-01-04",
+      "name": "Phở Sướng Trung Yên",
+      "address": "24B ngõ Trung Yên, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-01-05",
+      "name": "Phở Tựu Hàng Da",
+      "address": "8 Hàng Da, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-01-06",
+      "name": "Phở Thật Trần Nhật Duật",
+      "address": "48 Trần Nhật Duật, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0380367,
+      "lng": 105.8522189,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 6049182299
+    },
+    {
+      "record_id": "hn-20261117-01-07",
+      "name": "Phở Gia Truyền Bát Đàn",
+      "address": "49 Bát Đàn, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0336377,
+      "lng": 105.8463792,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 5116302421
+    },
+    {
+      "record_id": "hn-20261117-01-08",
+      "name": "Phở 10 Lý Quốc Sư",
+      "address": "10 Lý Quốc Sư, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0304724,
+      "lng": 105.8488474,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 773601261
+    },
+    {
+      "record_id": "hn-20261117-01-09",
+      "name": "Phở Khôi Hói",
+      "address": "50 Hàng Vải, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-01-10",
+      "name": "Phở Thìn Lò Đúc",
+      "address": "13 Lò Đúc, Hà Nội",
+      "status": "ambiguous"
+    },
+    {
+      "record_id": "hn-20261117-01-11",
+      "name": "Phở Gánh Hàng Chiếu",
+      "address": "7 Chợ Gạo, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0366384,
+      "lng": 105.8530115,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 10806702305
+    },
+    {
+      "record_id": "hn-20261117-01-12",
+      "name": "Phở Vui",
+      "address": "25 Hàng Giầy, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-01-13",
+      "name": "Phở Biên",
+      "address": "BT 5/6 KĐT Văn Khê, Hà Đông, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-01-14",
+      "name": "Phở Nhớ",
+      "address": "27A Huỳnh Thúc Kháng, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-01-15",
+      "name": "Phở Cồ",
+      "address": "455 Hoàng Quốc Việt, Cầu Giấy, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-01-16",
+      "name": "Phở Thanh Hà",
+      "address": "238 Lạc Trung, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-01-17",
+      "name": "Phở Cường",
+      "address": "23 Hàng Muối, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0339341,
+      "lng": 105.8548223,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 2587491495
+    },
+    {
+      "record_id": "hn-20261117-01-18",
+      "name": "Phở Bưng Hàng Trống",
+      "address": "1 Hàng Trống, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0312698,
+      "lng": 105.8492579,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 6658650115
+    },
+    {
+      "record_id": "hn-20261117-01-19",
+      "name": "Phở Phú Xuân (Hàng Da)",
+      "address": "36 Hàng Da, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-01-20",
+      "name": "Phở Sướng",
+      "address": "1/26 Nguyên Hồng, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-02-01",
+      "name": "Bún Chả Que Tre",
+      "address": "33 Hàng Giầy, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0393488,
+      "lng": 105.8481295,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 11873418469
+    },
+    {
+      "record_id": "hn-20261117-02-02",
+      "name": "Bún chả 41 Cửa Đông",
+      "address": "41 Cửa Đông, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.03456,
+      "lng": 105.8458793,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 13666531601
+    },
+    {
+      "record_id": "hn-20261117-02-03",
+      "name": "Bún chả Hàng Khoai",
+      "address": "48 Hàng Khoai, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-02-04",
+      "name": "Bún chả Hương Liên",
+      "address": "24 Lê Văn Hưu, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0180504,
+      "lng": 105.8538843,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 4272727197
+    },
+    {
+      "record_id": "hn-20261117-02-05",
+      "name": "Bún chả Quê",
+      "address": "15C ngõ Bà Triệu, Hai Bà Trưng, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0129801,
+      "lng": 105.8481236,
+      "precision": "osm_address",
+      "osm_type": "W",
+      "osm_id": 1246805143
+    },
+    {
+      "record_id": "hn-20261117-02-06",
+      "name": "Bún chả que tre Bình Chung",
+      "address": "299 Bạch Mai, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-02-07",
+      "name": "Bún chả Tôn Đức Thắng",
+      "address": "44 ngõ 221 Tôn Đức Thắng, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-02-08",
+      "name": "Bún chả Hàng Đũa",
+      "address": "2 ngõ 12 Núi Trúc, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-02-09",
+      "name": "Bún chả Giảng Võ",
+      "address": "106 K1 Giảng Võ, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-02-10",
+      "name": "Bún chả Duy Diễm",
+      "address": "140 Ngọc Khánh, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-02-11",
+      "name": "Bún chả Cô Phương",
+      "address": "ngõ 42 Bùi Ngọc Dương, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-02-12",
+      "name": "Bún chả Nem Cua Bể 67",
+      "address": "67 Yên Hòa, Cầu Giấy, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-02-13",
+      "name": "Bún chả 89 Tuệ Tĩnh",
+      "address": "89 Tuệ Tĩnh, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-02-14",
+      "name": "ÔBunCha",
+      "address": "46 Nguyễn Hữu Huân, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-02-15",
+      "name": "Bún chả Đắc Kim",
+      "address": "1 Hàng Mành, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0322599,
+      "lng": 105.8482188,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 4242941489
+    },
+    {
+      "record_id": "hn-20261117-02-16",
+      "name": "Bún chả Hàng Quạt",
+      "address": "ngõ 74 Hàng Quạt, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-02-17",
+      "name": "Tuyết Bún Chả 34",
+      "address": "34 Hàng Than, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0413124,
+      "lng": 105.8472298,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 5609443523
+    },
+    {
+      "record_id": "hn-20261117-02-18",
+      "name": "Bún chả Sinh Từ",
+      "address": "63 Đường Thành, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-02-19",
+      "name": "Bún Chả Ta",
+      "address": "21 Nguyễn Hữu Huân, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0343571,
+      "lng": 105.8544931,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 4662691589
+    },
+    {
+      "record_id": "hn-20261117-02-20",
+      "name": "Bún Chả Chan",
+      "address": "114 Mai Hắc Đế, Hà Nội",
+      "status": "ambiguous"
+    },
+    {
+      "record_id": "hn-20261117-03-01",
+      "name": "Bún đậu cô Tuyến",
+      "address": "ngõ 29 Hàng Khay, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-03-02",
+      "name": "Bún đậu Trung Hương",
+      "address": "49 ngõ Phất Lộc, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-03-03",
+      "name": "Bún đậu Thu Hương",
+      "address": "2 ngõ 126 Hào Nam, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-03-04",
+      "name": "Bún đậu An An",
+      "address": "7 Ngõ Gạch, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-03-05",
+      "name": "Bún đậu Hàng Khay",
+      "address": "31 Hàng Khay, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0257212,
+      "lng": 105.852109,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 13667232502
+    },
+    {
+      "record_id": "hn-20261117-03-06",
+      "name": "Bún đậu 235B Thụy Khuê",
+      "address": "235B Thụy Khuê, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-03-07",
+      "name": "Bún đậu Đoàn Trần Nghiệp",
+      "address": "42 Đoàn Trần Nghiệp, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-03-08",
+      "name": "Bún đậu Gốc Đa Ngõ Gạch",
+      "address": "4 ngõ Gạch, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-03-09",
+      "name": "Bún đậu Thành Công",
+      "address": "106 B2A Thành Công, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-03-10",
+      "name": "Bún đậu Nhàn E5 Trung Tự",
+      "address": "ngõ 6 Đặng Văn Ngữ, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-03-11",
+      "name": "Bún đậu Hải Anh",
+      "address": "40 Bùi Ngọc Dương, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-03-12",
+      "name": "Bún đậu Giang Trung Tự",
+      "address": "B4 tập thể Trung Tự, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-03-13",
+      "name": "Bún đậu Nhà Hầm",
+      "address": "6D ngõ Hàng Cháo, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-03-14",
+      "name": "Bún đậu Phan Phù Tiên",
+      "address": "34 Phan Phù Tiên, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-03-15",
+      "name": "Bún đậu Nghĩa Tân",
+      "address": "104 C3 Nghĩa Tân, Cầu Giấy, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-03-16",
+      "name": "Bún đậu Mẹt Ngoáy",
+      "address": "87 Bế Văn Đàn, Hà Đông, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-03-17",
+      "name": "Bún đậu Mã Mây",
+      "address": "6 Mã Mây, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0360092,
+      "lng": 105.8529603,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 11656103602
+    },
+    {
+      "record_id": "hn-20261117-03-18",
+      "name": "Bún đậu 82 Chùa Láng",
+      "address": "ngõ 82 Chùa Láng, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-03-19",
+      "name": "Bún đậu Lòng nướng Hoàng Cầu",
+      "address": "21 ngõ 16 Hoàng Cầu, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-03-20",
+      "name": "Bún đậu Đồng Quê",
+      "address": "6 ngõ 76 Mai Dịch, Cầu Giấy, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-04-01",
+      "name": "Bún riêu Hồng Phúc 22",
+      "address": "22 Hồng Phúc, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-04-02",
+      "name": "Bún riêu cô Hoàn",
+      "address": "14 Hàng Lược, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0378412,
+      "lng": 105.8478491,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 12644660556
+    },
+    {
+      "record_id": "hn-20261117-04-03",
+      "name": "Bún riêu cua Bùi Gia",
+      "address": "30 Nguyễn Văn Tuyết, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-04-04",
+      "name": "Bún riêu Sóc",
+      "address": "117 Nguyễn Lương Bằng, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-04-05",
+      "name": "Bún riêu Bà Điếc",
+      "address": "68 Nguyễn Thiếp, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-04-06",
+      "name": "Bún riêu sườn sụn Trang",
+      "address": "23 Nguyễn Siêu, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-04-07",
+      "name": "Bún riêu Huyền Thu",
+      "address": "2F Quang Trung, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-04-08",
+      "name": "Bún riêu Cô Yến Hàng Khoai",
+      "address": "18 Hàng Khoai, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0392291,
+      "lng": 105.8501353,
+      "precision": "osm_address",
+      "osm_type": "W",
+      "osm_id": 1508984300
+    },
+    {
+      "record_id": "hn-20261117-04-09",
+      "name": "Bún riêu chị Hảo",
+      "address": "119 Hàng Bông, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-04-10",
+      "name": "Bún riêu sườn sụn Trần Quốc Toản",
+      "address": "51 Trần Quốc Toản, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-04-11",
+      "name": "Bún riêu cua 41 Quang Trung",
+      "address": "41 Quang Trung, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-04-12",
+      "name": "Bún riêu cua cô Lúa",
+      "address": "40 ngõ 28 Hương Viên, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-04-13",
+      "name": "Bún riêu cua phố cổ Hàng Cót",
+      "address": "17 Hàng Cót, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-04-14",
+      "name": "Bún riêu cua 15 Hồng Phúc",
+      "address": "15 Hồng Phúc, Ba Đình, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0417842,
+      "lng": 105.8481186,
+      "precision": "osm_address",
+      "osm_type": "W",
+      "osm_id": 1497520122
+    },
+    {
+      "record_id": "hn-20261117-04-15",
+      "name": "Bún Ziu Gánh",
+      "address": "52 Hàng Bún, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-04-16",
+      "name": "Bún riêu Bát Đàn",
+      "address": "25A Bát Đàn, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0337188,
+      "lng": 105.8474408,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 993037629
+    },
+    {
+      "record_id": "hn-20261117-04-17",
+      "name": "Bún riêu Quan Nhân",
+      "address": "110 Quan Nhân, Thanh Xuân, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-04-18",
+      "name": "Bún riêu Hoàng Kỳ",
+      "address": "122B C5 Tô Hiệu, Cầu Giấy, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-04-19",
+      "name": "Bún riêu ốc Mộc Linh",
+      "address": "78/143 Nguyễn Chính, Hoàng Mai, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-04-20",
+      "name": "Bún riêu Thu Hà",
+      "address": "627 Trương Định, Hoàng Mai, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-05-01",
+      "name": "Chả cá Anh Vũ Giảng Võ",
+      "address": "120 K1 Giảng Võ, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-05-02",
+      "name": "Chả cá Anh Vũ Trung Hòa",
+      "address": "103 Trung Hòa, Cầu Giấy, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-05-03",
+      "name": "Chả cá Anh Vũ Vũ Trọng Khánh",
+      "address": "80 Vũ Trọng Khánh, Hà Đông, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-05-04",
+      "name": "Chả cá Anh Vũ Nguyễn Khánh Toàn",
+      "address": "130 Nguyễn Khánh Toàn, Cầu Giấy, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-05-05",
+      "name": "Chả cá Anh Vũ Lê Văn Thiêm",
+      "address": "35 Lê Văn Thiêm, Thanh Xuân, Hà Nội",
+      "status": "ambiguous"
+    },
+    {
+      "record_id": "hn-20261117-05-06",
+      "name": "Chả cá Vọng Ngư",
+      "address": "29 Nguyễn Chí Thanh, Ba Đình, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0287861,
+      "lng": 105.8128162,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 5485779171
+    },
+    {
+      "record_id": "hn-20261117-05-07",
+      "name": "Chả cá Hàng Sơn Hào Nam",
+      "address": "77 Hào Nam, Đống Đa, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0228123,
+      "lng": 105.8260657,
+      "precision": "osm_address",
+      "osm_type": "W",
+      "osm_id": 862095212
+    },
+    {
+      "record_id": "hn-20261117-05-08",
+      "name": "Chả cá Thăng Long số 2D Đường Thành",
+      "address": "2D Đường Thành, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0333758,
+      "lng": 105.8459461,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 5404939931
+    },
+    {
+      "record_id": "hn-20261117-05-09",
+      "name": "Chả cá Thăng Long số 6B Đường Thành",
+      "address": "6B Đường Thành, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.032965,
+      "lng": 105.8461226,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 11491405059
+    },
+    {
+      "record_id": "hn-20261117-05-10",
+      "name": "Chả cá Lã Vọng",
+      "address": "14 Chả Cá, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0356844,
+      "lng": 105.8491519,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 11491397157
+    },
+    {
+      "record_id": "hn-20261117-05-11",
+      "name": "Chả cá Thăng Long",
+      "address": "19 Đường Thành, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-05-12",
+      "name": "Vua Chả Cá",
+      "address": "9 Lý Thường Kiệt, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0211868,
+      "lng": 105.856883,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 11082608292
+    },
+    {
+      "record_id": "hn-20261117-05-13",
+      "name": "Vua Chả Cá",
+      "address": "26C Trần Hưng Đạo, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-05-14",
+      "name": "Chả cá Hàng Sơn",
+      "address": "24 Tông Đản, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0256215,
+      "lng": 105.8578477,
+      "precision": "osm_address",
+      "osm_type": "W",
+      "osm_id": 1553563561
+    },
+    {
+      "record_id": "hn-20261117-05-15",
+      "name": "Chả Cá Đa Sắc",
+      "address": "28B Cầu Gỗ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-05-16",
+      "name": "Vua Chả Cá",
+      "address": "48 Nguyễn Thị Định, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0100881,
+      "lng": 105.8045351,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 6688119225
+    },
+    {
+      "record_id": "hn-20261117-05-17",
+      "name": "Vua Chả Cá",
+      "address": "109 Đào Tấn, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-05-18",
+      "name": "Vua Chả Cá",
+      "address": "76A Mai Hắc Đế, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0132741,
+      "lng": 105.8509418,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 11472430137
+    },
+    {
+      "record_id": "hn-20261117-05-19",
+      "name": "Chả cá Lão Ngư",
+      "address": "171 Thái Hà, Đống Đa, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0157036,
+      "lng": 105.8161665,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 6647325340
+    },
+    {
+      "record_id": "hn-20261117-05-20",
+      "name": "Chả cá Lã Vọng Nguyễn Trường Tộ",
+      "address": "107 Nguyễn Trường Tộ, Ba Đình, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0430151,
+      "lng": 105.8437843,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 5116302621
+    },
+    {
+      "record_id": "hn-20261117-06-01",
+      "name": "Bún thang Hàng Hòm",
+      "address": "11 Hàng Hòm, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0320869,
+      "lng": 105.848758,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 6659020380
+    },
+    {
+      "record_id": "hn-20261117-06-02",
+      "name": "Một Buổi Sáng",
+      "address": "86 Hai Bà Trưng, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-06-03",
+      "name": "Bún thang Hạ Hồi",
+      "address": "11 ngõ Hạ Hồi, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-06-04",
+      "name": "Bún thang Lãn Ông",
+      "address": "16 Lãn Ông, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-06-05",
+      "name": "Bún thang Bà Ẩm",
+      "address": "37 Cửa Nam, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-06-06",
+      "name": "Bún thang Lan Lùn",
+      "address": "5 Hàng Thiếc, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-06-07",
+      "name": "Bún thang Tuấn Minh",
+      "address": "3A Tô Hiến Thành, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-06-08",
+      "name": "Bún thang Ngọc Tuyền",
+      "address": "56 Đào Tấn, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-06-09",
+      "name": "Bún Thang 1962",
+      "address": "24 ngõ 219/27 Bồ Đề, Long Biên, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-06-10",
+      "name": "Bún thang Bà Đức",
+      "address": "48 Cầu Gỗ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-06-11",
+      "name": "Bún thang Bà Tố Hàng Bè",
+      "address": "66 Trung Kính, Cầu Giấy, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-06-12",
+      "name": "Bún thang Tư Lùn",
+      "address": "5 Hàng Trống, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0311779,
+      "lng": 105.8493001,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 5474590921
+    },
+    {
+      "record_id": "hn-20261117-06-13",
+      "name": "Bún thang Giảng Võ",
+      "address": "144 D2 Giảng Võ, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-06-14",
+      "name": "Gia Minh Bún Thang",
+      "address": "47 ngõ 42 Sài Đồng, Long Biên, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-06-15",
+      "name": "Bún Thang Long Gà",
+      "address": "26 Nguyễn Sơn, Long Biên, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-06-16",
+      "name": "Hùng Cường Phố Cổ",
+      "address": "18 ngõ 144 Cổ Linh, Long Biên, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-06-17",
+      "name": "Nhà hàng Gia Hưng",
+      "address": "Ô C3 BT05 KĐT Việt Hưng, Long Biên, Hà Nội",
+      "status": "not_found"
+    },
+    {
+      "record_id": "hn-20261117-06-18",
+      "name": "Bếp Phạm Gia",
+      "address": "562 Ngọc Thụy, Long Biên, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-06-19",
+      "name": "Quỳnh Bún Thang",
+      "address": "110 Yết Kiêu, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-06-20",
+      "name": "Bún thang Vân Thủy",
+      "address": "168 Lò Đúc, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-07-01",
+      "name": "Bánh cuốn Thanh Vân",
+      "address": "81 Lê Văn Hưu, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-07-02",
+      "name": "Bánh cuốn Gia An Nguyễn Thị Thập",
+      "address": "8 N7A Nguyễn Thị Thập, Thanh Xuân, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-07-03",
+      "name": "Bánh cuốn Gia An Láng Hạ",
+      "address": "111/8 Láng Hạ, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-07-04",
+      "name": "Bánh cuốn Gia An Thái Phiên",
+      "address": "25 Thái Phiên, Hai Bà Trưng, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0104659,
+      "lng": 105.8501719,
+      "precision": "osm_address",
+      "osm_type": "W",
+      "osm_id": 1254353724
+    },
+    {
+      "record_id": "hn-20261117-07-05",
+      "name": "Bánh cuốn Phủ Lý Châu Long",
+      "address": "39 Châu Long, Ba Đình, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0446785,
+      "lng": 105.842561,
+      "precision": "osm_address",
+      "osm_type": "W",
+      "osm_id": 1232317521
+    },
+    {
+      "record_id": "hn-20261117-07-06",
+      "name": "Bánh cuốn Bà Hoành",
+      "address": "66 Tô Hiến Thành, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0135592,
+      "lng": 105.8495642,
+      "precision": "osm_address",
+      "osm_type": "W",
+      "osm_id": 1241432281
+    },
+    {
+      "record_id": "hn-20261117-07-07",
+      "name": "Bánh cuốn nóng Thụy Khuê",
+      "address": "ngõ 29 Thụy Khuê, Tây Hồ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-07-08",
+      "name": "Bánh cuốn Bà Xuân",
+      "address": "16 Dốc Hòe Nhai, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-07-09",
+      "name": "Bánh cuốn Bà Hanh",
+      "address": "16B Thọ Xương, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-07-10",
+      "name": "Bánh cuốn Yên Phụ Nhỏ",
+      "address": "34 Yên Phụ Nhỏ, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-07-11",
+      "name": "Bánh cuốn ruốc tôm Hàng Cót",
+      "address": "68 Hàng Cót, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-07-12",
+      "name": "Bánh cuốn ngõ 26 Thụy Khuê",
+      "address": "ngõ 26 Thụy Khuê, Tây Hồ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-07-13",
+      "name": "Bánh cuốn nóng 74 Đặng Văn Ngữ",
+      "address": "74 Đặng Văn Ngữ, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-07-14",
+      "name": "Bánh cuốn 77 Đặng Văn Ngữ",
+      "address": "77 Đặng Văn Ngữ, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-07-15",
+      "name": "Bánh cuốn nóng gia truyền Anh Dương",
+      "address": "77 Quán Thánh, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-07-16",
+      "name": "Bánh cuốn Minh Anh",
+      "address": "19 Tố Tịch, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-07-17",
+      "name": "Bánh cuốn nóng 88 Lê Duẩn",
+      "address": "88 Lê Duẩn, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-07-18",
+      "name": "Bánh cuốn Quang An",
+      "address": "71 Hàng Bồ, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0335947,
+      "lng": 105.8486441,
+      "precision": "osm_address",
+      "osm_type": "W",
+      "osm_id": 1508645998
+    },
+    {
+      "record_id": "hn-20261117-07-19",
+      "name": "Bánh cuốn Bảo Minh",
+      "address": "56 Lý Thường Kiệt, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-07-20",
+      "name": "Bánh cuốn 101 Bà Triệu",
+      "address": "155 Triệu Việt Vương, Hai Bà Trưng, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.012338,
+      "lng": 105.8505177,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 11468718378
+    },
+    {
+      "record_id": "hn-20261117-08-01",
+      "name": "Xôi xéo Lộc",
+      "address": "68 Tạ Quang Bửu, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-08-02",
+      "name": "Xôi Cát Lâm",
+      "address": "24B Đường Thành, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-08-03",
+      "name": "Dr. Xôi",
+      "address": "B11 Lương Định Của, KTT Kim Liên, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-08-04",
+      "name": "Xôi xéo cô Mây",
+      "address": "51 Hàng Bài, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-08-05",
+      "name": "Xôi xéo Oanh Oanh",
+      "address": "38 Nguyễn Chí Thanh, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-08-06",
+      "name": "Xôi cô Kim",
+      "address": "đầu ngõ 25 Lò Đúc, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-08-07",
+      "name": "Xôi xéo Lập Thủy",
+      "address": "11 Vọng Đức, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-08-08",
+      "name": "Xôi Hồng",
+      "address": "160 Ngọc Lâm, Long Biên, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-08-09",
+      "name": "Xôi xéo cô Huyền",
+      "address": "9A Lê Quý Đôn, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-08-10",
+      "name": "Xôi xéo Oanh Oanh Đê La Thành",
+      "address": "573 Đê La Thành, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-08-11",
+      "name": "Xôi Nguyệt Đào Tấn",
+      "address": "90 Đào Tấn, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-08-12",
+      "name": "Xôi xéo Cô Tuyết",
+      "address": "1B Đinh Liệt, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-08-13",
+      "name": "Xôi Yến",
+      "address": "35B Nguyễn Hữu Huân, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-08-14",
+      "name": "Xôi xéo thập cẩm Trương Định",
+      "address": "325 Trương Định, Hoàng Mai, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-08-15",
+      "name": "Xôi ông Hòa",
+      "address": "5 ngõ 67 Bạch Đằng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-08-16",
+      "name": "Xôi Hồng Sài Đồng",
+      "address": "29 ngõ 42 Sài Đồng, Long Biên, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-08-17",
+      "name": "Xôi Tuấn Vân Trần Bình",
+      "address": "134 Trần Bình, Nam Từ Liêm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-08-18",
+      "name": "Xôi Tuấn Vân Phú Thượng",
+      "address": "188 ngõ 180B Phú Thượng, Tây Hồ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-08-19",
+      "name": "Xôi Tuấn Vân Đỗ Đức Dục",
+      "address": "30 Đỗ Đức Dục, Nam Từ Liêm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-08-20",
+      "name": "Xôi Bự Tôn Thất Tùng",
+      "address": "114 A11 Tôn Thất Tùng, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-09-01",
+      "name": "Bún ốc Cô Thêm",
+      "address": "6 Hàng Chai, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-09-02",
+      "name": "Bún ốc nguội Ô Quan Chưởng",
+      "address": "1 Hàng Chiếu, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-09-03",
+      "name": "Bún ốc nguội Cổ",
+      "address": "16 Đặng Dung, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-09-04",
+      "name": "Bún ốc 26 Bùi Thị Xuân",
+      "address": "26 Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0167569,
+      "lng": 105.8497633,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 11601645100
+    },
+    {
+      "record_id": "hn-20261117-09-05",
+      "name": "Bún ốc Hà Thành",
+      "address": "3 Phù Đổng Thiên Vương, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-09-06",
+      "name": "Bún ốc Thủy Cửa Nam",
+      "address": "59B Cửa Nam, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-09-07",
+      "name": "Bún ốc chợ Khâm Thiên",
+      "address": "1 ngõ chợ Khâm Thiên, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-09-08",
+      "name": "Bún ốc Bà Ngoại",
+      "address": "18 ngõ 52 Tô Ngọc Vân, Tây Hồ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-09-09",
+      "name": "Bún ốc cô Huệ",
+      "address": "43 Nguyễn Siêu, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-09-10",
+      "name": "Bún ốc Bà Bông",
+      "address": "67 Trung Tả, Khâm Thiên, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-09-11",
+      "name": "Bún ốc Cô Hằng",
+      "address": "37 Khương Thượng, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-09-12",
+      "name": "Bún ốc Anh Hòa",
+      "address": "11 ngõ 111 Yên Lãng, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-09-13",
+      "name": "Bún ốc sườn Cô Sáu",
+      "address": "98B Thái Thịnh, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-09-14",
+      "name": "Bún ốc Bà Lương",
+      "address": "ngõ 191 Khương Thượng, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-09-15",
+      "name": "Bún ốc nguội Tây Sơn",
+      "address": "ngõ 136 Tây Sơn, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-09-16",
+      "name": "Gánh bún ốc Cô Huê",
+      "address": "26 Đặng Dung, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-09-17",
+      "name": "Bún ốc Giang Phố Cổ",
+      "address": "36 Lương Ngọc Quyến, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-09-18",
+      "name": "Bún ốc Cô Thêm Định Công",
+      "address": "ngõ 245 Định Công, Hoàng Mai, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-09-19",
+      "name": "Bún ốc Cô Lan",
+      "address": "26 ngõ 139 Khương Thượng, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-09-20",
+      "name": "Bún ốc Cô Béo",
+      "address": "2 Hòe Nhai, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-10-01",
+      "name": "Miến lươn Tân Tân",
+      "address": "16 Tuệ Tĩnh, Hai Bà Trưng, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0153934,
+      "lng": 105.8508056,
+      "precision": "osm_address",
+      "osm_type": "W",
+      "osm_id": 1253312190
+    },
+    {
+      "record_id": "hn-20261117-10-02",
+      "name": "Miến lươn Yên Ninh",
+      "address": "34 Yên Ninh, Ba Đình, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0430573,
+      "lng": 105.8442067,
+      "precision": "osm_address",
+      "osm_type": "W",
+      "osm_id": 1555124569
+    },
+    {
+      "record_id": "hn-20261117-10-03",
+      "name": "Miến lươn 29 Hàng Nón",
+      "address": "29 Hàng Nón, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-10-04",
+      "name": "Miến lươn Thụy Khuê",
+      "address": "121E Thụy Khuê, Tây Hồ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-10-05",
+      "name": "Miến lươn Sành Phố Cổ",
+      "address": "109 Vạn Phúc, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-10-06",
+      "name": "Đặc sản lươn Xứ Nghệ",
+      "address": "153 Mai Hắc Đế, Hai Bà Trưng, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0101839,
+      "lng": 105.8509003,
+      "precision": "osm_address",
+      "osm_type": "W",
+      "osm_id": 1258273572
+    },
+    {
+      "record_id": "hn-20261117-10-07",
+      "name": "Miến lươn Cô Nhung",
+      "address": "9 Nguyễn Chế Nghĩa, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0199955,
+      "lng": 105.8530405,
+      "precision": "osm_address",
+      "osm_type": "W",
+      "osm_id": 1553543889
+    },
+    {
+      "record_id": "hn-20261117-10-08",
+      "name": "Miến lươn Đông Thịnh",
+      "address": "87 Hàng Điếu, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0318532,
+      "lng": 105.8469051,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 4381924889
+    },
+    {
+      "record_id": "hn-20261117-10-09",
+      "name": "Miến lươn Phủ Doãn",
+      "address": "9 Phủ Doãn, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-10-10",
+      "name": "Miến lươn Hương Béo",
+      "address": "46 Nguyễn Tư Giản, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0386832,
+      "lng": 105.8546032,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 6596745871
+    },
+    {
+      "record_id": "hn-20261117-10-11",
+      "name": "Miến lươn Lan Hương",
+      "address": "A1 Hồ Đắc Di, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-10-12",
+      "name": "Miến lươn Lãn Ông 18",
+      "address": "18 Lãn Ông, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-10-13",
+      "name": "Miến lươn Nguyễn Trung Trực 17",
+      "address": "17 Nguyễn Trung Trực, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-10-14",
+      "name": "Miến lươn Thanh Béo",
+      "address": "89 Bạch Đằng, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-10-15",
+      "name": "Minh Đào Miến Lươn",
+      "address": "43 Đại La, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-10-16",
+      "name": "Hương Giang Miến Lươn",
+      "address": "46 An Dương, Tây Hồ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-10-17",
+      "name": "Miến lươn Cô Lan",
+      "address": "1 Bùi Ngọc Dương, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-10-18",
+      "name": "Miến lươn Tân Tân Lê Thanh Nghị",
+      "address": "16 ngõ 37 Lê Thanh Nghị, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-10-19",
+      "name": "Miến lươn Hoa Đội Cấn",
+      "address": "116 Đội Cấn, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-10-20",
+      "name": "O Quỳnh Miến Lươn",
+      "address": "122 Vũ Trọng Phụng, Thanh Xuân, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0012729,
+      "lng": 105.8070289,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 6689830085
+    },
+    {
+      "record_id": "hn-20261117-11-01",
+      "name": "Phở gà Hà",
+      "address": "15P Hàng Hòm, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-11-02",
+      "name": "Phở gà Tiến",
+      "address": "103 Nguyễn Trường Tộ, Ba Đình, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0431074,
+      "lng": 105.8434918,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 4504307290
+    },
+    {
+      "record_id": "hn-20261117-11-03",
+      "name": "Phở gà Đỗ Gia",
+      "address": "8 Nguyễn Đình Thi, Tây Hồ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-11-04",
+      "name": "Phở gà Lâm Nam Ngư",
+      "address": "7 Nam Ngư, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-11-05",
+      "name": "Phở gà Tình",
+      "address": "42 Quán Thánh, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-11-06",
+      "name": "Phở gà Huyền Hương",
+      "address": "20 Bảo Khánh, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-11-07",
+      "name": "Phở gà 26",
+      "address": "26 Lương Văn Can, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-11-08",
+      "name": "Phở Gà Nguyệt",
+      "address": "5B Phủ Doãn, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-11-09",
+      "name": "Phở gà Châm",
+      "address": "68 Yên Ninh, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-11-10",
+      "name": "Phở gà Hàng Điếu",
+      "address": "1 Hàng Điếu, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-11-11",
+      "name": "Phở gà Chí",
+      "address": "98 Yết Kiêu, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-11-12",
+      "name": "Phở gà Văn Miếu",
+      "address": "17 Văn Miếu, Đống Đa, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.029427,
+      "lng": 105.8368236,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 8746891238
+    },
+    {
+      "record_id": "hn-20261117-11-13",
+      "name": "Phở gà Hạnh Gia Ngư",
+      "address": "7 Gia Ngư, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0329668,
+      "lng": 105.853338,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 997997969
+    },
+    {
+      "record_id": "hn-20261117-11-14",
+      "name": "Phở gà 342 Bà Triệu",
+      "address": "342 Bà Triệu, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-11-15",
+      "name": "Phở gà trộn Mã Mây",
+      "address": "47 Mã Mây, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-11-16",
+      "name": "Phở gà 156 Quán Thánh",
+      "address": "156 Quán Thánh, Ba Đình, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0428265,
+      "lng": 105.8407737,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 6640620974
+    },
+    {
+      "record_id": "hn-20261117-11-17",
+      "name": "Phở gà Thìn Béo",
+      "address": "195 Xã Đàn, Đống Đa, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.015358,
+      "lng": 105.8326717,
+      "precision": "osm_address",
+      "osm_type": "W",
+      "osm_id": 1209043985
+    },
+    {
+      "record_id": "hn-20261117-11-18",
+      "name": "Phở gà Ngọc Tuấn",
+      "address": "9 Chợ Gạo, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0366125,
+      "lng": 105.8527461,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 12373245564
+    },
+    {
+      "record_id": "hn-20261117-11-19",
+      "name": "Phở gà Hương",
+      "address": "28 Hàng Hòm, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-11-20",
+      "name": "Phở gà Mai Anh",
+      "address": "32 Lê Văn Hưu, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-12-01",
+      "name": "Bánh mì sốt vang",
+      "address": "35 Thái Thịnh, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0071157,
+      "lng": 105.8211615,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 7856622554
+    },
+    {
+      "record_id": "hn-20261117-12-02",
+      "name": "Bánh mì sốt vang",
+      "address": "311 Thụy Khuê, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-12-03",
+      "name": "Bánh mì sốt vang Cô Nga",
+      "address": "3 Tạ Hiện, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0353991,
+      "lng": 105.8519994,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 11671847618
+    },
+    {
+      "record_id": "hn-20261117-12-04",
+      "name": "Bánh mì sốt vang Cô Hồng",
+      "address": "423 Kim Ngưu, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-12-05",
+      "name": "Vua Bánh Mì Chảo",
+      "address": "1 Thanh Hà, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-12-06",
+      "name": "Cô Phương Béo Bánh Mì Chảo",
+      "address": "164 Ngọc Lâm, Long Biên, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-12-07",
+      "name": "Tuấn Trần Bánh Mì Sốt Vang",
+      "address": "63C ngõ 254/101 Minh Khai, Hoàng Mai, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-12-08",
+      "name": "Hảo Hảo Bánh Mì Sốt Vang",
+      "address": "1B Chân Cầm, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0304001,
+      "lng": 105.848699,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 5647614722
+    },
+    {
+      "record_id": "hn-20261117-12-09",
+      "name": "Bánh mì Trâm số 30 Đình Ngang",
+      "address": "30 Đình Ngang, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0282523,
+      "lng": 105.8425041,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 10298553019
+    },
+    {
+      "record_id": "hn-20261117-12-10",
+      "name": "Hiệu Lực số 326 Bà Triệu",
+      "address": "326 Bà Triệu, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-12-11",
+      "name": "Bánh mì 35K số 324 Bạch Mai",
+      "address": "324 Bạch Mai, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-12-12",
+      "name": "Bánh mì sốt vang Q",
+      "address": "13B3 Đào Duy Anh, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-12-13",
+      "name": "Bếp Hồng sốt vang",
+      "address": "B3 phòng 106 KTT Kim Liên, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-12-14",
+      "name": "Gà Trống bánh mì sốt vang",
+      "address": "2D Khâm Thiên, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-12-15",
+      "name": "Bánh mì sốt vang cô Tuyết",
+      "address": "1 ngõ 162B Tôn Đức Thắng, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-12-16",
+      "name": "Bánh mì sốt vang Thanh Vân",
+      "address": "8 ngõ 278 Tôn Đức Thắng, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-12-17",
+      "name": "MĂM MĂM Quán sốt vang",
+      "address": "P102 B7 ngõ 222 Lê Duẩn, Đống Đa, Hà Nội",
+      "status": "not_found"
+    },
+    {
+      "record_id": "hn-20261117-12-18",
+      "name": "Bánh mì sốt vang cô Lan",
+      "address": "3 ngách 354/159 ngõ 22 Tôn Thất Tùng, Đống Đa, Hà Nội",
+      "status": "not_found"
+    },
+    {
+      "record_id": "hn-20261117-12-19",
+      "name": "Bánh mì sốt vang Bảo Long",
+      "address": "44 Đê La Thành Nhỏ, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-12-20",
+      "name": "Bánh mì sốt vang Lương Định Của",
+      "address": "109 C6 Lương Định Của, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-13-01",
+      "name": "Nem chua rán Chị Hạnh",
+      "address": "465 Đội Cấn, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-13-02",
+      "name": "Nem chua rán Trần Công Châu",
+      "address": "8 Trần Xuân Soạn, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-13-03",
+      "name": "Nem chua rán Bà Già",
+      "address": "38 Hàng Bông, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-13-04",
+      "name": "Nem chua rán Cô Phượng",
+      "address": "10 Ấu Triệu, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0290942,
+      "lng": 105.8491387,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 7176682919
+    },
+    {
+      "record_id": "hn-20261117-13-05",
+      "name": "Nem chua rán Bà Cụ Thành Công",
+      "address": "D7 KTT Thành Công, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-13-06",
+      "name": "Nem rán 36 Tạm Thương",
+      "address": "36 Tạm Thương, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-13-07",
+      "name": "Nem chua 267 Ngọc Lâm",
+      "address": "267 Ngọc Lâm, Long Biên, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-13-08",
+      "name": "Nem chua rán Trần Công Châu",
+      "address": "5 ngõ 3 Đặng Văn Ngữ, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-13-09",
+      "name": "Bùi Thu Xiên Que nem chua rán",
+      "address": "81 ngõ 59 Khúc Thừa Dụ, Cầu Giấy, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-13-10",
+      "name": "Đồ ăn vặt Ông Đức nem chua rán",
+      "address": "14 ngõ 6 Vĩnh Phúc, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-13-11",
+      "name": "Nem chua rán 36 Tạm Thương Trần Thái Tông",
+      "address": "1 hẻm 4 ngách 64 ngõ 44 Trần Thái Tông, Cầu Giấy, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-13-12",
+      "name": "Nem chua rán 36 Tạm Thương Bạch Mai",
+      "address": "18 ngõ Giếng Mứt, Bạch Mai, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-13-13",
+      "name": "Nem chua rán 36 Tạm Thương Tây Sơn",
+      "address": "6A ngõ 178 Tây Sơn, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-13-14",
+      "name": "Tiểu Thố Quán nem chua rán",
+      "address": "39 ngõ 150 Chùa Láng, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-13-15",
+      "name": "Nem chua rán Phương Anh Pháo Đài Láng",
+      "address": "24A ngõ 102 Pháo Đài Láng, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-13-16",
+      "name": "Nem chua rán Trần Công Châu Thái Hà",
+      "address": "9 ngách 30 ngõ 165 Thái Hà, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-13-17",
+      "name": "Nem chua rán Hạnh Công Chúa",
+      "address": "7 ngách 30 ngõ 165 Thái Hà, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-13-18",
+      "name": "Nem chua rán ngõ Chợ Khâm Thiên",
+      "address": "230 ngõ Chợ Khâm Thiên, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-13-19",
+      "name": "Minh Food nem chua rán",
+      "address": "38 ngõ Thái Thịnh 1, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-13-20",
+      "name": "Nem chua rán 36 Tạm Thương Nguyễn Văn Giáp",
+      "address": "154 Nguyễn Văn Giáp, Nam Từ Liêm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-14-01",
+      "name": "Quán bánh tôm Hồ Tây",
+      "address": "1 Thanh Niên, Tây Hồ, Hà Nội",
+      "status": "ambiguous"
+    },
+    {
+      "record_id": "hn-20261117-14-02",
+      "name": "Bánh tôm Bà Lộc",
+      "address": "6 ngõ 80 Phạm Ngọc Thạch, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-14-03",
+      "name": "Bánh tôm Thành Ngân",
+      "address": "9 ngõ 50 Đặng Thai Mai, Tây Hồ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-14-04",
+      "name": "Bánh tôm Bích Phúc",
+      "address": "25 Lê Đại Hành, Hai Bà Trưng, Hà Nội",
+      "status": "ambiguous"
+    },
+    {
+      "record_id": "hn-20261117-14-05",
+      "name": "Bánh tôm Trúc Mây",
+      "address": "69 ngõ 50 Đặng Thai Mai, Tây Hồ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-14-06",
+      "name": "Bánh tôm Hàng Bồ",
+      "address": "48 Hàng Bồ, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0342915,
+      "lng": 105.8490781,
+      "precision": "osm_address",
+      "osm_type": "W",
+      "osm_id": 1507957177
+    },
+    {
+      "record_id": "hn-20261117-14-07",
+      "name": "Bánh tôm Bà Nga",
+      "address": "469 Thụy Khuê, Tây Hồ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-14-08",
+      "name": "Bánh tôm Hiền Hảo",
+      "address": "ngõ 9 Hòe Nhai, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-14-09",
+      "name": "Bánh tôm Thanh Mai",
+      "address": "61 ngõ 50 Đặng Thai Mai, Tây Hồ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-14-10",
+      "name": "Bánh tôm Nguyệt Nga",
+      "address": "47 Đặng Thai Mai, Tây Hồ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-14-11",
+      "name": "Bánh tôm Hòa Nhã",
+      "address": "49 ngõ 50 Đặng Thai Mai, Tây Hồ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-14-12",
+      "name": "Bánh tôm Hoa Lê",
+      "address": "67 ngõ 50 Đặng Thai Mai, Tây Hồ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-14-13",
+      "name": "Bánh tôm Hồng Luyến",
+      "address": "33 ngõ 50 Đặng Thai Mai, Tây Hồ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-14-14",
+      "name": "Bánh tôm Hải Đăng",
+      "address": "Đối diện số 25 ngõ 50 Đặng Thai Mai, Tây Hồ, Hà Nội",
+      "status": "not_found"
+    },
+    {
+      "record_id": "hn-20261117-14-15",
+      "name": "Bánh tôm Phương Dung",
+      "address": "31 Phủ Tây Hồ, Tây Hồ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-14-16",
+      "name": "Bánh tôm Bảo Vi",
+      "address": "68 Phủ Tây Hồ, Tây Hồ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-14-17",
+      "name": "Bánh tôm Thanh Tâm",
+      "address": "43 Phủ Tây Hồ, Tây Hồ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-14-18",
+      "name": "Bánh tôm Gốc Đa",
+      "address": "52 Lý Quốc Sư, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-14-19",
+      "name": "Bánh tôm cô Bông Nguyễn Hiền",
+      "address": "101 K11A Bách Khoa, Nguyễn Hiền, Hai Bà Trưng, Hà Nội",
+      "status": "not_found"
+    },
+    {
+      "record_id": "hn-20261117-14-20",
+      "name": "Nhâm Thìn Quán bánh tôm",
+      "address": "49A phố Quảng Khánh, Tây Hồ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-15-01",
+      "name": "Nộm bò khô Cô Vân",
+      "address": "16B Đường Thành, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-15-02",
+      "name": "Nộm Long Vi Dung Kiốt",
+      "address": "kiốt 5 Hàng Giầy, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-15-03",
+      "name": "Nộm Toàn Béo",
+      "address": "18 Hàm Long, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-15-04",
+      "name": "Nộm Tuyết Béo",
+      "address": "3 Nguyễn Thiếp, Ba Đình, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.041244,
+      "lng": 105.849042,
+      "precision": "osm_address",
+      "osm_type": "W",
+      "osm_id": 1497230433
+    },
+    {
+      "record_id": "hn-20261117-15-05",
+      "name": "Chè Xoan Quán",
+      "address": "29 Hàng Giấy, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0349372,
+      "lng": 105.8512995,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 12284030601
+    },
+    {
+      "record_id": "hn-20261117-15-06",
+      "name": "Nộm Ông Phúc Nghĩa Tân",
+      "address": "ngõ 1 Nghĩa Tân, Cầu Giấy, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-15-07",
+      "name": "Nộm Hoa Mai",
+      "address": "111A5 Thành Công, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-15-08",
+      "name": "Nộm cô Cúc",
+      "address": "71 Lò Đúc, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-15-09",
+      "name": "Nộm Tôn Thất Tùng",
+      "address": "1A Tôn Thất Tùng, Đống Đa, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0044483,
+      "lng": 105.8308986,
+      "precision": "osm_address",
+      "osm_type": "W",
+      "osm_id": 164212404
+    },
+    {
+      "record_id": "hn-20261117-15-10",
+      "name": "Nộm Thủy",
+      "address": "kiốt 10 ngõ 298 Tây Sơn, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-15-11",
+      "name": "Nộm Nguyệt",
+      "address": "19 Hàm Long, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-15-12",
+      "name": "Nộm Mai Nga",
+      "address": "25 Hàm Long, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-15-13",
+      "name": "Nộm Long Vi Dung",
+      "address": "269 Bạch Đằng, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-15-14",
+      "name": "Nộm Bố Già",
+      "address": "1 Nguyễn Trung Trực, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-15-15",
+      "name": "Nộm bò khô Hải Sinh",
+      "address": "57A Đinh Tiên Hoàng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-15-16",
+      "name": "Nộm Hải Sinh",
+      "address": "57 Đinh Tiên Hoàng, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-15-17",
+      "name": "Nộm Lim Hàng Bún",
+      "address": "63 Hàng Bún, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-15-18",
+      "name": "Nộm Lim Hoàng Sâm",
+      "address": "200 Hoàng Sâm, Cầu Giấy, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-15-19",
+      "name": "Nộm Hoa Mai Mễ Trì",
+      "address": "kiốt 2 Mễ Trì Hạ, Nam Từ Liêm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-15-20",
+      "name": "Chè Xoan Quán Chùa Láng",
+      "address": "111 Chùa Láng, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-16-01",
+      "name": "Cúc Cháo Sườn Sụn Lạc Long Quân",
+      "address": "152 Lạc Long Quân, Tây Hồ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-16-02",
+      "name": "Cúc Cháo Sườn Sụn Nguyễn Huy Tưởng",
+      "address": "340 Nguyễn Huy Tưởng, Thanh Xuân, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-16-03",
+      "name": "Cúc Cháo Sườn Sụn Đội Cấn",
+      "address": "514 Đội Cấn, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-16-04",
+      "name": "Cúc Cháo Sườn Sụn Trần Quốc Vượng",
+      "address": "17 Trần Quốc Vượng, Cầu Giấy, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-16-05",
+      "name": "Cúc Cháo Sườn Sụn Phố Huế",
+      "address": "20 Phố Huế, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-16-06",
+      "name": "Cúc Cháo Sườn Sụn Lê Thanh Nghị",
+      "address": "196 Lê Thanh Nghị, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-16-07",
+      "name": "Cúc Cháo Sườn Sụn Nguyễn Văn Cừ",
+      "address": "310 Nguyễn Văn Cừ, Long Biên, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-16-08",
+      "name": "Cúc Cháo Sườn Sụn Phạm Văn Đồng",
+      "address": "6 Phạm Văn Đồng, Bắc Từ Liêm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0805177,
+      "lng": 105.7879023,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 11068114845
+    },
+    {
+      "record_id": "hn-20261117-16-09",
+      "name": "Cúc Cháo Sườn Sụn Vĩnh Hồ",
+      "address": "109 C2 KTT Vĩnh Hồ, Đống Đa, Hà Nội",
+      "status": "not_found"
+    },
+    {
+      "record_id": "hn-20261117-16-10",
+      "name": "Cúc Cháo Sườn Sụn Tân Mai",
+      "address": "228H0 Tân Mai, Hoàng Mai, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-16-11",
+      "name": "Cúc Cháo Sườn Sụn Ao Sen",
+      "address": "9B ngõ 2 Ao Sen, Hà Đông, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-16-12",
+      "name": "Cháo sườn cô Là",
+      "address": "2A Lý Quốc Sư, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-16-13",
+      "name": "Nhất Cháo Quán Nguyễn Thị Định",
+      "address": "18 Nguyễn Thị Định, Cầu Giấy, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-16-14",
+      "name": "Nhất Cháo Quán Nguyễn Thái Học",
+      "address": "16 Nguyễn Thái Học, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-16-15",
+      "name": "Nhất Cháo Quán Ngũ Xã",
+      "address": "13 Ngũ Xã, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-16-16",
+      "name": "Cháo sườn Huyền Anh",
+      "address": "14 Đồng Xuân, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-16-17",
+      "name": "Cháo sườn Huyền Anh Hàng Vải",
+      "address": "4A Hàng Vải, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-16-18",
+      "name": "Cháo Niêu 504",
+      "address": "504 Thụy Khuê, Tây Hồ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-16-19",
+      "name": "Cháo KOM9",
+      "address": "Thái Thịnh 1, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-16-20",
+      "name": "Cháo sườn Bà Lợi Còng",
+      "address": "39 Hàng Điếu, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-17-01",
+      "name": "Phở cuốn Chinh Thắng",
+      "address": "7 Mạc Đĩnh Chi, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-17-02",
+      "name": "Phở cuốn Vinh Phong",
+      "address": "40 Ngũ Xã, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-17-03",
+      "name": "Phở cuốn Hoa Lan",
+      "address": "24 Trần Hưng Đạo, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-17-04",
+      "name": "Cuốn Xưa",
+      "address": "10 ngõ 189 Hoàng Hoa Thám, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-17-05",
+      "name": "Phở cuốn 31",
+      "address": "31 Ngũ Xã, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-17-06",
+      "name": "Phở cuốn Hưng Bền",
+      "address": "118 Trấn Vũ, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-17-07",
+      "name": "Phở cuốn Thanh Hằng",
+      "address": "29B Ngũ Xã, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-17-08",
+      "name": "Phở cuốn Hương Sơn",
+      "address": "19 Ngũ Xã, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-17-09",
+      "name": "Phở cuốn Nguyên Xá",
+      "address": "20 ngõ 134 Cầu Diễn, Bắc Từ Liêm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-17-10",
+      "name": "Phở cuốn Ngũ Xã Duy Tân",
+      "address": "66 Duy Tân, Cầu Giấy, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-17-11",
+      "name": "Phở cuốn Khánh Tiên",
+      "address": "12 Hoàng Cầu mới, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-17-12",
+      "name": "Choén phở cuốn ngũ sắc",
+      "address": "156 Ô Chợ Dừa, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-17-13",
+      "name": "Phở cuốn Ngũ Xã Tô Hiệu",
+      "address": "233 Tô Hiệu, Cầu Giấy, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-17-14",
+      "name": "Phở cuốn Hương Mai Trần Huy Liệu",
+      "address": "108 B1 Trần Huy Liệu, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-17-15",
+      "name": "Phở cuốn Hương Mai",
+      "address": "25 Ngũ Xã, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0460551,
+      "lng": 105.8413064,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 5384986723
+    },
+    {
+      "record_id": "hn-20261117-17-16",
+      "name": "Phở cuốn Hương Mai 27 Ngũ Xã",
+      "address": "27 Ngũ Xã, Ba Đình, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0460439,
+      "lng": 105.8412575,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 14049103201
+    },
+    {
+      "record_id": "hn-20261117-17-17",
+      "name": "Phở cuốn Duy Mập",
+      "address": "79 Trúc Bạch, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-17-18",
+      "name": "Phở cuốn Khánh Tiên Linh Đàm",
+      "address": "Ki ốt 22 tòa HH1C khu đô thị Linh Đàm, Hoàng Mai, Hà Nội",
+      "status": "not_found"
+    },
+    {
+      "record_id": "hn-20261117-17-19",
+      "name": "Phở cuốn Hương Tươi",
+      "address": "Ngõ 13 Ngũ Xã, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-17-20",
+      "name": "Phở cuốn Hưng Bền Ngũ Xã",
+      "address": "33 Ngũ Xã, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-18-01",
+      "name": "Bánh giò chợ Ngô Sĩ Liên",
+      "address": "18 ngõ Ngô Sĩ Liên, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-18-02",
+      "name": "Bánh giò Kim Liên",
+      "address": "Kiốt 21 Lương Định Của, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-18-03",
+      "name": "Bánh giò Bà Luỹ",
+      "address": "54 Trần Xuân Soạn, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-18-04",
+      "name": "Bánh giò bánh chưng Mai",
+      "address": "16 Đào Duy Từ, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-18-05",
+      "name": "Bánh giò Nguyễn Công Trứ",
+      "address": "ngõ tập thể H5 Nguyễn Công Trứ, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-18-06",
+      "name": "Bánh giò Cô Hạnh",
+      "address": "33 ngõ 43 Trung Kính, Cầu Giấy, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-18-07",
+      "name": "Bánh giò phố Cổ",
+      "address": "61 Nguyễn Khắc Nhu, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-18-08",
+      "name": "Bánh giò Hồ Tây",
+      "address": "5 Thụy Khuê, Tây Hồ, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0424737,
+      "lng": 105.8344263,
+      "precision": "osm_address",
+      "osm_type": "W",
+      "osm_id": 1556351130
+    },
+    {
+      "record_id": "hn-20261117-18-09",
+      "name": "Bánh giò Đông Các",
+      "address": "33 Đông Các, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-18-10",
+      "name": "Bánh giò Nghĩa Tân",
+      "address": "101 B2 Nghĩa Tân, Cầu Giấy, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-18-11",
+      "name": "Bánh giò Đông Các ngõ Giếng",
+      "address": "17 ngõ Giếng, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-18-12",
+      "name": "Bánh giò Đông Các Nguyễn Khuyến",
+      "address": "63B Nguyễn Khuyến, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-18-13",
+      "name": "Hoàng Béo Bánh giò",
+      "address": "ngõ 180/9 Phú Thượng, Tây Hồ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-18-14",
+      "name": "Quán ăn vặt Trang Bánh giò",
+      "address": "26A ngõ 127 Hào Nam, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-18-15",
+      "name": "Tiệm Comeo Bánh giò nóng",
+      "address": "28 ngõ 195 Hồng Hà, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-18-16",
+      "name": "Bánh giò Bác Hải Nguyễn Bỉnh Khiêm",
+      "address": "12 Nguyễn Bỉnh Khiêm, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-18-17",
+      "name": "Bánh giò có trứng Ngọc Lâm",
+      "address": "6 ngõ 154 Ngọc Lâm, Bồ Đề, Long Biên, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-18-18",
+      "name": "Bánh giò Ngô Thì Nhậm Trần Xuân Soạn",
+      "address": "70 Trần Xuân Soạn, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-18-19",
+      "name": "Bánh giò Cô Béo Thụy Khuê",
+      "address": "3 Thụy Khuê, Tây Hồ, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0424719,
+      "lng": 105.8345377,
+      "precision": "osm_address",
+      "osm_type": "W",
+      "osm_id": 1556351129
+    },
+    {
+      "record_id": "hn-20261117-18-20",
+      "name": "Bánh giò ngon Tuệ An Bảo Khánh",
+      "address": "14B Bảo Khánh, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-19-01",
+      "name": "Kem Tràng Tiền Heritage Flagship",
+      "address": "18 Hàng Bài, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-19-02",
+      "name": "Kem Tràng Tiền",
+      "address": "44 Tràng Tiền, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0253598,
+      "lng": 105.8546169,
+      "precision": "osm_address",
+      "osm_type": "R",
+      "osm_id": 18622931
+    },
+    {
+      "record_id": "hn-20261117-19-03",
+      "name": "Kem Tràng Tiền",
+      "address": "18 Ngô Quyền, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0245599,
+      "lng": 105.8549087,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 6924038649
+    },
+    {
+      "record_id": "hn-20261117-19-04",
+      "name": "Điểm bán Kem Tràng Tiền 84 Chùa Láng",
+      "address": "84 Chùa Láng, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-19-05",
+      "name": "Điểm bán Kem Tràng Tiền 750 Đường Láng",
+      "address": "750 Đường Láng, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-19-06",
+      "name": "Điểm bán Kem Tràng Tiền 219D Khâm Thiên",
+      "address": "219D Khâm Thiên, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-19-07",
+      "name": "Điểm bán Kem Tràng Tiền Vincom Nguyễn Chí Thanh",
+      "address": "54A Nguyễn Chí Thanh, Đống Đa, Hà Nội",
+      "status": "ambiguous"
+    },
+    {
+      "record_id": "hn-20261117-19-08",
+      "name": "Điểm bán Kem Tràng Tiền 85 Sài Đồng",
+      "address": "85 Sài Đồng, Long Biên, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-19-09",
+      "name": "Điểm bán Kem Tràng Tiền Aeon Long Biên",
+      "address": "Tầng 1 Aeon Mall Long Biên, Long Biên, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-19-10",
+      "name": "Điểm bán Kem Tràng Tiền Cổ Bi",
+      "address": "112 Cổ Bi, Gia Lâm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-19-11",
+      "name": "Điểm bán Kem Tràng Tiền Yên Thường",
+      "address": "17 Yên Thường, Gia Lâm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-19-12",
+      "name": "Điểm bán Kem Tràng Tiền Trâu Quỳ",
+      "address": "279 Ngô Xuân Quảng, Trâu Quỳ, Gia Lâm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-19-13",
+      "name": "Điểm bán Kem Tràng Tiền Thụy Khuê",
+      "address": "6 ngõ 295 Thụy Khuê, Tây Hồ, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-19-14",
+      "name": "Điểm bán Kem Tràng Tiền Chính Kinh",
+      "address": "161 Chính Kinh, Thanh Xuân, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-19-15",
+      "name": "Điểm bán Kem Tràng Tiền Tân Mai",
+      "address": "108 Tân Mai, Hoàng Mai, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-19-16",
+      "name": "Điểm bán Kem Tràng Tiền Nguyễn Văn Cừ ngõ 67",
+      "address": "5/67/5/15 Nguyễn Văn Cừ, Long Biên, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-19-17",
+      "name": "Điểm bán Kem Tràng Tiền Cầu Giấy",
+      "address": "256 Cầu Giấy, Cầu Giấy, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0341687,
+      "lng": 105.796074,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 5608878215
+    },
+    {
+      "record_id": "hn-20261117-19-18",
+      "name": "Điểm bán Kem Tràng Tiền 117 Vạn Phúc",
+      "address": "117 Vạn Phúc, Hà Đông, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-19-19",
+      "name": "Điểm bán Kem Tràng Tiền Hoàng Đạo Thành",
+      "address": "76 Hoàng Đạo Thành, Thanh Xuân, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-19-20",
+      "name": "Điểm bán Kem Tràng Tiền Nguyễn An Ninh",
+      "address": "23 Nguyễn An Ninh, Hoàng Mai, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-20-01",
+      "name": "All Day Coffee Quang Trung",
+      "address": "37 Quang Trung, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-20-02",
+      "name": "All Day Coffee Hàng Bún",
+      "address": "55 Hàng Bún, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-20-03",
+      "name": "NEO Cafe Nguyễn Du",
+      "address": "47 Nguyễn Du, Hai Bà Trưng, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0185615,
+      "lng": 105.8495926,
+      "precision": "osm_address",
+      "osm_type": "W",
+      "osm_id": 1308407793
+    },
+    {
+      "record_id": "hn-20261117-20-04",
+      "name": "NYNA Coffee Lê Văn Linh",
+      "address": "20 Lê Văn Linh, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-20-05",
+      "name": "NYNA Coffee Nguyên Hồng",
+      "address": "6 ngõ 34 Nguyên Hồng, Đống Đa, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-20-06",
+      "name": "NYNA Coffee Minh Khai",
+      "address": "14TT2 khu biệt thự 622 Minh Khai, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-20-07",
+      "name": "Cafe Thọ",
+      "address": "117 Triệu Việt Vương, Hai Bà Trưng, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0140521,
+      "lng": 105.850572,
+      "precision": "osm_address",
+      "osm_type": "W",
+      "osm_id": 1238550140
+    },
+    {
+      "record_id": "hn-20261117-20-08",
+      "name": "Coffee Trứng Tân Ấp",
+      "address": "37 Tân Ấp, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-20-09",
+      "name": "Loading T Café",
+      "address": "8 Chân Cầm, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0305278,
+      "lng": 105.8485931,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 4662832690
+    },
+    {
+      "record_id": "hn-20261117-20-10",
+      "name": "Cafe Phố Cổ",
+      "address": "11 Hàng Gai, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0322205,
+      "lng": 105.8511815,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 4756452868
+    },
+    {
+      "record_id": "hn-20261117-20-11",
+      "name": "Cafe Yên Nguyễn Du",
+      "address": "71A Nguyễn Du, Hai Bà Trưng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-20-12",
+      "name": "Cafe Yên Trần Quốc Toản",
+      "address": "11A Trần Quốc Toản, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-20-13",
+      "name": "Café Giảng",
+      "address": "39 Nguyễn Hữu Huân, Hà Nội",
+      "status": "ambiguous"
+    },
+    {
+      "record_id": "hn-20261117-20-14",
+      "name": "Cà phê Lâm",
+      "address": "60 Nguyễn Hữu Huân, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-20-15",
+      "name": "Coffee A",
+      "address": "2 Lãn Ông, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0353415,
+      "lng": 105.8498589,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 4759244736
+    },
+    {
+      "record_id": "hn-20261117-20-16",
+      "name": "Café Đinh",
+      "address": "tầng 2, 13 Đinh Tiên Hoàng, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-20-17",
+      "name": "Blackbird Coffee Chân Cầm",
+      "address": "5 Chân Cầm, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0303399,
+      "lng": 105.8485802,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 6835375013
+    },
+    {
+      "record_id": "hn-20261117-20-18",
+      "name": "Blackbird Coffee Đặng Dung",
+      "address": "11A Đặng Dung, Ba Đình, Hà Nội",
+      "status": "needs_review"
+    },
+    {
+      "record_id": "hn-20261117-20-19",
+      "name": "Hội An Corner Coffee",
+      "address": "6 Nguyễn Quang Bích, Hoàn Kiếm, Hà Nội",
+      "status": "matched_address",
+      "lat": 21.0321881,
+      "lng": 105.8456279,
+      "precision": "osm_address",
+      "osm_type": "N",
+      "osm_id": 3178449963
+    },
+    {
+      "record_id": "hn-20261117-20-20",
+      "name": "Cafe Ga Đông Dương",
+      "address": "5A Trần Phú, Hoàn Kiếm, Hà Nội",
+      "status": "needs_review"
+    }
+  ]
+}

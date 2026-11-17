@@ -25,6 +25,7 @@ class ApiController{
   const s=await service.session(req,res);
   if(method==='GET'&&path==='/session')return service.status(s);
   if(method==='GET'&&path==='/restaurants')return service.restaurants(req.query);
+  if(method==='GET'&&path==='/directory')return service.directory(req.query);
   if(method==='POST'&&path==='/locations/resolve')return service.geocode(req,s);
   if(method==='POST'&&path==='/auth/login')return service.login(s,req,res);
   if(method==='POST'&&path==='/auth/logout')return service.logout(s,res);

@@ -1,5 +1,14 @@
 # Tiến độ MVP
 
+## Dùng danh sách thật và tính khoảng cách miễn phí
+
+- [x] Nạp toàn bộ 400 hồ sơ vào ứng dụng, phân biệt với quán hư cấu; mở trang `/ha-noi`, 20 nhóm món, tìm tên/món/địa chỉ, xem thêm theo trang.
+- [x] Migration 005 hỗ trợ tọa độ chưa biết, provenance và liên kết record nguồn. Không dùng giá chung làm giá từng quán.
+- [x] Lượt Photon/OpenStreetMap một máy/một luồng có cache, tốc độ dưới 1 request/giây; dừng khi nhà cung cấp lỗi; không gọi Google.
+- [x] Đối chiếu số nhà/đường, không lấy tâm phố/thành phố; chỉ điểm khớp rõ được tính PostGIS distance và đưa vào tìm gần.
+- [x] Bổ sung kiểm thử geocoding/danh sách/địa chỉ thiếu tọa độ; 13 nhóm test đạt. Build/typecheck đạt. Đã kiểm tra trình duyệt điện thoại và khoảng cách đổi theo tọa độ nhập.
+- [x] Hoàn tất 400/400 lượt tra; 77 địa chỉ khớp rõ, 309 cần xem lại, 7 mơ hồ, 7 không có kết quả. Đọc lại DB: 400 hồ sơ / 77 có tọa độ / 323 chưa có; báo cáo lưu ở `data/geocoding/hanoi-location-report.json`.
+
 ## Xem bằng điện thoại
 
 - [x] Tạo gateway LAN riêng tại Wi-Fi 192.168.1.87:3180, Next/Nest vẫn loopback; bật server theo yêu cầu người dùng.
