@@ -1,5 +1,9 @@
 # Biên bản kiểm chứng MVP — 17/11/2026
 
+## Bổ sung nhập dữ liệu Hà Nội
+
+Đã đọc bản chữ từ tài liệu Word do người dùng cung cấp, trích đủ 400 bản ghi thuộc 20 nhóm (mỗi nhóm 20). Parser kiểm tra cấu trúc, thứ tự và hash nguồn. Importer chạy hai lần trên PostgreSQL thật; readback vẫn 400 dòng/20 nhóm, toàn bộ `pending_verification`; bảng public `restaurants` vẫn có 30 quán seed. Tọa độ, giá từng quán, giờ, bestseller và điểm không được tự gán. Không tải ảnh hoặc gọi Geocoding. Chi tiết trong `data/imports/ha-noi-2026-11-17/README.md`.
+
 ## Môi trường đã chạy
 
 - Windows, Node.js 22.23.2, npm 10.9.8.

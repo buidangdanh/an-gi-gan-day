@@ -2,6 +2,8 @@
 
 MVP tiếng Việt, ưu tiên điện thoại, dùng **Next.js + TypeScript / NestJS + TypeScript / PostgreSQL + PostGIS**. Toàn bộ thông tin quán là chữ. Có backend và lưu trữ thật; không dùng localStorage để thay thế tài khoản, phiên hoặc cơ sở dữ liệu.
 
+Đã lưu thêm danh sách người dùng cung cấp gồm **400 địa điểm Hà Nội / 20 nhóm món** vào kho chờ xác minh (migration 004), độc lập với 30 quán seed đang hiển thị. Xem [hồ sơ dữ liệu và cách nhập](data/imports/ha-noi-2026-11-17/README.md). Dữ liệu chưa có tọa độ nên chưa xuất hiện trong tìm kiếm gần đây; không tự gán giá từng quán, bestseller, giờ mở hoặc điểm.
+
 **30 quán seed hoàn toàn hư cấu** trong vùng tọa độ trung tâm TP.HCM. Tên, địa chỉ, món, bestseller, giá và giờ đều minh họa, chưa xác minh. Không dùng để tìm đến quán thật. Không có ảnh, upload ảnh, image storage, dữ liệu cào mạng hoặc sao/đánh giá Google. Không seed review.
 
 ## Chạy thử nhanh trên máy này

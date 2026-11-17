@@ -1,0 +1,15 @@
+{
+  "records": 400,
+  "categories": 20,
+  "unique_name_address_pairs": 400,
+  "by_source_type": {
+    "TikTok Notes": 4,
+    "Bài viết/website": 278,
+    "Hồ sơ sơ bộ": 39,
+    "Danh bạ/tra cứu": 62,
+    "Đại lý (nguồn 2024)": 17
+  },
+  "with_coordinates": 0,
+  "published": 0,
+  "source_sha256": "adc628f910aa54c65b85905126c38c98f95c2e4036deb7651a64370d38995c17"
+}

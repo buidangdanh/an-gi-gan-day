@@ -14,6 +14,7 @@
     "db:up": "docker compose up -d --wait",
     "db:migrate": "node --env-file-if-exists=.env.local node_modules/tsx/dist/cli.mjs scripts/db.ts migrate",
     "db:seed": "node --env-file-if-exists=.env.local node_modules/tsx/dist/cli.mjs scripts/db.ts seed",
+    "data:import:hanoi": "node --env-file-if-exists=.env.local node_modules/tsx/dist/cli.mjs scripts/import-hanoi.ts",
     "test": "npm run build:api && node --env-file-if-exists=.env.local --test --test-concurrency=1 apps/api/dist/test/*.test.js",
     "admin": "node --env-file-if-exists=.env.local node_modules/tsx/dist/cli.mjs scripts/admin.ts",
     "start:api": "node --env-file-if-exists=.env.local apps/api/dist/src/main.js",

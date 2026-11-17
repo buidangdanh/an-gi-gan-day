@@ -1,5 +1,14 @@
 # Tiến độ MVP
 
+## Bổ sung dữ liệu ngày 17/11/2026
+
+- [x] Đọc nguồn Word trên Drive do người dùng gửi; lưu bản trích chữ, JSON và CSV, không tải ảnh.
+- [x] Chuẩn hóa đủ 400 địa điểm, 20 nhóm × 20 dòng; giữ nguồn, lưu ý, ngày và giá tham khảo ở cấp nhóm món.
+- [x] Migration 004 + importer idempotent; đã nhập PostgreSQL và chạy lại không nhân đôi, đọc lại đủ 400 pending / 20 nhóm; 30 quán seed giữ nguyên.
+- [ ] Xác minh hoạt động/địa chỉ, bổ sung tọa độ có nguồn phù hợp trước khi đưa danh sách vào tìm gần đây.
+
+## MVP đã bàn giao
+
 - [x] Đọc hướng dẫn Sites, kiểm tra môi trường; Docker hoạt động.
 - [x] Chọn Next.js + NestJS + PostgreSQL/PostGIS, repository riêng.
 - [x] Migration 001/002/003, seed 30 quán hư cấu chỉ text; PostGIS thật; bộ lọc không lưu tọa độ.
