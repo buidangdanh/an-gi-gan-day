@@ -8,6 +8,21 @@ MVP tiếng Việt, ưu tiên điện thoại, dùng **Next.js + TypeScript / Ne
 
 ## Chạy thử nhanh trên máy này
 
+### Xem trên điện thoại cùng Wi-Fi
+
+Bản LAN đã thiết lập tại `http://192.168.1.87:3180` khi máy tính giữ IP này. Điện thoại phải cùng Wi-Fi và máy tính phải bật/không ngủ. Gateway chỉ bind vào IP Wi-Fi, chuyển đến Next/Nest trên loopback. Không cần đưa Google key vào điện thoại.
+
+Để chạy lại: khởi động DB, `npm run start:api` với `ENABLE_DEV_AUTH=false`, `npm run start:web` trong hai terminal riêng (build nếu source thay đổi), rồi terminal thứ ba:
+
+```powershell
+$env:PHONE_PREVIEW_HOST='192.168.1.87'
+npm run preview:phone
+```
+
+Nếu IP Wi-Fi máy tính đổi, cập nhật biến và địa chỉ trên điện thoại. Không dùng địa chỉ WSL/localhost trên điện thoại. Gateway LAN chỉ mở trang tìm quán, chi tiết, đổi gợi ý, nhập tọa độ thủ công và ý định ghé thăm; chặn admin, auth, payment, Geocoding có tính phí và file dữ liệu nguồn. Không có đăng nhập development trên LAN. HTTP nội bộ có thể không được trình duyệt cho định vị tự động; chọn vùng minh họa hoặc nhập tọa độ vẫn dùng được.
+
+Kiểm tra: `node scripts/check-phone-preview.mjs http://192.168.1.87:3180`. Đã đạt HTTP và quan sát trình duyệt qua địa chỉ LAN trên máy này. Việc điện thoại truy cập từ thiết bị khác còn tùy tường lửa Windows/router; máy đang dùng mạng Public và phiên hiện tại không có quyền quản trị để thêm rule tường lửa. Không tự đổi chính sách hoặc tắt tường lửa. Nếu điện thoại không vào được, cần cho phép riêng Node/port 3180 từ mạng nội bộ bằng tài khoản Windows có quyền quản trị, hoặc dùng đường preview HTTPS khác.
+
 Yêu cầu: Node.js 22.21 trở lên, npm và Docker Desktop đang chạy (Linux containers). Các phiên bản đã kiểm tra: Node 22.23.2, PostgreSQL 16.9, PostGIS 3.5. Không cần Google key để chạy seed hoặc tìm bằng tọa độ.
 
 Mở terminal tại thư mục chứa README này:

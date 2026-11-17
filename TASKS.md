@@ -1,5 +1,12 @@
 # Tiến độ MVP
 
+## Xem bằng điện thoại
+
+- [x] Tạo gateway LAN riêng tại Wi-Fi 192.168.1.87:3180, Next/Nest vẫn loopback; bật server theo yêu cầu người dùng.
+- [x] Chặn admin/auth/payment/Geocoding/file nguồn riêng ở gateway; auth development server đang tắt.
+- [x] Kiểm tra HTTP và trình duyệt địa chỉ LAN, thêm smoke kiểm tra Origin/gate và route bị chặn.
+- [ ] Xác nhận từ điện thoại thực tế; đã gửi link để người dùng thử cùng Wi-Fi. Firewall mạng Public chưa có quyền quản trị để chỉnh.
+
 ## Bổ sung dữ liệu ngày 17/11/2026
 
 - [x] Cấu hình key Geocoding do người dùng gửi trong `.env.local` bị ignore và thử một địa chỉ thật. Google từ chối do key bị giới hạn referrer; chưa chạy danh sách 400. Cần key/server restriction theo IP phù hợp trước khi tiếp tục.
