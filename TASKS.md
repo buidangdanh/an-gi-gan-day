@@ -1,5 +1,7 @@
 # Tiến độ MVP
 
+- [x] Mỗi lượt chỉ 4 thẻ bố cục 2×2, nút “Quán ngon khác” thay toàn bộ 4 quán, không cộng thêm danh sách. Xem hết 400 hồ sơ thì quay vòng; click đổi gợi ý không tính visit.
+
 - [x] Theo yêu cầu làm gọn: xóa khối tiêu đề/giới thiệu, form tìm, đổi tọa độ và thống kê dài khỏi trang danh sách; đưa thẻ món lên sát đầu trang, tên món nổi bật trước tên quán. Nguồn chi tiết thu gọn trong thẻ, attribution ngắn ở chân trang.
 
 - [x] Theo yêu cầu ưu tiên dữ liệu: danh sách 400 quán thành trang mở đầu; chuyển gợi ý 3 quán sang `/goi-y`; xếp dữ liệu nhập trước quán minh họa sau khi lọc đủ điều kiện. Thêm kiểm thử giữ bán kính/giá/giờ/exclude.

@@ -1,5 +1,7 @@
 # Ăn gì gần đây?
 
+Trang mở đầu hiển thị **4 thẻ theo lưới 2×2**. Nút **Quán ngon khác** thay cả 4 thẻ bằng nhóm kế tiếp, không nối thêm thẻ; hết tập 400 hồ sơ thì quay vòng. Đổi gợi ý không tính lượt ghé thăm và không gọi API geocoding.
+
 **Ưu tiên hiển thị:** trang mở đầu `/` là danh sách 400 địa điểm từ dữ liệu người dùng; `/ha-noi` vẫn giữ cùng danh sách. Luồng gợi ý 3 quán ở `/goi-y`. Sau khi lọc đủ điều kiện, kết quả tìm kiếm ưu tiên hồ sơ nhập từ dữ liệu người dùng, rồi quán không minh họa khác, cuối cùng quán minh họa; trong từng nhóm mới dùng điểm xếp hạng. Ưu tiên nguồn không bỏ qua bán kính, ngân sách, giờ mở, món/nhãn hoặc danh sách loại trừ.
 
 MVP tiếng Việt, ưu tiên điện thoại, dùng **Next.js + TypeScript / NestJS + TypeScript / PostgreSQL + PostGIS**. Toàn bộ thông tin quán là chữ. Có backend và lưu trữ thật; không dùng localStorage để thay thế tài khoản, phiên hoặc cơ sở dữ liệu.

@@ -1,5 +1,9 @@
 # Biên bản kiểm chứng MVP — 17/11/2026
 
+## Bốn thẻ mỗi lượt
+
+Trang `/` và `/ha-noi` chỉ render 4 article theo lưới 2×2. Bấm “Quán ngon khác” hai lần trong trình duyệt đều thay nhóm 4, số thẻ vẫn là 4, không còn nút thêm 30. Kiểm tra 390×844 không tràn ngang; trong lượt kiểm tra cả 4 thẻ và nút đổi quán nằm trong màn hình (đáy nút khoảng 774.5 px). Build/typecheck đạt. Nút chuyển nhóm dùng dữ liệu đã tải, không gọi thêm geocoding và không tạo visit intent.
+
 ## Bản giao diện món lên đầu
 
 Đã bỏ các phần giới thiệu, form, đổi điểm tính khoảng cách và thống kê dài người dùng chỉ định. Trang `/` và `/ha-noi` bắt đầu bằng thẻ món, tên món trước tên quán. Giữ nhãn chưa xác minh trong thẻ, khoảng cách có ghi mốc Hồ Gươm và attribution tối giản ở chân trang. Build/typecheck và smoke LAN đạt; quan sát trình duyệt xác nhận đầu trang là Phở bò, Kem Tràng Tiền, Bún đậu mắm tôm, không còn khối giới thiệu. Luồng lọc/tìm theo điểm khác vẫn ở `/goi-y`.
