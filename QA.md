@@ -1,5 +1,11 @@
 # Biên bản kiểm chứng MVP — 17/11/2026
 
+## Tính từ vị trí đang đứng
+
+Trang 4 thẻ đã bỏ điểm Hồ Gươm. Tải danh sách bằng `/api/directory` không có lat/lng: `reference=null`, mọi distance từ server là null. Sau khi người dùng cấp vị trí, tính Haversine ngay trên trình duyệt và xếp quán theo khoảng cách từ GPS hiện tại; watchPosition cập nhật khi di chuyển, không gửi GPS về API, không lưu. Không có quyền/vị trí thì hiển thị chờ vị trí hoặc thông báo lỗi, không bịa số khoảng cách. Quán chưa có tọa độ được ghi riêng.
+
+15/15 nhóm backend đạt; kiểm tra khoảng cách client đạt với điểm trùng, 1 độ tại xích đạo, ví dụ Bát Đàn 9 m, tọa độ thiếu/sai và kinh tuyến 180°. Build/typecheck đạt. HTTPS gateway + Cloudflare Quick Tunnel đã trả HTTP 200, smoke qua HTTPS đạt, admin/auth/payment/file riêng đều 403, auth development false, cookie Secure. Browser HTTPS đã tải 4 thẻ, không còn nhãn từ Hồ Gươm, đổi 4 quán vẫn hoạt động. Geolocation trong trình duyệt QA không lấy được fix và timeout: đã kiểm tra trạng thái lỗi không dùng mốc thay thế; chưa xác nhận GPS thật trên điện thoại của người dùng, người dùng cần tự cấp quyền.
+
 ## Bốn thẻ mỗi lượt
 
 Trang `/` và `/ha-noi` chỉ render 4 article theo lưới 2×2. Bấm “Quán ngon khác” hai lần trong trình duyệt đều thay nhóm 4, số thẻ vẫn là 4, không còn nút thêm 30. Kiểm tra 390×844 không tràn ngang; trong lượt kiểm tra cả 4 thẻ và nút đổi quán nằm trong màn hình (đáy nút khoảng 774.5 px). Build/typecheck đạt. Nút chuyển nhóm dùng dữ liệu đã tải, không gọi thêm geocoding và không tạo visit intent.

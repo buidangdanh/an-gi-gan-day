@@ -146,3 +146,7 @@ test('ưu tiên dữ liệu người dùng trước quán minh họa sau khi l�
  assert.equal((await call(path.replace('radius=2000','radius=500'))).data.items.some((r:any)=>r.id===id),false);
  assert.equal((await call(path+'&exclude='+id)).data.items.some((r:any)=>r.id===id),false);
 });
+test('không có vị trí thì danh sách không dùng mốc mặc định hoặc tự sinh khoảng cách',async()=>{
+ const r=await call('/directory');assert.equal(r.status,200);assert.equal(r.data.reference,null);assert.ok(r.data.items.length>0);assert.ok(r.data.items.every((x:any)=>x.distance===null));
+ assert.equal((await call('/directory?lat=21')).status,400);
+});

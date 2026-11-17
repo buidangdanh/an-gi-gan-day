@@ -1,5 +1,8 @@
 # Tiến độ MVP
 
+- [x] Trang 4 thẻ dùng vị trí hiện tại của thiết bị; GPS tính khoảng cách trên client, không gửi ra ngoài, không tự dùng Hồ Gươm khi chưa có quyền. Watch vị trí không tự kéo người dùng về 4 quán đầu mỗi lần GPS rung nhẹ.
+- [x] Bật preview HTTPS có gateway chặn admin/auth/payment; đã kiểm HTTP/smoke/SSL và trạng thái không lấy được vị trí trong trình duyệt. Cần người dùng chọn cho phép vị trí trên điện thoại để có GPS thực tế.
+
 - [x] Mỗi lượt chỉ 4 thẻ bố cục 2×2, nút “Quán ngon khác” thay toàn bộ 4 quán, không cộng thêm danh sách. Xem hết 400 hồ sơ thì quay vòng; click đổi gợi ý không tính visit.
 
 - [x] Theo yêu cầu làm gọn: xóa khối tiêu đề/giới thiệu, form tìm, đổi tọa độ và thống kê dài khỏi trang danh sách; đưa thẻ món lên sát đầu trang, tên món nổi bật trước tên quán. Nguồn chi tiết thu gọn trong thẻ, attribution ngắn ở chân trang.
