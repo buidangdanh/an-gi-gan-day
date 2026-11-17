@@ -1,5 +1,9 @@
 # Biên bản kiểm chứng MVP — 17/11/2026
 
+## Bản giao diện món lên đầu
+
+Đã bỏ các phần giới thiệu, form, đổi điểm tính khoảng cách và thống kê dài người dùng chỉ định. Trang `/` và `/ha-noi` bắt đầu bằng thẻ món, tên món trước tên quán. Giữ nhãn chưa xác minh trong thẻ, khoảng cách có ghi mốc Hồ Gươm và attribution tối giản ở chân trang. Build/typecheck và smoke LAN đạt; quan sát trình duyệt xác nhận đầu trang là Phở bò, Kem Tràng Tiền, Bún đậu mắm tôm, không còn khối giới thiệu. Luồng lọc/tìm theo điểm khác vẫn ở `/goi-y`.
+
 ## Ưu tiên danh sách người dùng
 
 Trang mở đầu `/` hiển thị danh sách 400 hồ sơ, `/ha-noi` giữ nguyên và `/goi-y` chứa luồng gợi ý 3 quán. API tìm quán sắp nhóm nguồn `user_import → non_demo → demo` sau khi áp dụng đầy đủ bộ lọc; mỗi nhóm vẫn xếp theo điểm. Kiểm thử mới dùng quán dữ liệu ở xa hơn quán minh họa, xác nhận dữ liệu lên trước nhưng không vượt bán kính, ngân sách, giờ hoặc exclude.

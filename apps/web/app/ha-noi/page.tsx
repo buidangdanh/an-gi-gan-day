@@ -1,10 +1,35 @@
 'use client';
 import {useEffect,useState} from 'react';
-import {api,Restaurant,groups} from '../api';
+import {api,Restaurant} from '../api';
+
 export default function Hanoi(){
- const [data,setData]=useState<any>(null),[q,setQ]=useState(''),[group,setGroup]=useState(''),[lat,setLat]=useState('21.0285'),[lng,setLng]=useState('105.8542'),[reference,setReference]=useState('Hồ Gươm · điểm tham chiếu'),[appliedReference,setAppliedReference]=useState('Hồ Gươm · điểm tham chiếu'),[error,setError]=useState(''),[busy,setBusy]=useState(false),[shown,setShown]=useState(30),[gate,setGate]=useState('');
- async function load(){setBusy(true);setError('');try{const a=Number(lat),b=Number(lng);if(!lat.trim()||!lng.trim()||!Number.isFinite(a)||!Number.isFinite(b)||Math.abs(a)>90||Math.abs(b)>180)throw Error('Tọa độ không hợp lệ.');const result=await api('/directory?'+new URLSearchParams({lat,lng,q,...(group?{group}:{})}));setData(result);setAppliedReference(reference);setShown(30);}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
+ const [data,setData]=useState<{items:Restaurant[]}|null>(null);
+ const [error,setError]=useState(''),[busy,setBusy]=useState(false),[shown,setShown]=useState(30),[gate,setGate]=useState('');
+ async function load(){setError('');try{setData(await api('/directory?lat=21.0285&lng=105.8542'));}catch(e){setError((e as Error).message);}}
  useEffect(()=>{load();},[]);
- async function visit(r:Restaurant){setBusy(true);setGate('');setError('');try{const result=await api('/restaurants/'+r.id+'/visit','POST');if(result.requiresLogin)setGate(result.message+' Bản xem Wi-Fi chưa mở đăng nhập.');else window.location.assign(result.url);}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
- return <main className="directory-page"><a className="back" href="/goi-y">Tìm 3 quán gần bạn ↗</a><p className="eyebrow">DỮ LIỆU BẠN CUNG CẤP · HÀ NỘI</p><h1>400 địa điểm.<br/><em>Bắt đầu từ món bạn thích.</em></h1><p className="muted">Thông tin theo tài liệu ngày 17/11/2026, chưa xác minh quán còn hoạt động. Khoảng cách đường thẳng ước tính từ <b>{appliedReference}</b>, không phải quãng đường đi.</p><form className="directory-form" onSubmit={e=>{e.preventDefault();load();}}><label className="stack">Tên quán, món hoặc địa chỉ<input value={q} onChange={e=>setQ(e.target.value)} maxLength={120} placeholder="Phở, Ngũ Xã, Đội Cấn…"/></label><label className="stack">Nhóm món<select value={group} onChange={e=>setGroup(e.target.value)}><option value="">Tất cả 20 nhóm</option>{groups.slice(0,20).map(g=><option key={g}>{g}</option>)}</select></label><button className="primary" disabled={busy}>{busy?'Đang tìm…':'Tìm trong danh sách'} ↗</button></form><details className="manual-coordinates"><summary>Đổi điểm tính khoảng cách</summary><p className="fine-print">Mặc định là Hồ Gươm, không giả định đó là vị trí của bạn. Trên HTTP Wi-Fi, định vị có thể bị trình duyệt hạn chế.</p><div className="two-cols"><label className="stack">Vĩ độ<input type="number" step="any" min={-90} max={90} value={lat} onChange={e=>{setLat(e.target.value);setReference('tọa độ bạn nhập');}}/></label><label className="stack">Kinh độ<input type="number" step="any" min={-180} max={180} value={lng} onChange={e=>{setLng(e.target.value);setReference('tọa độ bạn nhập');}}/></label></div><button type="button" className="secondary" onClick={load} disabled={busy}>Tính lại khoảng cách</button></details>{error&&<p className="message error" role="alert">{error}</p>}{gate&&<p className="message" role="status">{gate}</p>}{data&&<><div className="directory-stats"><b>{data.total} địa điểm trong danh sách</b><span>{data.located}/{data.datasetTotal} địa chỉ đã khớp tọa độ · {data.missing} cần đối chiếu</span></div><p className="fine-print">Tra tọa độ: Photon · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors · ODbL</a>. Khớp địa chỉ tự động không phải xác minh hoạt động quán. Giá tham khảo trong tài liệu là theo nhóm món; chưa có giá bán/giờ mở từng quán.</p><div className="directory-grid">{data.items.slice(0,shown).map((r:Restaurant)=><article className="directory-card" key={r.id}><p className="eyebrow">{r.dishes[0].group} · CHƯA XÁC MINH</p><h2>{r.name}</h2><p>{r.address}</p><div className="distance-note">{r.distance!==null&&r.distance!==undefined?<><b>≈ {r.distance>=1000?(r.distance/1000).toFixed(1)+' km':r.distance+' m'}</b><small>Đường thẳng từ {appliedReference} · địa chỉ khớp OSM</small></>:<><b>Chưa tính được khoảng cách</b><small>Địa chỉ chưa khớp rõ; không gán tọa độ ước đoán.</small></>}</div><p className="fine-print">Chưa có đánh giá nội bộ · Chưa rõ giờ mở/giá bán.</p><details><summary>Nguồn & món theo tài liệu</summary><p className="fine-print">{r.source}</p><p className="fine-print">Món được liệt kê: {r.dishes.map(d=>d.name).join(', ')}. Thực đơn chi tiết chưa được xác minh.</p></details><button className="primary full" disabled={busy} onClick={()=>visit(r)}>Ghé thăm quán ↗</button><small className="fine-print">{r.lat===null?'Maps sẽ tìm theo địa chỉ, chưa có tọa độ xác định.':'Mở chỉ đường theo tọa độ tra địa chỉ.'}</small></article>)}</div>{data.items.length>shown&&<button className="secondary full" style={{marginTop:25}} onClick={()=>setShown(shown+30)}>Xem thêm 30 địa điểm</button>}{!data.items.length&&<p className="empty">Không có tên/món/địa chỉ khớp yêu cầu.</p>}</>}</main>;
+ async function visit(r:Restaurant){
+  setBusy(true);setGate('');setError('');
+  try{const result=await api('/restaurants/'+r.id+'/visit','POST');if(result.requiresLogin)setGate(result.message+' Bản xem Wi-Fi chưa mở đăng nhập.');else window.location.assign(result.url);}
+  catch(e){setError((e as Error).message);}finally{setBusy(false);}
+ }
+ return <main className="directory-page dish-first-page">
+  <h1 className="sr-only">Gợi ý món ăn từ danh sách Hà Nội</h1>
+  {error&&<div className="message error" role="alert">{error}<button className="text-button" onClick={load}>Thử lại</button></div>}
+  {gate&&<p className="message" role="status">{gate}</p>}
+  {!data&&!error&&<p className="loading-bar" role="status">Đang lấy gợi ý món…</p>}
+  {data&&<>
+   <div className="directory-grid">{data.items.slice(0,shown).map(r=><article className="directory-card" key={r.id}>
+    <h2 className="dish-suggestion-title">{r.dishes[0].name}</h2>
+    <h3 className="dish-suggestion-place">{r.name}</h3>
+    <p>{r.address}</p>
+    <div className="distance-note">{r.distance!=null?<><b>≈ {r.distance>=1000?(r.distance/1000).toFixed(1)+' km':r.distance+' m'}</b><small>Đường thẳng ước tính từ Hồ Gươm</small></>:<b>Chưa có khoảng cách</b>}</div>
+    <p className="fine-print">Chưa xác minh hoạt động · Chưa có đánh giá nội bộ.</p>
+    <details><summary>Thông tin quán</summary><p className="fine-print">{r.source}</p><p className="fine-print">Chưa xác minh thực đơn chi tiết, giá bán và giờ mở cửa.</p></details>
+    <button className="primary full" disabled={busy} onClick={()=>visit(r)}>Ghé thăm quán ↗</button>
+    {r.lat===null&&<small className="fine-print">Maps sẽ tìm theo địa chỉ.</small>}
+   </article>)}</div>
+   {data.items.length>shown&&<button className="secondary full" style={{marginTop:25}} onClick={()=>setShown(shown+30)}>Xem thêm 30 địa điểm</button>}
+  </>}
+  <footer className="dish-first-footer"><a href="/goi-y">Chọn món & tìm quanh vị trí khác ↗</a><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors · ODbL</a></footer>
+ </main>;
 }
