@@ -51,6 +51,51 @@ export function formatDistance(meters: number | null): string | null {
  return `≈ ${(meters / 1000).toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} km`;
 }
 
+export function BrandPlaceholder({
+ glyph,
+ variant = 'card',
+}: {
+ glyph: string;
+ variant?: 'card' | 'sheet' | 'compact';
+}) {
+ return (
+  <div
+   className={`food-card-illustration${variant === 'sheet' ? ' is-large' : variant === 'compact' ? ' is-compact' : ''}`}
+   role="img"
+   aria-label="Ảnh đại diện mặc định Ăn gì đây?"
+  >
+   <svg
+    className="brand-fallback-bg-svg"
+    viewBox="0 0 400 250"
+    preserveAspectRatio="xMidYMid slice"
+    aria-hidden="true"
+   >
+    <defs>
+     <radialGradient id="agGlow" cx="78%" cy="22%" r="65%">
+      <stop offset="0%" stopColor="#7dd3fc" stopOpacity="0.38" />
+      <stop offset="55%" stopColor="#38bdf8" stopOpacity="0.10" />
+      <stop offset="100%" stopColor="#0c4a6e" stopOpacity="0" />
+     </radialGradient>
+    </defs>
+    <rect width="400" height="250" fill="url(#agGlow)" />
+    <circle cx="330" cy="48" r="88" fill="none" stroke="rgba(255,255,255,0.10)" strokeWidth="1.2" />
+    <circle cx="330" cy="48" r="56" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="4 5" strokeWidth="1.2" />
+    <circle cx="62" cy="212" r="74" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1.2" />
+   </svg>
+
+   <div className="brand-fallback-lockup" aria-hidden="true">
+    <span className="brand-fallback-mark">ă.</span>
+    <div className="brand-fallback-text">
+     <span className="brand-fallback-title">
+      Ăn gì đây<em>?</em>
+     </span>
+    </div>
+    <span className="brand-fallback-glyph">{glyph}</span>
+   </div>
+  </div>
+ );
+}
+
 export function SuggestionCard({
  restaurant: r,
  index,
@@ -110,9 +155,7 @@ export function SuggestionCard({
       onError={() => setImgFailed(true)}
      />
     ) : (
-     <div className="food-card-illustration" aria-hidden="true">
-      <span className="food-card-glyph">{tone.glyph}</span>
-     </div>
+     <BrandPlaceholder glyph={tone.glyph} variant="card" />
     )}
     <div className="food-card-scrim" aria-hidden="true" />
 
@@ -325,9 +368,7 @@ export function CardActionSheet({
        onError={() => setImgFailed(true)}
       />
      ) : (
-      <div className="food-card-illustration is-large" aria-hidden="true">
-       <span className="food-card-glyph">{tone.glyph}</span>
-      </div>
+      <BrandPlaceholder glyph={tone.glyph} variant="sheet" />
      )}
      <div className="action-sheet-scrim" aria-hidden="true" />
      <button type="button" className="action-sheet-close" onClick={onClose} aria-label="Đóng">
@@ -457,6 +498,28 @@ export function CardActionSheet({
  );
 }
 
+function CompareCardThumb({ restaurant: r }: { restaurant: Restaurant }) {
+ const [failed, setFailed] = useState(false);
+ const dishName = r.primary_group || r.dishes[0]?.group || 'Món gợi ý';
+ const tone = dishTone(dishName);
+ if (r.image_url && !failed) {
+  return (
+   <img
+    src={r.image_url}
+    alt={r.name}
+    referrerPolicy="no-referrer"
+    className="compare-col-img"
+    onError={() => setFailed(true)}
+   />
+  );
+ }
+ return (
+  <div className={`compare-col-fallback ${tone.cls}`}>
+   <BrandPlaceholder glyph={tone.glyph} variant="compact" />
+  </div>
+ );
+}
+
 export function ProCompareModal({
  items,
  notesById,
@@ -488,7 +551,7 @@ export function ProCompareModal({
       const dist = formatDistance(distance ?? r.distance ?? null);
       return (
        <article className="compare-col-card" key={r.id}>
-        {r.image_url && <img src={r.image_url} alt={r.name} referrerPolicy="no-referrer" className="compare-col-img" />}
+        <CompareCardThumb restaurant={r} />
         <div className="compare-col-body">
          <span className="saved-place-tag">{r.primary_group || r.dishes[0]?.group}</span>
          <h3>{r.name}</h3>

@@ -473,38 +473,135 @@
  transform: scale(1.06);
 }
 
-/* Cool oceanic stylized illustrations when restaurant has no photo yet */
+/* Branded "Ăn gì đây?" cover artwork when restaurant has no photo yet */
 .food-card-illustration {
+ position: relative;
  width: 100%;
  height: 100%;
  display: grid;
  place-items: center;
- background: radial-gradient(circle at 75% 25%, rgba(186, 230, 253, 0.3), transparent 55%),
-  linear-gradient(135deg, #0284c7, #0c4a6e);
+ overflow: hidden;
+ background: linear-gradient(135deg, #0284c7 0%, #0369a1 52%, #0c4a6e 100%);
 }
 
 .food-card-illustration.is-large {
- min-height: 210px;
+ min-height: 220px;
 }
 
-.tone-rice .food-card-illustration { background: radial-gradient(circle at 75% 25%, rgba(186,230,253,0.28), transparent 55%), linear-gradient(135deg, #0369a1, #1e3a8a); }
-.tone-quick .food-card-illustration { background: radial-gradient(circle at 75% 25%, rgba(224,242,254,0.3), transparent 55%), linear-gradient(135deg, #0ea5e9, #0369a1); }
-.tone-feast .food-card-illustration { background: radial-gradient(circle at 75% 25%, rgba(199,210,254,0.28), transparent 55%), linear-gradient(135deg, #2563eb, #1e3a8a); }
-.tone-treat .food-card-illustration { background: radial-gradient(circle at 75% 25%, rgba(221,214,254,0.3), transparent 55%), linear-gradient(135deg, #4f46e5, #312e81); }
-.tone-light .food-card-illustration { background: radial-gradient(circle at 75% 25%, rgba(167,243,208,0.28), transparent 55%), linear-gradient(135deg, #0d9488, #115e59); }
-.tone-coffee .food-card-illustration { background: radial-gradient(circle at 75% 25%, rgba(165,243,252,0.26), transparent 55%), linear-gradient(135deg, #0891b2, #164e63); }
-.tone-tea .food-card-illustration { background: radial-gradient(circle at 75% 25%, rgba(186,230,253,0.32), transparent 55%), linear-gradient(135deg, #06b6d4, #0e7490); }
-.tone-chill .food-card-illustration { background: radial-gradient(circle at 75% 25%, rgba(196,181,253,0.25), transparent 55%), linear-gradient(135deg, #1d4ed8, #0f172a); }
+.tone-rice .food-card-illustration { background: linear-gradient(135deg, #0284c7 0%, #0369a1 55%, #1e3a8a 100%); }
+.tone-quick .food-card-illustration { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 55%, #075985 100%); }
+.tone-feast .food-card-illustration { background: linear-gradient(135deg, #0284c7 0%, #1d4ed8 55%, #1e3a8a 100%); }
+.tone-treat .food-card-illustration { background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 55%, #1e3a8a 100%); }
+.tone-light .food-card-illustration { background: linear-gradient(135deg, #0891b2 0%, #0d9488 55%, #115e59 100%); }
+.tone-coffee .food-card-illustration { background: linear-gradient(135deg, #0891b2 0%, #0e7490 55%, #164e63 100%); }
+.tone-tea .food-card-illustration { background: linear-gradient(135deg, #06b6d4 0%, #0284c7 55%, #0c4a6e 100%); }
+.tone-chill .food-card-illustration { background: linear-gradient(135deg, #0284c7 0%, #1d4ed8 55%, #0f172a 100%); }
 
-.food-card-glyph {
- font-size: 46px;
- filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.2));
- transform: translateY(-4px);
- transition: transform 0.25s ease;
+.brand-fallback-bg-svg {
+ position: absolute;
+ inset: 0;
+ width: 100%;
+ height: 100%;
+ pointer-events: none;
 }
 
-.food-card:hover .food-card-glyph {
- transform: translateY(-6px) scale(1.08);
+.brand-fallback-lockup {
+ position: relative;
+ z-index: 1;
+ display: inline-flex;
+ align-items: center;
+ gap: 9px;
+ padding: 9px 16px 9px 11px;
+ border-radius: 999px;
+ background: rgba(255, 255, 255, 0.14);
+ border: 1px solid rgba(255, 255, 255, 0.28);
+ backdrop-filter: blur(8px);
+ box-shadow: 0 10px 26px rgba(4, 24, 44, 0.24);
+ transform: translateY(-2px);
+ transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), background 0.2s ease;
+}
+
+.food-card:hover .brand-fallback-lockup {
+ transform: translateY(-4px) scale(1.04);
+ background: rgba(255, 255, 255, 0.2);
+}
+
+.food-card-illustration.is-large .brand-fallback-lockup {
+ transform: translateY(-34px);
+ padding: 10px 18px 10px 12px;
+}
+
+.food-card-illustration.is-compact .brand-fallback-lockup {
+ transform: none;
+ padding: 7px 13px 7px 9px;
+ gap: 7px;
+}
+
+.brand-fallback-mark {
+ width: 30px;
+ height: 30px;
+ border-radius: 10px;
+ background: #ffffff;
+ color: #0284c7;
+ font-family: var(--serif);
+ font-weight: 700;
+ font-size: 17px;
+ display: grid;
+ place-items: center;
+ box-shadow: 0 3px 8px rgba(4, 24, 44, 0.18);
+ flex-shrink: 0;
+}
+
+.food-card-illustration.is-compact .brand-fallback-mark {
+ width: 24px;
+ height: 24px;
+ font-size: 14px;
+ border-radius: 8px;
+}
+
+.brand-fallback-text {
+ display: flex;
+ flex-direction: column;
+}
+
+.brand-fallback-title {
+ font-family: var(--sans);
+ font-size: 19px;
+ font-weight: 800;
+ letter-spacing: -0.02em;
+ line-height: 1.1;
+ color: #ffffff;
+ text-shadow: 0 2px 10px rgba(4, 24, 44, 0.28);
+ white-space: nowrap;
+}
+
+.brand-fallback-title em {
+ font-family: var(--serif);
+ font-style: italic;
+ font-weight: 700;
+ color: #bae6fd;
+ margin-left: 1px;
+}
+
+.food-card-illustration.is-compact .brand-fallback-title {
+ font-size: 15px;
+}
+
+.brand-fallback-glyph {
+ font-size: 19px;
+ line-height: 1;
+ filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
+ flex-shrink: 0;
+}
+
+.food-card-illustration.is-compact .brand-fallback-glyph {
+ font-size: 15px;
+}
+
+.compare-col-fallback {
+ width: 100%;
+ aspect-ratio: 16 / 10;
+ overflow: hidden;
 }
 
 .food-card-scrim {

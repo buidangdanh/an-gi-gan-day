@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7" />
+      <stop offset="52%" stop-color="#0369a1" />
+      <stop offset="100%" stop-color="#0c4a6e" />
+    </linearGradient>
+    <radialGradient id="glow" cx="78%" cy="22%" r="65%">
+      <stop offset="0%" stop-color="#7dd3fc" stop-opacity="0.4" />
+      <stop offset="55%" stop-color="#38bdf8" stop-opacity="0.12" />
+      <stop offset="100%" stop-color="#0c4a6e" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg)" />
+  <rect width="640" height="400" fill="url(#glow)" />
+  <circle cx="528" cy="76" r="138" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.6" />
+  <circle cx="528" cy="76" r="88" fill="none" stroke="rgba(255,255,255,0.09)" stroke-dasharray="6 8" stroke-width="1.6" />
+  <circle cx="98" cy="340" r="118" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="1.6" />
+  <g transform="translate(170, 162)">
+    <rect width="300" height="76" rx="38" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.32)" stroke-width="1.5" />
+    <rect x="16" y="14" width="48" height="48" rx="15" fill="#ffffff" />
+    <text x="40" y="47" text-anchor="middle" font-family="Georgia, serif" font-size="28" font-weight="700" fill="#0284c7">ă.</text>
+    <text x="80" y="48" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="31" font-weight="800" fill="#ffffff">Ăn gì đây<tspan font-family="Georgia, serif" font-style="italic" fill="#bae6fd">?</tspan></text>
+  </g>
+</svg>
