@@ -26,6 +26,7 @@
     "data:sync:images": "node --env-file-if-exists=.env.local node_modules/tsx/dist/cli.mjs scripts/sync-foody-images.ts",
     "data:sync:remaining": "node --env-file-if-exists=.env.local node_modules/tsx/dist/cli.mjs scripts/sync-foody-remaining-and-saves.ts",
     "data:sync:cities": "node --env-file-if-exists=.env.local node_modules/tsx/dist/cli.mjs scripts/sync-major-cities.ts",
+    "data:clean:placeholders": "node --env-file-if-exists=.env.local node_modules/tsx/dist/cli.mjs scripts/clean-placeholder-images.ts",
     "check:foody": "node --env-file-if-exists=.env.local node_modules/tsx/dist/cli.mjs scripts/check-foody-catalogue.ts"
   },
   "dependencies": {
@@ -41,6 +42,7 @@
     "react-dom": "^19.2.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
+    "sharp": "^0.35.5",
     "zod": "^4.1.0"
   },
   "devDependencies": {
