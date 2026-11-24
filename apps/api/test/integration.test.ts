@@ -5,6 +5,7 @@ import {readFileSync} from 'node:fs';
 import {randomUUID,createHash,createHmac} from 'node:crypto';
 import {isOpen,rankScore,mapsUrl} from '../src/domain';
 import {chooseAddressLocation} from '../src/geocode-match';
+import {classifyFood} from '../src/food-classifier';
 import type {INestApplication} from '@nestjs/common';
 let app:INestApplication,db:Pool,adminDb:Pool,base:string,dbName:string;
 const origin='http://127.0.0.1:3100';const adminKey='test-only-'+randomUUID();
@@ -22,9 +23,15 @@ before(async()=>{
  await db.query(readFileSync('db/003_filter_privacy.sql','utf8'));
  await db.query(readFileSync('db/004_restaurant_imports.sql','utf8'));
  await db.query(readFileSync('db/005_live_hanoi.sql','utf8'));
+ await db.query(readFileSync('db/006_foody_catalogue.sql','utf8'));
+ await db.query(readFileSync('db/007_search_tokens.sql','utf8'));
+ await db.query(readFileSync('db/008_performance_and_scale.sql','utf8'));
+ await db.query(readFileSync('db/009_restaurant_images.sql','utf8'));
+ await db.query(readFileSync('db/010_popularity_and_accounts_pro.sql','utf8'));
+ await db.query(readFileSync('db/011_multi_city.sql','utf8'));
  const {createApp}=require('../src/main');app=await createApp();await app.listen(0,'127.0.0.1');base=await app.getUrl();
 });
-after(async()=>{await app?.close();if(db)await db.end();const {pool}=require('../src/db');await pool.end();if(adminDb){if(dbName)await adminDb.query(`DROP DATABASE ${dbName} WITH (FORCE)`);await adminDb.end();}});
+after(async()=>{await app?.close();if(db)await db.end();const {closePools}=require('../src/db');await closePools();if(adminDb){if(dbName)await adminDb.query(`DROP DATABASE ${dbName} WITH (FORCE)`);await adminDb.end();}});
 
 test('PostGIS thật, lọc khoảng cách, ngân sách/nhãn trên cùng một món và empty không nới điều kiện',async()=>{
  const version=await db.query('SELECT postgis_version() AS version');assert.match(version.rows[0].version,/3\./);
@@ -44,7 +51,7 @@ test('ranking không bịa sao, gần hơn ưu tiên khi chưa có review; Maps 
  assert.ok(rankScore(100,2000,null,0,null,1,0)>rankScore(1000,2000,null,0,null,1,0));
  assert.ok(Number.isFinite(rankScore(0,2000,null,0,null,1,0)));
  assert.ok(Math.abs(rankScore(0,2000,5,10,3,1,0)-(.35+.20+.10+.25*.8)/.90)<1e-10);
- assert.equal(new URL(mapsUrl({lat:10.5,lng:106.7})).searchParams.get('destination'),'10.5,106.7');
+ assert.equal(new URL(mapsUrl({lat:10.5,lng:106.7})).searchParams.get('query'),'10.5,106.7');
 });
 test('xem chi tiết không tính; click lặp và race nhiều tab chỉ cho 4 quán khác nhau',async()=>{
  const cookie=await guest();await call('/restaurants/'+ids[0],{cookie});assert.equal((await call('/session',{cookie})).data.distinctVisits,0);
@@ -135,7 +142,7 @@ test('dữ liệu thật thiếu tọa độ vẫn có trong danh sách; khoản
  const filtered=await call('/restaurants?lat=21.0285&lng=105.8542&radius=2000&budget=100000');assert.equal(filtered.data.items.length,0);
  const cached=await call('/locations/resolve',{method:'POST',cookie:await guest(),body:{address:'49 Bát Đàn'}});assert.equal(cached.status,200);assert.ok(cached.data.candidates.some((c:any)=>c.coordinates.lat===21.0285));assert.match(cached.data.storage,/không gọi API Google/);
  assert.equal((await call('/restaurants/'+missing)).status,200);
- const intent=await call('/restaurants/'+missing+'/visit',{method:'POST',cookie:await guest()});assert.equal(intent.status,200);assert.equal(new URL(intent.data.url).searchParams.get('destination'),'49 Bát Đàn, Hà Nội');
+ const intent=await call('/restaurants/'+missing+'/visit',{method:'POST',cookie:await guest()});assert.equal(intent.status,200);assert.equal(new URL(intent.data.url).searchParams.get('query'),'49 Bát Đàn, Hà Nội');
 });
 test('ưu tiên dữ liệu người dùng trước quán minh họa sau khi lọc, không vượt bán kính/giá/giờ',async()=>{
  const id=randomUUID();await db.query(`INSERT INTO restaurants(id,name,address,lat,lng,dishes,hours,source,demo,import_record_id) VALUES($1,'Quán ưu tiên từ tài liệu','Địa chỉ test hư cấu',10.7831,106.6983,$2,NULL,'Tài liệu người dùng - fixture test',false,'priority-test')`,[id,JSON.stringify([{name:'Phở ưu tiên',group:'phở',tags:['nước','nóng'],price:30000,bestsellerSource:null}])]);
@@ -149,4 +156,119 @@ test('ưu tiên dữ liệu người dùng trước quán minh họa sau khi l�
 test('không có vị trí thì danh sách không dùng mốc mặc định hoặc tự sinh khoảng cách',async()=>{
  const r=await call('/directory');assert.equal(r.status,200);assert.equal(r.data.reference,null);assert.ok(r.data.items.length>0);assert.ok(r.data.items.every((x:any)=>x.distance===null));
  assert.equal((await call('/directory?lat=21')).status,400);
+});
+
+test('phân nhóm dựa trên món, không nhầm địa chỉ Phố thành phở hoặc bịa thực đơn quán chưa rõ',()=>{
+ assert.deepEqual(classifyFood('Pizza Hut - Phố Huế').groups,['pizza & mì Ý']);
+ assert.equal(classifyFood('Quán A Không Rõ Món').groups[0],'chưa phân nhóm');
+ assert.equal(classifyFood('Phở Bò & Bún Chả - Ngọc Lâm').groups[0],'phở bò');
+ assert.ok(classifyFood('Phở Bò & Bún Chả - Ngọc Lâm').groups.includes('bún chả'));
+ assert.equal(classifyFood('Quán A',[2]).source,'source_category');
+ assert.equal(classifyFood('Quán A',[2]).groups[0],'đồ uống & tráng miệng');
+ assert.deepEqual(classifyFood('Bánh Mì An Tâm - Phố Tư Đình').groups,['bánh mì']);
+ assert.deepEqual(classifyFood('Trà Sữa Cô A').groups,['trà sữa']);
+ assert.ok(classifyFood('Bánh Mì & Mì Xào').groups.includes('mì & hủ tiếu'));
+});
+
+test('danh mục tìm không dấu, nhiều từ, phân trang ổn định và lọc nhóm phụ; chỉ số tự cập nhật khi sửa tên',async()=>{
+ const fixtureIds=[];for(let i=0;i<9;i++){const id=randomUUID();fixtureIds.push(id);await db.query(`INSERT INTO restaurants(id,name,address,lat,lng,dishes,source,demo,foody_id,classification_source) VALUES($1,$2,'Ngõ Bát Đàn, Hà Nội',21.03,105.85,$3,'Foody test',false,$4,'name_inferred')`,[id,'Kiểm thử Bún Chả '+i,JSON.stringify([{name:'bún chả',group:'bún chả',tags:[],price:null,bestsellerSource:null},{name:'trà sữa',group:'trà sữa',tags:[],price:null,bestsellerSource:null}]),900000000+i]);}
+ try{
+  const first=(await call('/directory?q=kiem+thu+bat+dan&group='+encodeURIComponent('trà sữa')+'&limit=4')).data;
+  const next=(await call('/directory?q=kiem+thu+bat+dan&group='+encodeURIComponent('trà sữa')+'&limit=4&offset=4')).data;
+  assert.equal(first.total,9);assert.equal(first.items.length,4);assert.equal(next.items.length,4);assert.ok(first.hasMore);
+  assert.ok(first.items.every((x:any)=>x.food_groups.includes('trà sữa')));
+  assert.equal(new Set([...first.items,...next.items].map((x:any)=>x.id)).size,8);
+  assert.equal((await call('/directory?q=zzzzzzzz-no-match')).data.items.length,0);
+  assert.equal((await call('/directory?q=kiem+th')).data.items.length,0);
+  assert.equal((await call('/directory?limit=1000')).status,400);
+  await db.query('UPDATE restaurants SET name=$2 WHERE id=$1',[fixtureIds[0],'Tên Mới Đã Sửa']);
+  assert.equal((await call('/directory?q=ten+moi+da+sua')).data.items[0].id,fixtureIds[0]);
+ }finally{await db.query('DELETE FROM restaurants WHERE id=ANY($1::uuid[])',[fixtureIds]);}
+});
+
+test('Thường vs Pro: đăng ký mật khẩu scrypt, dùng thử Pro 14 ngày 1 lần, Bộ sưu tập, Ghi chú riêng và Né món',async()=>{
+ const guestCookie=await guest();
+ const uname='user_'+randomUUID().slice(0,8);
+ const reg=await call('/auth/register',{method:'POST',cookie:guestCookie,body:{displayName:'Minh Anh',username:uname,password:'MatKhauAnToan123'}});
+ assert.equal(reg.status,200);
+ assert.equal(reg.data.user.display_name,'Minh Anh');
+ assert.equal(reg.data.user.pro,false);
+ const cookie=reg.cookie;
+
+ // Duplicate username rejected
+ assert.equal((await call('/auth/register',{method:'POST',cookie:await guest(),body:{displayName:'Khác',username:uname,password:'MatKhauAnToan123'}})).status,409);
+
+ // Wrong password rejected, right password succeeds
+ assert.equal((await call('/auth/password-login',{method:'POST',cookie:await guest(),body:{username:uname,password:'SaiMatKhau999'}})).status,401);
+ assert.equal((await call('/auth/password-login',{method:'POST',cookie:await guest(),body:{username:uname,password:'MatKhauAnToan123'}})).status,200);
+
+ // Free user can set default_area, but Pro features (collections, notes, excluded_groups) require Pro
+ assert.equal((await call('/account/preferences',{method:'PUT',cookie,body:{default_area:'hoan-kiem'}})).status,200);
+ assert.equal((await call('/account/preferences',{method:'PUT',cookie,body:{excluded_groups:['bún đậu mắm tôm']}})).status,403);
+ assert.equal((await call('/collections',{method:'POST',cookie,body:{name:'Ăn trưa',icon:'🍜'}})).status,403);
+ assert.equal((await call('/restaurants/'+ids[0]+'/note',{method:'PUT',cookie,body:{note:'Gọi tái gầu'}})).status,403);
+
+ // Claim 14-day Pro trial once; second claim rejected with 409
+ const trial=await call('/pro/trial',{method:'POST',cookie});
+ assert.equal(trial.status,200);
+ assert.equal(trial.data.user.pro,true);
+ assert.equal((await call('/pro/trial',{method:'POST',cookie})).status,409);
+
+ // Now Pro features work end-to-end
+ assert.equal((await call('/account/preferences',{method:'PUT',cookie,body:{excluded_groups:['bún đậu mắm tôm'],pro_boost:true}})).status,200);
+ const col=await call('/collections',{method:'POST',cookie,body:{name:'Quán ruột trưa',icon:'🍜'}});
+ assert.equal(col.status,200);
+ assert.equal((await call('/collections/'+col.data.id+'/items',{method:'POST',cookie,body:{restaurantId:ids[0]}})).status,200);
+ assert.equal((await call('/restaurants/'+ids[0]+'/note',{method:'PUT',cookie,body:{note:'Gọi tái gầu, gửi xe ngõ cạnh'}})).status,200);
+
+ const hub=(await call('/account/hub',{cookie})).data;
+ assert.equal(hub.user.pro,true);
+ assert.equal(hub.trialAvailable,false);
+ assert.equal(hub.collections.length,1);
+ assert.equal(hub.collections[0].items.length,1);
+ assert.equal(hub.notes.length,1);
+ assert.equal(hub.notes[0].note,'Gọi tái gầu, gửi xe ngõ cạnh');
+ assert.deepEqual(hub.preferences.excluded_groups,['bún đậu mắm tôm']);
+});
+
+test('Đa thành phố (TP.HCM, Đà Nẵng, Hà Nội): phân loại đặc sản vùng miền và lọc đúng city_slug',async()=>{
+ assert.equal(classifyFood('Cơm Tấm Ba Ghiền - Đặng Văn Ngữ').groups[0],'cơm tấm');
+ assert.equal(classifyFood('Hủ Tiếu Nam Vang Nhân Quán').groups[0],'hủ tiếu');
+ assert.equal(classifyFood('Mì Quảng Bà Mua - Trần Phú').groups[0],'mì quảng & cao lầu');
+ assert.equal(classifyFood('Bún Bò Huế Đông Ba').groups[0],'bún bò huế');
+ assert.equal(classifyFood('Bánh Đa Cua Đồng Lạch Tray').groups[0],'bánh đa cua');
+
+ const hcmDishes=['cơm tấm','hủ tiếu','bánh mì','bún bò huế'];
+ const hcmIds:string[]=[];
+ const dnId=randomUUID();
+ for(let i=0;i<hcmDishes.length;i++){
+  const id=randomUUID();hcmIds.push(id);
+  const g=hcmDishes[i];
+  await db.query(
+   `INSERT INTO restaurants(id,name,address,city_slug,lat,lng,dishes,source,demo,foody_id,classification_source,popularity_badge,popularity_saves,popularity_score)
+    VALUES($1,$2,'Quận 1, TP. HCM','ho-chi-minh',10.776,106.701,$3,'Foody test',false,$4,'name_inferred','top_fav',250,88)`,
+   [id,'Quán Sài Gòn '+g,JSON.stringify([{name:g,group:g,tags:['trưa'],price:null,bestsellerSource:null}]),910000000+i],
+  );
+ }
+ await db.query(
+  `INSERT INTO restaurants(id,name,address,city_slug,lat,lng,dishes,source,demo,foody_id,classification_source)
+   VALUES($1,'Mì Quảng Hải Châu','Hải Châu, Đà Nẵng','da-nang',16.061,108.222,$2,'Foody test',false,910000099,'name_inferred')`,
+  [dnId,JSON.stringify([{name:'mì quảng & cao lầu',group:'mì quảng & cao lầu',tags:['sáng'],price:null,bestsellerSource:null}])],
+ );
+ try{
+  const sugHcm=await call('/directory?suggestions=true&city=ho-chi-minh');
+  assert.equal(sugHcm.status,200);
+  assert.equal(sugHcm.data.items.length,4);
+  assert.ok(sugHcm.data.items.every((x:any)=>x.city_slug==='ho-chi-minh'));
+  assert.equal(new Set(sugHcm.data.items.map((x:any)=>x.primary_group)).size,4);
+
+  const dirDn=await call('/directory?city=da-nang');
+  assert.equal(dirDn.status,200);
+  assert.equal(dirDn.data.total,1);
+  assert.equal(dirDn.data.items[0].city_slug,'da-nang');
+
+  assert.equal((await call('/directory?city=khong-ton-tai')).status,400);
+ }finally{
+  await db.query('DELETE FROM restaurants WHERE id=ANY($1::uuid[])',[[...hcmIds,dnId]]);
+ }
 });

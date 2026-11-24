@@ -15,7 +15,7 @@ export function isOpen(hours:Hours,date=new Date()):boolean|null {
  return hours.some(h=>h.close>h.open ? h.day===day&&minute>=h.open&&minute<h.close : (h.day===day&&minute>=h.open)||((h.day+1)%7===day&&minute<h.close));
 }
 export function normalize(s:string){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase();}
-export function mapsUrl(r:{lat:number|null,lng:number|null,address?:string}){return 'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(r.lat!==null&&r.lng!==null?`${r.lat},${r.lng}`:r.address||'');}
+export function mapsUrl(r:{lat:number|null,lng:number|null,address?:string}){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(r.lat!==null&&r.lng!==null?`${r.lat},${r.lng}`:r.address||'');}
 export function rankScore(distance:number,radius:number,average:number|null,count:number,prior:number|null,match:number,ageDays:number){
  const near=Math.max(0,1-distance/radius), fresh=Math.exp(-Math.max(0,ageDays)/180);
  // CTR disabled. Quality omitted until internal prior has >=10 valid reviews.

@@ -1,1 +1,52 @@
-export default function About(){return <main className="about-page"><a href="/" className="back">← Về trang tìm quán</a><p className="eyebrow">MINH BẠCH TỪ BỮA ĐẦU</p><h1>Chỉ chữ.<br/>Thông tin nói rõ.</h1><h2>Danh sách Hà Nội</h2><p>Đã đưa 400 địa điểm từ tài liệu người dùng ngày 17/11/2026 vào ứng dụng. Đây là dữ liệu tổng hợp chưa xác minh hoạt động, không phải quán hư cấu. Giá chung theo nhóm món không được gán thành giá bán từng quán. Địa chỉ được tra qua Photon/OpenStreetMap trong một lượt xử lý chậm có cache; chỉ khớp số nhà và đường hoặc tên POI rõ ràng mới có khoảng cách. Địa chỉ mơ hồ giữ trạng thái chưa có tọa độ và vẫn xem được trong danh sách Hà Nội. Tọa độ khớp không chứng minh quán còn mở.</p><p>Nguồn tọa độ: <a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors · ODbL</a>. Dịch vụ miễn phí giới hạn sử dụng, không đảm bảo đầy đủ số nhà tại Việt Nam; đây không phải dịch vụ chỉ đường. Không dùng Google key cho lượt tra này.</p><h2>Dữ liệu minh họa riêng</h2><p>MVP có 30 quán hư cấu, tên và địa chỉ do seed tạo để chạy thử ở vùng tọa độ trung tâm TP.HCM. Quán, thực đơn, bestseller, giá và giờ hoạt động đều chưa được xác minh. Không dùng bản thử này để quyết định đến một địa chỉ thực tế.</p><p>Toàn bộ đánh giá trên dữ liệu quán minh họa cũng được gắn nhãn minh họa. Không nhập điểm, ảnh hoặc đánh giá từ Google hay mạng xã hội. Website không có chức năng tải ảnh.</p><h2>Cách gợi ý</h2><p>Khoảng cách là đường thẳng ước tính từ tọa độ tìm kiếm; không có dự đoán thời gian di chuyển. Điều kiện món, nhãn và ngân sách phải khớp trên cùng một món. Bộ lọc đang mở loại quán chưa biết giờ. Nếu không có kết quả, bạn tự chọn thay đổi điều kiện.</p><p>Trọng số khởi đầu: khoảng cách 35%, chất lượng 25%, khớp nhu cầu 20%, mới cập nhật 10%. Thành phần quan tâm 10% đang tắt vì chưa có CTR đủ tin cậy. Các trọng số còn dùng được chuẩn hóa lại. Quán chưa có đánh giá vẫn được xếp dựa vào khoảng cách, khớp nhu cầu và độ mới dữ liệu.</p><h2>Điểm nội bộ & đánh giá</h2><p>Điểm mỗi bài = vị 50% + giá trị 25% + phục vụ 15% + không gian 10%; mỗi mục 1–5. Điểm hiển thị là trung bình các bài được duyệt, kèm số lượng. Điểm chất lượng dùng để xếp hạng được điều chỉnh Bayesian với m=10; mức trung bình nền chỉ hình thành khi có tối thiểu 10 bài được duyệt trong hệ thống.</p><p>Người có Pro còn hạn được tạo và cập nhật đánh giá sau ít nhất 30 phút từ ý định ghé thăm, đồng thời tự xác nhận đã ăn. Đây không phải lượt đến được xác minh. Bài gửi mới hoặc cập nhật chờ kiểm duyệt. Mỗi tài khoản có một bài hiện hành cho mỗi quán; có lịch sử thay đổi. Trả phí không tự tăng độ tin cậy.</p><h2>Phiên khách & tài khoản</h2><p>Cookie HttpOnly giữ mã phiên ngẫu nhiên; máy chủ lưu bản băm của mã này. Phiên hết hạn sau 30 phút không hoạt động hoặc tối đa 24 giờ. Các tab cùng trình duyệt dùng chung cookie. Chỉ bấm “Ghé thăm quán” mới tính lượt, mỗi quán một lần mỗi phiên. Quán thứ 5 cần tài khoản miễn phí; xem chi tiết không tính lượt.</p><p>Vị trí trình duyệt được gửi tới máy chủ để tìm khoảng cách, không lưu vào hồ sơ tài khoản. Yêu thích, lịch sử chọn ghé thăm và bài đánh giá được lưu trong cơ sở dữ liệu. Không gửi địa điểm tới Google khi chưa cấu hình khóa ở máy chủ và người dùng chưa yêu cầu tìm địa chỉ.</p><h2>Dịch vụ bên ngoài</h2><p>Liên kết “Ghé thăm quán” mở Google Maps với tọa độ đích. Đây là dịch vụ bên ngoài và có chính sách riêng. Nếu Geocoding được cấu hình, địa chỉ nhập được gửi đến Google theo yêu cầu; tọa độ trả về chỉ dùng tạm thời, không được lưu vào hồ sơ quán trong MVP.</p><p>Đăng nhập nhà cung cấp, OTP, thanh toán và xử lý yêu cầu xóa/xuất dữ liệu cần được hoàn thiện trước khi phát hành thực tế. Tài khoản development là tài khoản minh họa, không xác minh danh tính và không được phép bật ở production.</p><p>Tham khảo <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer">chính sách quyền riêng tư Google</a>, <a href="https://maps.google.com/help/terms_maps/" target="_blank" rel="noreferrer">điều khoản Google Maps</a> và <a href="https://developers.google.com/maps/documentation/geocoding/policies" target="_blank" rel="noreferrer">quy định Geocoding</a>.</p></main>;}
+export default function About() {
+ return (
+  <main className="about-page">
+   <a href="/" className="back">← Về trang 4 gợi ý quán</a>
+   <p className="eyebrow">MINH BẠCH · BẢO MẬT · BẢN QUYỀN</p>
+   <h1>Chỉ chữ.<br />Tôn trọng dữ liệu & bản quyền.</h1>
+
+   <h2>1. Nguyên tắc không vi phạm bản quyền</h2>
+   <ul>
+    <li><strong>Không dùng ảnh có bản quyền:</strong> Website thiết kế thuần chữ (text-only), không cào, không lưu trữ và không hiển thị hình ảnh món ăn/không gian của bên thứ ba.</li>
+    <li><strong>Không sao chép đánh giá hay thực đơn độc quyền:</strong> Điểm số, nhận xét hoặc thực đơn chi tiết từ các nền tảng khác không được sao chép vào hệ thống. Chỉ đánh giá nội bộ do người dùng tự viết và kiểm duyệt mới được tính điểm.</li>
+    <li><strong>Font chữ mã nguồn mở hợp lệ:</strong> Sử dụng <em>Be Vietnam Pro</em> và <em>Lora</em> theo giấy phép <strong>SIL Open Font License 1.1 (OFL-1.1)</strong>, tự host trực tiếp trên hệ thống.</li>
+    <li><strong>Cơ chế lọc bản quyền dữ liệu (<code>STRICT_LICENSE_MODE</code>):</strong> Ở môi trường thương mại (production), hệ thống hỗ trợ khóa chặt chỉ phục vụ các hồ sơ có nguồn dữ liệu hợp pháp gồm: chủ quán tự đăng ký (<code>first_party</code>), dữ liệu mở <strong>OpenStreetMap (ODbL)</strong>, <strong>Overture Maps Places (CDLA-Permissive 2.0)</strong>, hoặc dữ liệu đối tác có thỏa thuận cấp phép (<code>partner_licensed</code>). Dữ liệu tổng hợp thử nghiệm chưa xác minh bản quyền không được phép phát hành thương mại nếu chưa thay thế/xác minh.</li>
+   </ul>
+
+   <h2>2. Nguồn tọa độ & dịch vụ bản đồ</h2>
+   <p>
+    Tọa độ tra cứu mở sử dụng dữ liệu từ{' '}
+    <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">
+     © OpenStreetMap contributors (ODbL)
+    </a>
+    . Dữ liệu tọa độ chỉ giúp ước tính khoảng cách đường thẳng, không chứng minh quán đang mở cửa hay xác minh thực địa.
+   </p>
+   <p>
+    Nút <strong>Mở bản đồ quán</strong> tạo liên kết ghim vị trí chuẩn theo Google Maps URLs (không lưu cache tọa độ từ Google Geocoding vào cơ sở dữ liệu). Tham khảo{' '}
+    <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">chính sách quyền riêng tư Google</a>,{' '}
+    <a href="https://maps.google.com/help/terms_maps/" target="_blank" rel="noopener noreferrer">điều khoản Google Maps</a> và{' '}
+    <a href="https://developers.google.com/maps/documentation/geocoding/policies" target="_blank" rel="noopener noreferrer">quy định Geocoding</a>.
+   </p>
+
+   <h2>3. Bảo mật & Quyền riêng tư (theo Nghị định 13/2023/NĐ-CP)</h2>
+   <ul>
+    <li><strong>Vị trí GPS riêng tư:</strong> Khoảng cách hiển thị trên thẻ được tính ngay trên trình duyệt thiết bị bằng công thức Haversine. Khi gửi yêu cầu xếp quán gần nhất, tọa độ được làm tròn theo ô lưới ~150 m để vừa bảo vệ vị trí chính xác vừa tăng tốc độ bộ nhớ đệm, và <strong>không lưu vào hồ sơ tài khoản</strong>.</li>
+    <li><strong>Phiên & Cookie an toàn:</strong> Cookie <code>HttpOnly</code>, <code>SameSite=Lax</code>, <code>Secure</code> (HTTPS), mã ngẫu nhiên 256-bit chỉ lưu mã băm SHA-256 trên máy chủ. Đọc danh sách công khai không tạo cookie theo dõi.</li>
+    <li><strong>Phòng vệ tấn công Web:</strong> Áp dụng Content-Security-Policy (CSP), kiểm tra <code>Origin</code> + <code>Sec-Fetch-Site</code> chống CSRF, giới hạn kích thước payload JSON, giới hạn tần suất (rate limiting), và bảo vệ khu vực quản trị bằng so sánh khóa chống timing-attack.</li>
+   </ul>
+
+   <h2>4. Cách gợi ý & điểm nội bộ</h2>
+   <p>
+    Trang mở đầu luôn gợi ý <strong>4 thẻ thuộc 4 nhóm món khác nhau</strong> để giảm phân vân khi chưa biết ăn gì. Đổi 4 món khác không tính lượt ghé thăm.
+   </p>
+   <p>
+    Điểm mỗi đánh giá nội bộ = vị 50% + giá trị 25% + phục vụ 15% + không gian 10% (mỗi mục 1–5), điều chỉnh Bayesian (m=10) khi toàn hệ thống đủ tối thiểu 10 bài được duyệt.
+   </p>
+
+   <h2>5. Tiếp nhận chỉnh sửa & gỡ bỏ nội dung (Notice &amp; Takedown)</h2>
+   <p>
+    Chủ quán hoặc chủ sở hữu quyền hợp pháp có thể yêu cầu cập nhật, đính chính hoặc gỡ bỏ thông tin địa điểm thông qua chức năng <strong>Báo thông tin chưa đúng</strong> trên trang chi tiết hoặc liên hệ bộ phận vận hành trước khi công bố chính thức. Các yêu cầu hợp lệ được xử lý và ẩn hồ sơ ngay (giữ nhật ký kiểm toán).
+   </p>
+  </main>
+ );
+}

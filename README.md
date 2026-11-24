@@ -1,4 +1,30 @@
-# Ăn gì gần đây?
+# Ăn gì đây? (`angiday.vn`)
+
+Ứng dụng gợi ý **4 thẻ món ăn / đồ uống khác nhau mỗi lượt** giúp chốt nhanh quán ngon khi chưa biết ăn gì, phủ sóng **10 thành phố lớn Việt Nam** (**99.467 địa điểm**: TP. Hồ Chí Minh, Hà Nội, Đà Nẵng, Hải Phòng, Nha Trang, Cần Thơ, Đà Lạt, Vũng Tàu, Huế, Hạ Long).
+
+### Điểm nổi bật phiên bản mới nhất
+- **Tách bạch 100% Món ăn & Đồ uống:** 4 gợi ý mỗi lượt luôn thuộc 4 nhóm khác nhau, giao diện tông xanh dương mát mẻ (`#0284c7`), chạm thẻ mở bảng hành động nhanh (`CardActionSheet`) hoặc bấm **Chốt hộ 1 món**.
+- **Đa thành phố & Thời tiết thực tế tại quán:** Chọn nhanh 10 thành phố lớn và từng quận/khu vực (hoặc tự động nhận diện theo GPS riêng tư trên thiết bị); đính kèm ảnh quán tham khảo, nhãn độ yêu thích cộng đồng và sắc thái thời tiết trực tiếp (`Open-Meteo`).
+- **Tài khoản Thường (0đ) & `Ăn gì · Pro`:** Đăng ký/đăng nhập mật khẩu băm `scrypt`, dùng thử Pro 14 ngày miễn phí, Bộ sưu tập cá nhân, Ghi chú bí kíp riêng từng quán, Tự động ẩn món dị ứng/không ăn và Bảng so sánh trực quan 2–4 quán. Xem chi tiết tại [ACCOUNT-FREE-VS-PRO.md](ACCOUNT-FREE-VS-PRO.md).
+- **Hiệu năng `<1ms` & Kiến trúc 1 triệu CCU:** Tách luồng đọc công khai phi trạng thái (stateless), bộ nhớ đệm hai tầng + chống stampede, PostGIS KNN + GIN FTS không dấu. Xem thiết kế hệ thống tại [ARCHITECTURE-1M-CCU.md](ARCHITECTURE-1M-CCU.md) và hồ sơ bảo mật/bản quyền tại [SECURITY-AND-COMPLIANCE.md](SECURITY-AND-COMPLIANCE.md).
+
+---
+
+# Thương hiệu: Ăn gì đây?
+
+Tên miền dự kiến khi đưa website online: **https://angiday.vn**. Hiện chạy local tại http://127.0.0.1:3100/. Chưa cấu hình DNS hoặc triển khai tên miền trong tác vụ đổi tên.
+
+# Dữ liệu Foody đã tích hợp — 18/11/2026
+
+Web hiện có 71.826 hồ sơ công khai: 71.432 Id Foody được gộp thành 71.426 hồ sơ theo tên và địa chỉ trùng chính xác, cộng 400 quán ban đầu. Không xóa bản ghi nguồn. Danh mục chia nhóm món từ tên/danh mục nguồn, có nhãn suy ra và nhóm chưa phân nhóm; không coi nhóm là thực đơn đã xác minh. Tọa độ nguồn không chứng minh độ chính xác thực địa.
+
+`npm run db:migrate` thêm migration 006; `npm run data:import:foody -- <đường-dẫn-json>` nhập lại an toàn theo Id nguồn, giữ lịch sử/tài khoản. `npm run check:foody` kiểm tra số lượng, phân trang và đo truy vấn trên dữ liệu thực. Các tệp nguồn và bản sao lưu DB nằm ngoài source; không được đưa secrets vào gói chia sẻ.
+
+`GET /api/directory?q=&group=&limit=4&offset=0` tìm nhiều từ có/không dấu trên tên, địa chỉ và nhóm món bằng chỉ mục PostgreSQL; giới hạn 60 bản ghi/yêu cầu, trả total/hasMore/groups. Trang đầu dùng 4 thẻ mỗi lượt và xử lý vị trí trên thiết bị. Tìm gần dùng PostGIS, lọc điều kiện trong SQL trước khi lấy tối đa 120 ứng viên gần nhất trong từng nhóm ưu tiên nguồn; xếp điểm các ứng viên rồi trả tối đa 60 quán. Điểm nội bộ không lấy từ Foody.
+
+Các phần bên dưới mô tả lịch sử bản MVP và danh sách 400 quán ban đầu; số lượng/luồng danh mục mới lấy theo phần này.
+
+# Ăn gì đây?
 
 Mỗi lượt 4 thẻ luôn khác món. Quán được gom theo món và chọn luân phiên giữa các món; trong mỗi món vẫn giữ thứ tự nguồn/khoảng cách. Nút “Quán ngon khác” chuyển sang nhóm mới. Kiểm chứng: `node node_modules/tsx/dist/cli.mjs scripts/check-diverse-pages.ts`.
 
@@ -150,7 +176,7 @@ Mọi route dưới `/api`. Mutations JSON bắt buộc `Origin=WEB_ORIGIN`; pro
 | `GET /restaurants?lat=&lng=&radius=&q=&budget=&open=&group=&tags=&exclude=` | Tìm, khách dùng được |
 | `GET /directory?lat=&lng=&q=&group=` | Toàn bộ 400 hồ sơ Hà Nội; điểm đã khớp được tính khoảng cách, còn lại distance=null; không áp dụng bán kính ngầm |
 | `GET /restaurants/:id` | Chi tiết, khách dùng được |
-| `POST /restaurants/:id/visit` | Gate, trả `requiresLogin` hoặc URL chỉ đường |
+| `POST /restaurants/:id/visit` | Gate, trả `requiresLogin` hoặc URL ghim vị trí |
 | `POST /auth/login` | `{provider, token}`; development chỉ khi bật ngoài production |
 | `POST /auth/logout`, `POST /auth/otp` | Logout; OTP hiện trả 503 sau rate limit |
 | `POST /locations/resolve` | Tra tên/địa chỉ trong tọa độ quán đã lưu; không gọi dịch vụ ngoài; 5/10 phút/phiên + 10/10 phút/IP |
@@ -169,7 +195,7 @@ Webhook mẫu: JSON `{id, account_id, expires_at}` (ISO UTC), header `x-payment-
 - **Phone OTP / Google / Facebook**: bộ kiểm tra token backend đã có; chưa có flow SDK/OAuth/reCAPTCHA phía trình duyệt và chưa kiểm thử credentials thật. Nút UI nhà cung cấp bị khóa, ghi “Chưa hoàn tất tích hợp”. Chỉ điền client ID chưa đủ để bật đăng nhập thật. Phone cần triển khai Firebase client/reCAPTCHA và giới hạn gửi SMS phía nhà cung cấp; endpoint OTP hiện không gửi SMS. Cần kiểm thử callback/state/nonce, revoked/disabled accounts và app review trước production.
 - **Geocoding**: không có key trong repo và không gọi billable API trong lần kiểm thử này. Timeout 4 giây, tối đa 2 lần; retry chỉ lỗi mạng/server/UNKNOWN_ERROR. Có ZERO_RESULTS, REQUEST_DENIED, quota và ambiguity; người dùng chọn ứng viên rõ ràng. Không cache hoặc tự lưu tọa độ Google vào quán. Admin chỉ lưu tọa độ độc lập được nhập từ nguồn có quyền lưu; không sao chép kết quả Google vào trường nguồn nhập tay.
 - Đã đối chiếu [Geocoding policies](https://developers.google.com/maps/documentation/geocoding/policies) và [Service Specific Terms](https://cloud.google.com/maps-platform/terms/maps-service-terms): caching bị giới hạn, ngoại lệ tọa độ tạm thời tối đa 30 ngày không phải quyền lưu vĩnh viễn. MVP chọn **không lưu kết quả Google**. Vị trí nhập tạm chỉ nằm trong state trang và request. Hiển thị attribution “Google Maps” nếu sử dụng ứng viên. Trang `/about` có thông tin dữ liệu, riêng tư và liên kết điều khoản; cần bản pháp lý/vận hành đầy đủ trước phát hành.
-- Link chỉ đường `https://www.google.com/maps/dir/?api=1&destination=<lat,lng URL encoded>` không cần key; không chứng minh địa chỉ được xác minh.
+- Link ghim vị trí `https://www.google.com/maps/search/?api=1&query=<lat,lng URL encoded>` không cần key; không chứng minh địa chỉ được xác minh.
 - Tham chiếu auth: [Google ID token verification](https://developers.google.com/identity/gsi/web/guides/verify-google-id-token), [Firebase token verification](https://firebase.google.com/docs/auth/admin/verify-id-tokens).
 
 ## Kiểm thử đã thực hiện
