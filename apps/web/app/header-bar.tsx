@@ -6,9 +6,6 @@ import {
  AccountPreferences,
  api,
  EXCLUDABLE_GROUPS,
- getCityMeta,
- MAJOR_CITIES,
- parseSavedDefaultLocation,
  PopularityBadgeKind,
  Restaurant,
 } from './api';
@@ -665,66 +662,9 @@ export function HeaderBar({
         </>
        )}
 
-       {/* TAB 3: PERSONALIZE (DEFAULT CITY/AREA + PRO BOOST + DIETARY BLACKLIST) */}
+       {/* TAB 3: PERSONALIZE (PRO BOOST + DIETARY BLACKLIST) */}
        {tab === 'personalize' && (
         <>
-         <div className="hub-subblock">
-          <div className="account-section-title">📍 Thành phố & Khu vực ưu tiên mặc định (Thường & Pro)</div>
-          <p className="hub-desc">Tự động mở đúng thành phố & khu vực này khi bạn chưa bật GPS.</p>
-          {!user ? (
-           <div className="account-empty-box">Đăng nhập miễn phí để lưu thành phố & khu vực mặc định của bạn.</div>
-          ) : (
-           (() => {
-            const parsedPref = parseSavedDefaultLocation(prefs.default_area);
-            const prefCity = parsedPref ? getCityMeta(parsedPref.city) : null;
-            return (
-             <>
-              <div className="area-chips" style={{ marginBottom: 8 }}>
-               <button
-                type="button"
-                className={`area-chip${!prefs.default_area ? ' is-selected' : ''}`}
-                onClick={() => updatePrefPatch({ default_area: null })}
-               >
-                Không cố định
-               </button>
-               {MAJOR_CITIES.map((c) => (
-                <button
-                 key={c.slug}
-                 type="button"
-                 className={`area-chip${parsedPref?.city === c.slug ? ' is-selected' : ''}`}
-                 onClick={() => updatePrefPatch({ default_area: `city:${c.slug}` })}
-                >
-                 {c.label}
-                </button>
-               ))}
-              </div>
-              {prefCity && (
-               <div className="area-chips">
-                <button
-                 type="button"
-                 className={`area-chip${!parsedPref?.preset ? ' is-selected' : ''}`}
-                 onClick={() => updatePrefPatch({ default_area: `city:${prefCity.slug}` })}
-                >
-                 ✦ Toàn {prefCity.label}
-                </button>
-                {prefCity.districts.map((a) => (
-                 <button
-                  key={a.id}
-                  type="button"
-                  className={`area-chip${prefs.default_area === a.id ? ' is-selected' : ''}`}
-                  onClick={() => updatePrefPatch({ default_area: a.id })}
-                 >
-                  {a.label.split(' · ')[0]}
-                 </button>
-                ))}
-               </div>
-              )}
-             </>
-            );
-           })()
-          )}
-         </div>
-
          <div className="hub-subblock">
           <div className="account-section-title">
            <span>⚡ Ưu tiên quán Top Yêu thích</span>
@@ -789,7 +729,7 @@ export function HeaderBar({
            <li>✓ Mở chỉ đường Google Maps <b>không giới hạn</b></li>
            <li>✓ Lưu đồng bộ tối đa <b>30 quán yêu thích</b></li>
            <li>✓ Xem lại <b>15 quán</b> mở bản đồ gần nhất</li>
-           <li>✓ Lưu 1 khu vực mặc định</li>
+           <li>✓ Tự động gợi ý quán gần vị trí của bạn</li>
           </ul>
           {!user && (
            <button type="button" className="account-secondary-btn" onClick={() => { setTab('profile'); setAuthMode('register'); }}>

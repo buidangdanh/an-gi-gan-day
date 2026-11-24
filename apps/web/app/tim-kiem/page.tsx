@@ -4,10 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
  AccountHubData,
  api,
- CITY_STORAGE_KEY,
- CitySlug,
- getCityMeta,
- MAJOR_CITIES,
  POPULAR_SEARCH_GROUPS,
  Restaurant,
 } from '../api';
@@ -18,7 +14,6 @@ import { withMapTab } from '../map-tab';
 type Directory = {
  items: Restaurant[];
  groups: { name: string; count: number }[];
- cities?: { slug: string; count: number }[];
  total: number;
  hasMore: boolean;
 };
@@ -27,13 +22,11 @@ type AreaOrigin = { lat: number; lng: number; label: string };
 const pageSize = 8;
 
 export default function FoodSearch() {
- const [city, setCity] = useState<CitySlug | ''>('');
  const [query, setQuery] = useState('');
  const [debouncedQuery, setDebouncedQuery] = useState('');
  const [group, setGroup] = useState('');
  const [page, setPage] = useState(0);
  const [groups, setGroups] = useState<Directory['groups']>([]);
- const [cityCounts, setCityCounts] = useState<Record<string, number>>({});
  const [data, setData] = useState<Directory | null>(null);
  const [loading, setLoading] = useState(true);
  const [error, setError] = useState('');
@@ -41,6 +34,8 @@ export default function FoodSearch() {
  const [busy, setBusy] = useState(false);
  const [retry, setRetry] = useState(0);
  const [origin, setOrigin] = useState<AreaOrigin | null>(null);
+ const [gpsState, setGpsState] = useState<'locating' | 'ready' | 'denied'>('locating');
+ const [gpsResolved, setGpsResolved] = useState(false);
  const [initialized, setInitialized] = useState(false);
 
  const [hub, setHub] = useState<AccountHubData | null>(null);
@@ -63,38 +58,44 @@ export default function FoodSearch() {
   }
  }, []);
 
+ const requestGps = useCallback((forceRefresh = false) => {
+  if (typeof window === 'undefined' || !window.isSecureContext || !navigator.geolocation) {
+   setGpsState('denied');
+   setGpsResolved(true);
+   return;
+  }
+  setGpsState('locating');
+  navigator.geolocation.getCurrentPosition(
+   (p) => {
+    setOrigin({ lat: p.coords.latitude, lng: p.coords.longitude, label: 'Vị trí của bạn' });
+    setGpsState('ready');
+    setGpsResolved(true);
+   },
+   () => {
+    setGpsState('denied');
+    setGpsResolved(true);
+   },
+   { enableHighAccuracy: false, timeout: 6000, maximumAge: forceRefresh ? 0 : 60000 },
+  );
+ }, []);
+
  useEffect(() => {
   const sp = new URLSearchParams(window.location.search);
   const initialQ = sp.get('q') || '';
   const initialGroup = sp.get('group') || '';
-  const urlCity = sp.get('city');
   if (initialQ) {
    setQuery(initialQ);
    setDebouncedQuery(initialQ);
   }
   if (initialGroup) setGroup(initialGroup);
-
-  if (urlCity === 'all') {
-   setCity('');
-  } else if (urlCity && MAJOR_CITIES.some((c) => c.slug === urlCity)) {
-   setCity(urlCity as CitySlug);
-  } else {
-   try {
-    const saved = window.localStorage.getItem(CITY_STORAGE_KEY);
-    if (saved && MAJOR_CITIES.some((c) => c.slug === saved)) {
-     setCity(saved as CitySlug);
-    }
-   } catch {}
-  }
-
   setLocalSaved(loadSavedPlaces());
   refreshHub();
   setInitialized(true);
- }, [refreshHub]);
 
- const activeCityMeta = useMemo(() => (city ? getCityMeta(city) : null), [city]);
- const popularChips = activeCityMeta ? activeCityMeta.popularGroups : POPULAR_SEARCH_GROUPS;
- const districtChips = activeCityMeta ? activeCityMeta.districts : MAJOR_CITIES[0].districts.slice(0, 4).concat(MAJOR_CITIES[1].districts.slice(0, 4));
+  const fallbackTimer = window.setTimeout(() => setGpsResolved(true), 3000);
+  requestGps(false);
+  return () => window.clearTimeout(fallbackTimer);
+ }, [refreshHub, requestGps]);
 
  const isPro = Boolean(hub?.user?.pro);
 
@@ -155,10 +156,10 @@ export default function FoodSearch() {
   return () => window.clearTimeout(t);
  }, [query]);
 
- const hasCriteria = Boolean(group || debouncedQuery || city || origin);
+ const hasCriteria = Boolean(group || debouncedQuery || origin);
 
  useEffect(() => {
-  if (!initialized) return;
+  if (!initialized || !gpsResolved) return;
   const seq = ++seqRef.current;
   setLoading(true);
   setError('');
@@ -168,7 +169,6 @@ export default function FoodSearch() {
    limit: String(hasCriteria ? pageSize : 1),
    offset: String(page * pageSize),
   });
-  if (city) params.set('city', city);
   if (group) params.set('group', group);
   if (debouncedQuery) params.set('q', debouncedQuery);
   if (origin) {
@@ -180,11 +180,6 @@ export default function FoodSearch() {
    .then((result) => {
     if (seq !== seqRef.current) return;
     setGroups(result.groups);
-    if (result.cities?.length) {
-     const map: Record<string, number> = {};
-     for (const c of result.cities) map[c.slug] = c.count;
-     setCityCounts((prev) => (Object.keys(prev).length ? prev : map));
-    }
     setData(hasCriteria ? result : null);
    })
    .catch((e) => {
@@ -193,18 +188,7 @@ export default function FoodSearch() {
    .finally(() => {
     if (seq === seqRef.current) setLoading(false);
    });
- }, [initialized, city, group, debouncedQuery, hasCriteria, page, origin, retry]);
-
- function handleSelectCity(nextCity: CitySlug | '') {
-  setCity(nextCity);
-  setOrigin(null);
-  setPage(0);
-  if (nextCity) {
-   try {
-    window.localStorage.setItem(CITY_STORAGE_KEY, nextCity);
-   } catch {}
-  }
- }
+ }, [initialized, gpsResolved, group, debouncedQuery, hasCriteria, page, origin, retry]);
 
  async function visitById(id: string) {
   setBusy(true);
@@ -241,44 +225,34 @@ export default function FoodSearch() {
    />
 
    <section className="discovery-hero">
-    <div className="city-quick-strip" role="tablist" aria-label="Lọc theo thành phố">
-     <span className="city-strip-label" aria-hidden="true">📍 Thành phố:</span>
-     <button
-      type="button"
-      role="tab"
-      aria-selected={city === ''}
-      className={`city-pill${city === '' ? ' is-active' : ''}`}
-      onClick={() => handleSelectCity('')}
-     >
-      Tất cả (10 TP)
-     </button>
-     {MAJOR_CITIES.map((c) => (
-      <button
-       key={c.slug}
-       type="button"
-       role="tab"
-       aria-selected={city === c.slug}
-       className={`city-pill${city === c.slug ? ' is-active' : ''}`}
-       onClick={() => handleSelectCity(c.slug)}
-      >
-       {c.label}
-      </button>
-     ))}
-    </div>
-
     <div className="discovery-prompt-row">
      <div>
       <h1 className="discovery-heading">
-       Tìm theo món, quán <em>hoặc tên phố</em>
+       Tìm theo món, quán <em>hoặc tên đường</em>
       </h1>
-      <p className="discovery-sub">
-       {activeCityMeta ? `Đang tìm tại ${activeCityMeta.label}` : 'Đang tìm trên toàn bộ 10 thành phố lớn'} · Gõ có dấu hay không dấu đều được.
-      </p>
+     </div>
+
+     <div className="top-controls-right">
+      <button
+       type="button"
+       className={`location-pill-btn${origin ? ' is-located' : ''}`}
+       onClick={() => requestGps(true)}
+       title="Cập nhật vị trí hiện tại của bạn"
+      >
+       <span className="location-dot" aria-hidden="true" />
+       <span>
+        {origin
+         ? 'Vị trí của bạn'
+         : gpsState === 'locating'
+          ? 'Đang lấy vị trí…'
+          : 'Lấy vị trí của bạn'}
+       </span>
+      </button>
      </div>
     </div>
 
     <div className="search-controls-card">
-     <div className="search-controls-row is-three-col">
+     <div className="search-controls-row">
       <label className="search-field-group" htmlFor="food-search-input">
        <span>Từ khóa (món ăn, đồ uống, tên quán, đường phố)</span>
        <input
@@ -287,28 +261,8 @@ export default function FoodSearch() {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         maxLength={120}
-        placeholder={
-         activeCityMeta
-          ? activeCityMeta.sampleFoodSearch
-          : 'Ví dụ: cơm tấm, phở bò, mì Quảng, bún bò Huế, Nguyễn Trãi…'
-        }
+        placeholder="Ví dụ: phở bò, cơm tấm, bún chả, hủ tiếu, mì Quảng…"
        />
-      </label>
-
-      <label className="search-field-group" htmlFor="food-city-select">
-       <span>Thành phố</span>
-       <select
-        id="food-city-select"
-        value={city}
-        onChange={(e) => handleSelectCity(e.target.value as CitySlug | '')}
-       >
-        <option value="">Tất cả 10 thành phố lớn</option>
-        {MAJOR_CITIES.map((c) => (
-         <option key={c.slug} value={c.slug}>
-          {c.label}{cityCounts[c.slug] ? ` (${cityCounts[c.slug].toLocaleString('vi-VN')} quán)` : ''}
-         </option>
-        ))}
-       </select>
       </label>
 
       <label className="search-field-group" htmlFor="food-group">
@@ -334,7 +288,7 @@ export default function FoodSearch() {
 
      <div className="popular-chips" role="group" aria-label="Chọn nhanh món phổ biến">
       <span className="popular-chips-label">Hay tìm:</span>
-      {popularChips.map((g) => (
+      {POPULAR_SEARCH_GROUPS.map((g) => (
        <button
         key={g}
         type="button"
@@ -345,28 +299,6 @@ export default function FoodSearch() {
         }}
        >
         {g}
-       </button>
-      ))}
-     </div>
-
-     <div className="popular-chips" role="group" aria-label="Xếp gần khu vực">
-      <span className="popular-chips-label">Xếp gần:</span>
-      {districtChips.slice(0, 8).map((p) => (
-       <button
-        key={p.id}
-        type="button"
-        className={`popular-chip${origin?.label === p.label ? ' is-selected' : ''}`}
-        onClick={() => {
-         if (origin?.label === p.label) {
-          setOrigin(null);
-         } else {
-          if (p.city !== city) setCity(p.city);
-          setOrigin({ lat: p.lat, lng: p.lng, label: p.label });
-         }
-         setPage(0);
-        }}
-       >
-        {p.label.split(' · ')[0]}
        </button>
       ))}
      </div>
@@ -382,14 +314,14 @@ export default function FoodSearch() {
 
    {gate && <p className="message" role="status">{gate}</p>}
 
-   {!hasCriteria && !error && (
+   {!hasCriteria && !loading && !error && (
     <div className="food-search-empty">
      <span aria-hidden="true">✦</span>
-     <p>Chọn một thành phố, nhóm món hoặc gõ từ khóa ở trên để xem danh sách quán được yêu thích.</p>
+     <p>Gõ tên món / tên đường hoặc bật vị trí của bạn để xem ngay các quán gần nhất.</p>
     </div>
    )}
 
-   {hasCriteria && loading && !data && (
+   {(loading && !data) && (
     <div className="food-grid" aria-label="Đang tìm quán">
      {[0, 1, 2, 3].map((i) => (
       <div className="skeleton-card" key={i} aria-hidden="true">
@@ -409,12 +341,11 @@ export default function FoodSearch() {
      <div className="food-search-caption" role="status">
       <b>
        {data.total.toLocaleString('vi-VN')} quán
-       {activeCityMeta ? ` tại ${activeCityMeta.label}` : ' trên 10 thành phố'}
        {group ? ` · ${group}` : ''}
        {debouncedQuery ? ` · “${debouncedQuery}”` : ''}
       </b>
       <span>
-       {origin ? `Xếp gần → xa quanh ${origin.label}` : 'Ưu tiên quán nhiều lượt lưu yêu thích'}
+       {origin ? 'Xếp gần → xa từ vị trí của bạn' : 'Ưu tiên quán được yêu thích · Bấm “Lấy vị trí của bạn” để xếp gần nhất'}
       </span>
      </div>
 
@@ -439,7 +370,7 @@ export default function FoodSearch() {
      {!data.items.length && !loading && (
       <div className="food-search-empty">
        <span aria-hidden="true">…</span>
-       <p>Chưa thấy quán nào khớp. Thử gõ từ khóa ngắn hơn hoặc chuyển sang “Tất cả (10 TP)”.</p>
+       <p>Chưa thấy quán nào khớp. Thử gõ từ khóa ngắn hơn hoặc bỏ bớt bộ lọc nhóm.</p>
       </div>
      )}
 
@@ -504,9 +435,9 @@ export default function FoodSearch() {
    )}
 
    <footer className="discovery-footer">
-    <span>Ăn gì đây? · 10 thành phố lớn kèm nhãn độ yêu thích & thời tiết thực tế tại quán.</span>
+    <span>Ăn gì đây? · Gắn nhãn độ yêu thích & thời tiết thực tế tại quán.</span>
     <div className="discovery-footer-links">
-     <a href={city ? `/?city=${city}` : '/'}>← Về Gợi ý</a>
+     <a href="/">← Về Gợi ý</a>
      <a href="/about">Về dữ liệu</a>
      <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">
       © OpenStreetMap · ODbL

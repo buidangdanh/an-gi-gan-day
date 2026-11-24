@@ -6,16 +6,10 @@ import {
  AccountHubData,
  AccountPreferences,
  api,
- AreaPreset,
  CategoryKind,
  CITY_STORAGE_KEY,
- CitySlug,
  DRINK_MOOD_OPTIONS,
  FOOD_MOOD_OPTIONS,
- getCityMeta,
- MAJOR_CITIES,
- nearestCityFromCoords,
- parseSavedDefaultLocation,
  Restaurant,
  SuggestionMood,
 } from '../api';
@@ -26,7 +20,7 @@ import { siteName } from '../brand';
 import { withMapTab } from '../map-tab';
 
 type Catalogue = { items: Restaurant[]; hasMore: boolean; page?: number; mood?: SuggestionMood };
-type OriginState = { lat: number; lng: number; label: string; mode: 'gps' | 'preset'; presetId?: string };
+type OriginState = { lat: number; lng: number; label: string };
 
 function quantizeForQuery(lat: number, lng: number) {
  const qLat = Math.round(lat / 0.00135) * 0.00135;
@@ -34,28 +28,27 @@ function quantizeForQuery(lat: number, lng: number) {
  return { lat: Number(qLat.toFixed(4)), lng: Number(qLng.toFixed(4)) };
 }
 
-function getMealGreeting(hour: number, kind: CategoryKind): { heading: string; accent: string; hint: string } {
+function getMealGreeting(hour: number, kind: CategoryKind): { heading: string; accent: string } {
  if (kind === 'drink') {
-  if (hour >= 5 && hour < 11) return { heading: 'Sáng nay uống gì', accent: 'cho tỉnh táo?', hint: '4 quán đồ uống hoàn toàn tách biệt với đồ ăn.' };
-  if (hour >= 11 && hour < 17) return { heading: 'Trưa chiều uống gì', accent: 'mát lạnh ngay?', hint: 'Cà phê, trà sữa, trà trái cây — 4 gợi ý thuần đồ uống.' };
-  return { heading: 'Tối nay ngồi đâu', accent: 'nhâm nhi trò chuyện?', hint: '4 gợi ý thuần đồ uống kèm thời tiết quanh quán.' };
+  if (hour >= 5 && hour < 11) return { heading: 'Sáng nay uống gì', accent: 'cho tỉnh táo?' };
+  if (hour >= 11 && hour < 17) return { heading: 'Trưa chiều uống gì', accent: 'mát lạnh ngay?' };
+  return { heading: 'Tối nay ngồi đâu', accent: 'nhâm nhi trò chuyện?' };
  }
- if (hour >= 5 && hour < 10) return { heading: 'Sáng nay ăn gì', accent: 'ấm bụng đây?', hint: '4 món ăn khác nhau — không lẫn đồ uống.' };
- if (hour >= 10 && hour < 14) return { heading: 'Trưa nay ăn gì', accent: 'đỡ phải nghĩ?', hint: '4 món ăn khác hẳn nhau, ưu tiên quán được yêu thích.' };
- if (hour >= 14 && hour < 17) return { heading: 'Chiều hơi đói,', accent: 'ăn nhẹ món gì?', hint: 'Chạm vào bất kỳ thẻ nào để mở tùy chọn nhanh.' };
- if (hour >= 17 && hour < 21) return { heading: 'Tối nay đổi vị', accent: 'món ngon nào?', hint: '4 món ăn tách biệt rõ ràng — bấm là đi ngay.' };
- return { heading: 'Đêm muộn rồi,', accent: 'ăn gì ấm bụng?', hint: 'Đổi nhanh 4 món khác nếu chưa đúng ý.' };
+ if (hour >= 5 && hour < 10) return { heading: 'Sáng nay ăn gì', accent: 'ấm bụng đây?' };
+ if (hour >= 10 && hour < 14) return { heading: 'Trưa nay ăn gì', accent: 'đỡ phải nghĩ?' };
+ if (hour >= 14 && hour < 17) return { heading: 'Chiều hơi đói,', accent: 'ăn nhẹ món gì?' };
+ if (hour >= 17 && hour < 21) return { heading: 'Tối nay đổi vị', accent: 'món ngon nào?' };
+ return { heading: 'Đêm muộn rồi,', accent: 'ăn gì ấm bụng?' };
 }
 
 function buildUrl(
- city: CitySlug,
  page: number,
  mood: SuggestionMood,
  ref: OriginState | null,
  excludedGroups: string[],
  proBoost: boolean,
 ) {
- const params = new URLSearchParams({ suggestions: 'true', city, page: String(page), mood });
+ const params = new URLSearchParams({ suggestions: 'true', page: String(page), mood });
  if (excludedGroups.length) params.set('excludeGroups', excludedGroups.join(','));
  if (proBoost) params.set('proBoost', 'true');
  if (ref) {
@@ -68,8 +61,6 @@ function buildUrl(
 
 export default function Hanoi() {
  const router = useRouter();
- const [city, setCity] = useState<CitySlug>('ha-noi');
- const [cityReady, setCityReady] = useState(false);
  const [kind, setKind] = useState<CategoryKind>('food');
  const [mood, setMood] = useState<SuggestionMood>('all');
  const [data, setData] = useState<Catalogue | null>(null);
@@ -79,8 +70,8 @@ export default function Hanoi() {
 
  const [exactGps, setExactGps] = useState<{ lat: number; lng: number } | null>(null);
  const [origin, setOrigin] = useState<OriginState | null>(null);
- const [areaOpen, setAreaOpen] = useState(false);
- const [gpsState, setGpsState] = useState<'idle' | 'locating' | 'ready' | 'denied'>('idle');
+ const [gpsState, setGpsState] = useState<'locating' | 'ready' | 'denied'>('locating');
+ const [gpsResolved, setGpsResolved] = useState(false);
 
  const [error, setError] = useState('');
  const [loading, setLoading] = useState(true);
@@ -104,43 +95,15 @@ export default function Hanoi() {
  const [pickedIdx, setPickedIdx] = useState<number | null>(null);
 
  const originRef = useRef<OriginState | null>(null);
- const manualCityPickedRef = useRef(false);
  const watchId = useRef<number | undefined>(undefined);
  const requestSeq = useRef(0);
  const prefetchCache = useRef<Map<string, Catalogue>>(new Map());
  const searchInputRef = useRef<HTMLInputElement>(null);
 
- const activeCity = useMemo(() => getCityMeta(city), [city]);
-
- const saveCityChoice = useCallback((nextCity: CitySlug, manual = true) => {
-  if (manual) manualCityPickedRef.current = true;
-  setCity(nextCity);
-  try {
-   window.localStorage.setItem(CITY_STORAGE_KEY, nextCity);
-  } catch {}
- }, []);
-
  const refreshHub = useCallback(async () => {
   try {
    const h = await api<AccountHubData>('/account/hub');
    setHub(h);
-   if (h?.preferences?.default_area && !originRef.current && !manualCityPickedRef.current) {
-    const parsed = parseSavedDefaultLocation(h.preferences.default_area);
-    if (parsed) {
-     setCity(parsed.city);
-     if (parsed.preset) {
-      const nextOrigin: OriginState = {
-       lat: parsed.preset.lat,
-       lng: parsed.preset.lng,
-       label: parsed.preset.label,
-       mode: 'preset',
-       presetId: parsed.preset.id,
-      };
-      originRef.current = nextOrigin;
-      setOrigin(nextOrigin);
-     }
-    }
-   }
    return h;
   } catch {
    return null;
@@ -151,19 +114,8 @@ export default function Hanoi() {
   setHour(new Date().getHours());
   setLocalSaved(loadSavedPlaces());
   try {
-   const sp = new URLSearchParams(window.location.search);
-   const urlCity = sp.get('city');
-   const storedCity = window.localStorage.getItem(CITY_STORAGE_KEY);
-   if (urlCity && MAJOR_CITIES.some((c) => c.slug === urlCity)) {
-    manualCityPickedRef.current = true;
-    setCity(urlCity as CitySlug);
-    window.localStorage.setItem(CITY_STORAGE_KEY, urlCity);
-   } else if (storedCity && MAJOR_CITIES.some((c) => c.slug === storedCity)) {
-    manualCityPickedRef.current = true;
-    setCity(storedCity as CitySlug);
-   }
+   window.localStorage.removeItem(CITY_STORAGE_KEY);
   } catch {}
-  setCityReady(true);
   refreshHub();
  }, [refreshHub]);
 
@@ -223,83 +175,71 @@ export default function Hanoi() {
   });
  }, []);
 
- const handlePrefsChanged = useCallback(
-  (prefs: AccountPreferences) => {
-   prefetchCache.current.clear();
+ const handlePrefsChanged = useCallback((_prefs: AccountPreferences) => {
+  prefetchCache.current.clear();
+  setPage(0);
+ }, []);
+
+ const applyCoords = useCallback((lat: number, lng: number, forceUpdate = false) => {
+  const next = { lat, lng };
+  setExactGps(next);
+  setGpsState('ready');
+  setGpsResolved(true);
+  const current = originRef.current;
+  if (!current || forceUpdate || (currentDistanceMeters(current, next) ?? 0) >= 120) {
+   const nextOrigin: OriginState = { lat, lng, label: 'Vị trí của bạn' };
+   originRef.current = nextOrigin;
+   setOrigin(nextOrigin);
    setPage(0);
-   if (prefs.default_area) {
-    const parsed = parseSavedDefaultLocation(prefs.default_area);
-    if (parsed) {
-     saveCityChoice(parsed.city, true);
-     if (parsed.preset) {
-      const nextOrigin: OriginState = {
-       lat: parsed.preset.lat,
-       lng: parsed.preset.lng,
-       label: parsed.preset.label,
-       mode: 'preset',
-       presetId: parsed.preset.id,
-      };
-      originRef.current = nextOrigin;
-      setOrigin(nextOrigin);
-     } else {
-      originRef.current = null;
-      setOrigin(null);
-     }
-    }
-   }
-  },
-  [saveCityChoice],
- );
+  }
+ }, []);
 
  const requestGps = useCallback(
-  (silent = false) => {
+  (forceRefresh = false) => {
    if (typeof window === 'undefined' || !window.isSecureContext || !navigator.geolocation) {
-    if (!silent) setGpsState('denied');
+    setGpsState('denied');
+    setGpsResolved(true);
     return;
    }
    setGpsState('locating');
+
+   navigator.geolocation.getCurrentPosition(
+    (p) => applyCoords(p.coords.latitude, p.coords.longitude, forceRefresh),
+    () => {
+     if (!originRef.current) setGpsState('denied');
+     setGpsResolved(true);
+    },
+    { enableHighAccuracy: false, timeout: 6000, maximumAge: forceRefresh ? 0 : 60000 },
+   );
+
    if (watchId.current !== undefined) navigator.geolocation.clearWatch(watchId.current);
    watchId.current = navigator.geolocation.watchPosition(
-    (p) => {
-     const next = { lat: p.coords.latitude, lng: p.coords.longitude };
-     setExactGps(next);
-     setGpsState('ready');
-     const detectedCity = nearestCityFromCoords(next.lat, next.lng);
-     const current = originRef.current;
-     if (!silent || (!manualCityPickedRef.current && !current)) {
-      if (detectedCity) saveCityChoice(detectedCity.slug, !silent);
-      const nextOrigin: OriginState = { ...next, label: 'Gần vị trí của bạn', mode: 'gps' };
-      originRef.current = nextOrigin;
-      setOrigin(nextOrigin);
-      setPage(0);
-     } else if (current?.mode === 'gps' && (currentDistanceMeters(current, next) ?? 0) >= 120) {
-      if (detectedCity && !manualCityPickedRef.current) setCity(detectedCity.slug);
-      const nextOrigin: OriginState = { ...next, label: 'Gần vị trí của bạn', mode: 'gps' };
-      originRef.current = nextOrigin;
-      setOrigin(nextOrigin);
-      setPage(0);
-     }
-    },
+    (p) => applyCoords(p.coords.latitude, p.coords.longitude, false),
     () => {
-     setGpsState('denied');
+     if (!originRef.current) setGpsState('denied');
+     setGpsResolved(true);
     },
-    { enableHighAccuracy: false, timeout: 12000, maximumAge: 30000 },
+    { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 },
    );
   },
-  [saveCityChoice],
+  [applyCoords],
  );
 
  useEffect(() => {
-  requestGps(true);
+  const fallbackTimer = window.setTimeout(() => {
+   setGpsResolved(true);
+  }, 3000);
+  requestGps(false);
   return () => {
+   window.clearTimeout(fallbackTimer);
    if (watchId.current !== undefined) navigator.geolocation.clearWatch(watchId.current);
   };
  }, [requestGps]);
 
  useEffect(() => {
-  if (!cityReady) return;
+  if (!gpsResolved) return;
   const seq = ++requestSeq.current;
-  const url = buildUrl(city, page, mood, origin, activeExcluded, activeProBoost);
+  const url = buildUrl(page, mood, origin, activeExcluded, activeProBoost);
   setPickedIdx(null);
   setHighlightIdx(null);
   setError('');
@@ -328,7 +268,7 @@ export default function Hanoi() {
     setLoading(false);
 
     if (result.hasMore) {
-     const nextUrl = buildUrl(city, page + 1, mood, origin, activeExcluded, activeProBoost);
+     const nextUrl = buildUrl(page + 1, mood, origin, activeExcluded, activeProBoost);
      if (!prefetchCache.current.has(nextUrl)) {
       api<Catalogue>(nextUrl)
        .then((nextResult) => {
@@ -349,7 +289,7 @@ export default function Hanoi() {
   return () => {
    requestSeq.current++;
   };
- }, [cityReady, city, page, mood, origin, activeExcluded, activeProBoost, retry]);
+ }, [gpsResolved, page, mood, origin, activeExcluded, activeProBoost, retry]);
 
  const nextFour = useCallback(() => {
   if (loading || busy || picking) return;
@@ -374,18 +314,6 @@ export default function Hanoi() {
   return () => window.removeEventListener('keydown', onKeyDown);
  }, [nextFour, activeCard, compareOpen]);
 
- function switchCity(nextCity: CitySlug) {
-  if (nextCity === city) {
-   setAreaOpen((v) => !v);
-   return;
-  }
-  saveCityChoice(nextCity, true);
-  originRef.current = null;
-  setOrigin(null);
-  setPage(0);
-  setPickedIdx(null);
- }
-
  function switchKind(nextKind: CategoryKind) {
   if (nextKind === kind) return;
   setKind(nextKind);
@@ -399,43 +327,6 @@ export default function Hanoi() {
   setMood(nextMood);
   setPage(0);
   setPickedIdx(null);
- }
-
- function chooseAreaPreset(preset: AreaPreset) {
-  if (preset.city !== city) saveCityChoice(preset.city, true);
-  const nextOrigin: OriginState = {
-   lat: preset.lat,
-   lng: preset.lng,
-   label: preset.label,
-   mode: 'preset',
-   presetId: preset.id,
-  };
-  originRef.current = nextOrigin;
-  setOrigin(nextOrigin);
-  setPage(0);
-  setAreaOpen(false);
- }
-
- function useDeviceGps() {
-  if (exactGps) {
-   const detected = nearestCityFromCoords(exactGps.lat, exactGps.lng);
-   if (detected) saveCityChoice(detected.slug, true);
-   const nextOrigin: OriginState = { ...exactGps, label: 'Gần vị trí của bạn', mode: 'gps' };
-   originRef.current = nextOrigin;
-   setOrigin(nextOrigin);
-   setPage(0);
-   setAreaOpen(false);
-  } else {
-   requestGps(false);
-   setAreaOpen(false);
-  }
- }
-
- function clearLocation() {
-  originRef.current = null;
-  setOrigin(null);
-  setPage(0);
-  setAreaOpen(false);
  }
 
  function quickDecide() {
@@ -455,7 +346,7 @@ export default function Hanoi() {
     setPickedIdx(winner);
     setPicking(false);
     const chosen = items[winner];
-    const refPoint = origin?.mode === 'gps' && exactGps ? exactGps : origin;
+    const refPoint = exactGps || origin;
     const dist = refPoint ? currentDistanceMeters(refPoint, chosen) ?? chosen.distance ?? null : null;
     setActiveCard({ restaurant: chosen, distance: dist });
    }
@@ -486,14 +377,11 @@ export default function Hanoi() {
  function submitQuickSearch(e: React.FormEvent) {
   e.preventDefault();
   const q = quickQuery.trim();
-  const params = new URLSearchParams({ city });
-  if (q) params.set('q', q);
-  router.push('/tim-kiem?' + params.toString());
+  router.push(q ? '/tim-kiem?q=' + encodeURIComponent(q) : '/tim-kiem');
  }
 
  const greeting = getMealGreeting(hour, kind);
  const moodList = kind === 'drink' ? DRINK_MOOD_OPTIONS : FOOD_MOOD_OPTIONS;
- const activeMoodObj = moodList.find((m) => m.id === mood) || moodList[0];
 
  return (
   <main className="discovery-shell">
@@ -510,33 +398,11 @@ export default function Hanoi() {
    />
 
    <section className="discovery-hero" aria-label="Bắt đầu chọn món">
-    {/* 1-tap City Selector Strip across 10 Major Cities */}
-    <div className="city-quick-strip" role="tablist" aria-label="Chọn thành phố">
-     <span className="city-strip-label" aria-hidden="true">📍 Thành phố:</span>
-     {MAJOR_CITIES.map((c) => (
-      <button
-       key={c.slug}
-       type="button"
-       role="tab"
-       aria-selected={city === c.slug}
-       className={`city-pill${city === c.slug ? ' is-active' : ''}`}
-       onClick={() => switchCity(c.slug)}
-      >
-       {c.label}
-      </button>
-     ))}
-    </div>
-
     <div className="discovery-prompt-row">
      <div>
       <h1 className="discovery-heading">
        {greeting.heading} <em>{greeting.accent}</em>
       </h1>
-      <p className="discovery-sub">
-       <b>{activeCity.label}</b> · {activeMoodObj.hint}
-       {activeProBoost ? ' · ⚡ Ưu tiên quán Top Yêu thích (Pro)' : ` · ${greeting.hint}`}
-       {activeExcluded.length > 0 ? ` · Đang ẩn ${activeExcluded.length} món` : ''}
-      </p>
      </div>
 
      <div className="top-controls-right">
@@ -566,59 +432,20 @@ export default function Hanoi() {
       <button
        type="button"
        className={`location-pill-btn${origin ? ' is-located' : ''}`}
-       aria-expanded={areaOpen}
-       onClick={() => setAreaOpen((v) => !v)}
+       onClick={() => requestGps(true)}
+       title="Cập nhật vị trí hiện tại của bạn"
       >
        <span className="location-dot" aria-hidden="true" />
        <span>
         {origin
-         ? `${activeCity.shortLabel} · ${origin.label.split(' · ')[0]}`
+         ? 'Vị trí của bạn'
          : gpsState === 'locating'
-          ? `${activeCity.shortLabel} · Đang định vị…`
-          : `Quận / Khu vực · ${activeCity.shortLabel}`}
+          ? 'Đang lấy vị trí…'
+          : 'Lấy vị trí của bạn'}
        </span>
-       <span aria-hidden="true">{areaOpen ? '▴' : '▾'}</span>
       </button>
      </div>
     </div>
-
-    {areaOpen && (
-     <div className="area-drawer" role="region" aria-label="Chọn quận hoặc khu vực gần bạn">
-      <div className="area-drawer-head">
-       <span>Xếp 4 gợi ý gần quận / khu vực nào tại <b>{activeCity.label}</b>?</span>
-       <button type="button" className="text-button" onClick={() => setAreaOpen(false)}>Đóng</button>
-      </div>
-      <div className="area-chips">
-       <button
-        type="button"
-        className={`area-chip${!origin ? ' is-selected' : ''}`}
-        onClick={clearLocation}
-       >
-        ✦ Toàn {activeCity.label}
-       </button>
-       <button
-        type="button"
-        className={`area-chip${origin?.mode === 'gps' ? ' is-selected' : ''}`}
-        onClick={useDeviceGps}
-       >
-        ◎ Vị trí hiện tại (GPS)
-       </button>
-       {activeCity.districts.map((p) => (
-        <button
-         key={p.id}
-         type="button"
-         className={`area-chip${origin?.presetId === p.id || origin?.label === p.label ? ' is-selected' : ''}`}
-         onClick={() => chooseAreaPreset(p)}
-        >
-         {p.label}
-        </button>
-       ))}
-      </div>
-      <p className="area-privacy-note">
-       Riêng tư: Khoảng cách tính ngay trên thiết bị; tọa độ gửi tìm kiếm chỉ làm tròn theo ô ~150 m.
-      </p>
-     </div>
-    )}
 
     <form className="quick-search-bar" onSubmit={submitQuickSearch} role="search" aria-label="Tìm nhanh món hoặc tên phố">
      <input
@@ -627,8 +454,12 @@ export default function Hanoi() {
       value={quickQuery}
       onChange={(e) => setQuickQuery(e.target.value)}
       maxLength={120}
-      placeholder={kind === 'drink' ? activeCity.sampleDrinkSearch : activeCity.sampleFoodSearch}
-      aria-label="Tìm nhanh món ăn, đồ uống, tên quán hoặc tên phố"
+      placeholder={
+       kind === 'drink'
+        ? 'Tìm cà phê, trà sữa, tên quán hoặc tên đường gần bạn…'
+        : 'Tìm phở bò, cơm tấm, bún chả, hủ tiếu, tên quán hoặc đường…'
+      }
+      aria-label="Tìm nhanh món ăn, đồ uống, tên quán hoặc tên đường"
      />
      <button type="submit">Tìm món ↗</button>
     </form>
@@ -677,7 +508,7 @@ export default function Hanoi() {
      <>
       <div className="food-grid" aria-label={kind === 'drink' ? 'Bốn gợi ý đồ uống' : 'Bốn gợi ý món ăn'} aria-busy={loading}>
        {data.items.map((r, i) => {
-        const refPoint = origin?.mode === 'gps' && exactGps ? exactGps : origin;
+        const refPoint = exactGps || origin;
         const distance = refPoint ? currentDistanceMeters(refPoint, r) ?? r.distance ?? null : null;
         return (
          <SuggestionCard
@@ -702,7 +533,7 @@ export default function Hanoi() {
       {data.items.length === 0 && (
        <div className="food-search-empty" role="status">
         <span aria-hidden="true">✦</span>
-        <p>Chưa có đủ quán cho thiết lập hiện tại tại {activeCity.label}. Bạn có thể chọn nhóm món khác hoặc đổi thành phố ở trên.</p>
+        <p>Chưa có đủ quán cho thiết lập hiện tại. Bạn có thể chọn nhóm món khác ở trên.</p>
        </div>
       )}
 
@@ -757,7 +588,7 @@ export default function Hanoi() {
 
       <div className="round-meta">
        <span>
-        {activeCity.label} · Lượt {page + 1} · {kind === 'drink' ? 'Thuần đồ uống' : 'Thuần món ăn'} · Chạm vào thẻ để mở nhanh các tùy chọn.
+        Lượt {page + 1} · {kind === 'drink' ? 'Thuần đồ uống' : 'Thuần món ăn'} · Chạm vào thẻ để mở nhanh các tùy chọn.
        </span>
        <span className="kbd-hint">
         Phím tắt: <kbd>R</kbd> đổi 4 quán · <kbd>/</kbd> tìm nhanh
@@ -795,9 +626,9 @@ export default function Hanoi() {
    )}
 
    <footer className="discovery-footer">
-    <span>{siteName} · 10 thành phố lớn kèm nhãn độ yêu thích & thời tiết thực tế tại quán.</span>
+    <span>{siteName} · Gắn nhãn độ yêu thích & thời tiết thực tế tại quán.</span>
     <div className="discovery-footer-links">
-     <a href={`/tim-kiem?city=${city}`}>Tìm món</a>
+     <a href="/tim-kiem">Tìm món</a>
      <a href="/about">Về dữ liệu</a>
      <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">
       © OpenStreetMap · ODbL
