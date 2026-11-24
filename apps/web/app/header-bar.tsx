@@ -59,7 +59,7 @@ export function toggleLocalSavedPlace(list: SavedPlace[], r: Restaurant): SavedP
 type HubTab = 'profile' | 'saved' | 'personalize' | 'plans';
 
 type HeaderProps = {
- activeTab: 'suggest' | 'search';
+ activeTab?: 'suggest' | 'search';
  hub: AccountHubData | null;
  localSaved: SavedPlace[];
  externalOpenTab?: HubTab | null;
@@ -68,10 +68,10 @@ type HeaderProps = {
  onRemoveLocalSaved: (id: string) => void;
  onVisitPlaceId: (id: string) => void;
  onPreferencesChanged?: (prefs: AccountPreferences) => void;
+ onResetHome?: () => void;
 };
 
 export function HeaderBar({
- activeTab,
  hub,
  localSaved,
  externalOpenTab,
@@ -80,6 +80,7 @@ export function HeaderBar({
  onRemoveLocalSaved,
  onVisitPlaceId,
  onPreferencesChanged,
+ onResetHome,
 }: HeaderProps) {
  const [open, setOpen] = useState(false);
  const [tab, setTab] = useState<HubTab>('profile');
@@ -312,7 +313,16 @@ export function HeaderBar({
       )}
      </button>
 
-     <a href="/" className="discovery-brand">
+     <a
+      href="/"
+      className="discovery-brand"
+      onClick={(e) => {
+       if (onResetHome) {
+        e.preventDefault();
+        onResetHome();
+       }
+      }}
+     >
       <span className="discovery-brand-mark" aria-hidden="true">ă.</span>
       <span className="discovery-brand-text">
        <span className="discovery-brand-name">
@@ -322,15 +332,6 @@ export function HeaderBar({
       </span>
      </a>
     </div>
-
-    <nav className="discovery-nav" aria-label="Điều hướng chính">
-     <a href="/" className={activeTab === 'suggest' ? 'is-active' : ''} aria-current={activeTab === 'suggest' ? 'page' : undefined}>
-      Gợi ý
-     </a>
-     <a href="/tim-kiem" className={activeTab === 'search' ? 'is-active' : ''} aria-current={activeTab === 'search' ? 'page' : undefined}>
-      Tìm món
-     </a>
-    </nav>
    </header>
 
    {open && (

@@ -272,3 +272,46 @@ test('Đa thành phố (TP.HCM, Đà Nẵng, Hà Nội): phân loại đặc s�
   await db.query('DELETE FROM restaurants WHERE id=ANY($1::uuid[])',[[...hcmIds,dnId]]);
  }
 });
+
+test('Ưu tiên quán nhiều lượt yêu thích và sắp xếp nghiêm ngặt từ gần đến xa cho cả Gợi ý & Tìm kiếm',async()=>{
+ const tag='kiemthuutien'+randomUUID().slice(0,6);
+ const unratedClose=randomUUID();
+ const favMid=randomUUID();
+ const favFar=randomUUID();
+ const sug2=randomUUID(),sug3=randomUUID(),sug4=randomUUID();
+ const allIds=[unratedClose,favMid,favFar,sug2,sug3,sug4];
+ const mkDish=(g:string)=>JSON.stringify([{name:g+' '+tag,group:g,tags:['trưa'],price:null,bestsellerSource:null}]);
+ await db.query(
+  `INSERT INTO restaurants(id,name,address,lat,lng,dishes,source,demo,foody_id,classification_source,popularity_badge,popularity_saves,popularity_score) VALUES
+   ($1,$2,'Điểm test',14.5003,108.5000,$3,'Foody test',false,920000001,'name_inferred',NULL,0,0),
+   ($4,$5,'Điểm test',14.5022,108.5000,$6,'Foody test',false,920000002,'name_inferred','top_fav',180,85),
+   ($7,$8,'Điểm test',14.5055,108.5000,$9,'Foody test',false,920000003,'name_inferred','top_fav',360,92),
+   ($10,'Bún Chả Yêu Thích','Điểm test',14.5040,108.5000,$11,'Foody test',false,920000004,'name_inferred','top_fav',210,88),
+   ($12,'Cơm Tấm Yêu Thích','Điểm test',14.5012,108.5000,$13,'Foody test',false,920000005,'name_inferred','top_fav',150,82),
+   ($14,'Bánh Mì Yêu Thích','Điểm test',14.5065,108.5000,$15,'Foody test',false,920000006,'name_inferred','top_fav',95,79)`,
+  [
+   unratedClose,'Phở Chưa Lưu '+tag,mkDish('phở bò'),
+   favMid,'Phở Đông Khách Gần '+tag,mkDish('phở bò'),
+   favFar,'Phở Đông Khách Xa '+tag,mkDish('phở bò'),
+   sug2,mkDish('bún chả'),
+   sug3,mkDish('cơm tấm'),
+   sug4,mkDish('bánh mì'),
+  ],
+ );
+ try{
+  const srch=(await call('/directory?q='+tag+'&group='+encodeURIComponent('phở bò')+'&lat=14.5000&lng=108.5000')).data;
+  assert.equal(srch.items[0].id,favMid);
+  assert.equal(srch.items[1].id,favFar);
+  assert.ok(srch.items[0].distance < srch.items[1].distance);
+  assert.equal(srch.items[2].id,unratedClose);
+
+  const sug=(await call('/directory?suggestions=true&lat=14.5000&lng=108.5000')).data;
+  assert.equal(sug.items.length,4);
+  assert.ok(sug.items.every((x:any)=>x.popularity_badge==='top_fav'));
+  for(let i=1;i<sug.items.length;i++){
+   assert.ok(sug.items[i-1].distance <= sug.items[i].distance);
+  }
+ }finally{
+  await db.query('DELETE FROM restaurants WHERE id=ANY($1::uuid[])',[allIds]);
+ }
+});

@@ -2381,7 +2381,114 @@
  }
 }
 
+/* Unified Search + Suggestion Controls */
+.unified-search-row {
+ display: grid;
+ grid-template-columns: minmax(0, 1fr) minmax(190px, 240px);
+ gap: 8px;
+ margin-top: 2px;
+}
+
+.unified-search-input-wrap {
+ position: relative;
+ display: flex;
+ align-items: center;
+ background: #ffffff;
+ border: 1.5px solid #c5dff6;
+ border-radius: 14px;
+ padding: 0 10px 0 12px;
+ transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.unified-search-input-wrap:focus-within {
+ border-color: #0284c7;
+ box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.14);
+}
+
+.unified-search-icon {
+ font-size: 14px;
+ opacity: 0.7;
+ margin-right: 8px;
+ flex-shrink: 0;
+}
+
+.unified-search-input-wrap input {
+ flex: 1;
+ border: 0;
+ background: transparent;
+ padding: 11px 4px;
+ font-size: 14px;
+ color: var(--ink);
+ outline: none;
+ box-shadow: none;
+}
+
+.search-clear-btn {
+ width: 26px;
+ height: 26px;
+ border-radius: 999px;
+ background: #e6f4ff;
+ color: #0369a1;
+ font-size: 16px;
+ font-weight: 700;
+ line-height: 1;
+ display: inline-grid;
+ place-items: center;
+ padding: 0;
+ flex-shrink: 0;
+}
+
+.search-clear-btn:hover {
+ background: #cde8fe;
+}
+
+.unified-group-select {
+ border: 1.5px solid #c5dff6;
+ border-radius: 14px;
+ background: #ffffff;
+ color: #0c4a6e;
+ font-size: 13px;
+ font-weight: 600;
+ padding: 10px 12px;
+ cursor: pointer;
+}
+
+.unified-group-select:focus {
+ border-color: #0284c7;
+ outline: none;
+ box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.14);
+}
+
+.popular-chips.is-compact {
+ margin-top: -2px;
+ padding-top: 2px;
+}
+
+.search-caption-left {
+ display: flex;
+ align-items: center;
+ flex-wrap: wrap;
+ gap: 8px;
+}
+
+.back-to-four-btn {
+ padding: 5px 11px;
+ border-radius: 999px;
+ background: #e0f2fe;
+ color: #0369a1;
+ font-size: 12px;
+ font-weight: 700;
+ border: 1px solid #bae6fd;
+}
+
+.back-to-four-btn:hover {
+ background: #bae6fd;
+}
+
 @media (max-width: 720px) {
+ .unified-search-row {
+  grid-template-columns: 1fr;
+ }
  .card-pop-pill {
   font-size: 9.5px;
   padding: 3px 7px;

@@ -160,23 +160,39 @@ export async function fourSuggestions(
     const point = isCacheEnabled() ? quantizePoint(origin.lat, origin.lng) : { lat: origin.lat, lng: origin.lng, cell: '' };
     const args: any[] = [point.lng, point.lat, [...moodGroups], page * 4];
     const cityFilter = city ? (() => { args.push(city); return ` AND r.city_slug = $${args.length}`; })() : '';
-    const orderExpr = proBoost
-     ? `(ST_Distance(r.location, ST_SetSRID(ST_MakePoint($1,$2),4326)::geography) - r.popularity_score * 18.0) ASC, r.id`
-     : `(r.image_url IS NOT NULL) DESC, r.location <-> ST_SetSRID(ST_MakePoint($1,$2),4326)::geography, r.id`;
     const res = await readPool.query(
-     `SELECT r.*, r.review_count AS count, r.review_avg AS average,
-             ST_Distance(r.location, ST_SetSRID(ST_MakePoint($1,$2),4326)::geography) AS distance
-      FROM restaurants r
-      WHERE r.active AND NOT r.demo AND r.location IS NOT NULL
-        AND r.primary_group = ANY($3::text[])${cityFilter}${lic}
-      ORDER BY ${orderExpr}
+     `WITH near_pool AS (
+       SELECT r.*, r.review_count AS count, r.review_avg AS average,
+              ST_Distance(r.location, ST_SetSRID(ST_MakePoint($1,$2),4326)::geography) AS distance
+       FROM restaurants r
+       WHERE r.active AND NOT r.demo AND r.location IS NOT NULL
+         AND r.primary_group = ANY($3::text[])${cityFilter}${lic}
+       ORDER BY r.location <-> ST_SetSRID(ST_MakePoint($1,$2),4326)::geography
+       LIMIT 800
+      )
+      SELECT * FROM near_pool
+      ORDER BY
+       CASE
+        WHEN distance <= 8000 AND (popularity_badge = 'top_fav' OR popularity_saves >= 40) THEN 0
+        WHEN distance <= 8000 AND (popularity_badge = 'popular' OR popularity_saves >= 10) THEN 1
+        WHEN distance <= 8000 AND (popularity_badge IS NOT NULL OR popularity_saves >= 1) THEN 2
+        WHEN distance <= 8000 THEN 3
+        ELSE 4
+       END ASC,
+       distance ASC,
+       popularity_saves DESC,
+       popularity_score DESC,
+       id
       LIMIT 5 OFFSET $4`,
      args,
     );
     const slice = res.rows.slice(0, 4);
     await hydrateMissingImages(slice);
+    const items = slice
+     .map((r) => ({ ...publicRestaurant(r), open: isOpen(r.hours), distance: Math.round(r.distance) }))
+     .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
     return {
-     items: slice.map((r) => ({ ...publicRestaurant(r), open: isOpen(r.hours), distance: Math.round(r.distance) })),
+     items,
      hasMore: res.rows.length > 4,
      page,
      mood,
@@ -190,7 +206,7 @@ export async function fourSuggestions(
     `SELECT r.*, r.review_count AS count, r.review_avg AS average
      FROM restaurants r
      WHERE r.active AND NOT r.demo AND r.primary_group = ANY($1::text[])${cityFilter}${lic}
-     ORDER BY (r.image_url IS NOT NULL) DESC, r.popularity_score DESC, r.name, r.id
+     ORDER BY (r.popularity_badge = 'top_fav') DESC, r.popularity_saves DESC, r.popularity_score DESC, (r.image_url IS NOT NULL) DESC, r.name, r.id
      LIMIT 5 OFFSET $2`,
     args,
    );
@@ -206,7 +222,7 @@ export async function fourSuggestions(
 
   if (origin) {
    const point = isCacheEnabled() ? quantizePoint(origin.lat, origin.lng) : { lat: origin.lat, lng: origin.lng, cell: '' };
-   const knnLimit = Math.min(1600, Math.max(280, (page + 2) * 90));
+   const knnLimit = Math.min(2400, Math.max(600, (page + 2) * 150));
 
    const knnParams: any[] = [point.lng, point.lat, knnLimit];
    const allExcluded = [...EXCLUDED_FROM_FOOD_ALL, ...excludedGroups];
@@ -216,7 +232,7 @@ export async function fourSuggestions(
    const cityFilter = city ? (() => { knnParams.push(city); return ` AND r.city_slug = $${knnParams.length}`; })() : '';
 
    const knn = await readPool.query(
-    `SELECT r.id, r.primary_group, r.popularity_score,
+    `SELECT r.id, r.primary_group, r.popularity_badge, r.popularity_saves, r.popularity_score,
             ST_Distance(r.location, ST_SetSRID(ST_MakePoint($1,$2),4326)::geography) AS real_distance
      FROM restaurants r
      WHERE r.active AND NOT r.demo AND r.location IS NOT NULL
@@ -226,21 +242,33 @@ export async function fourSuggestions(
     knnParams,
    );
 
+   const toEffectiveDistance = (row: any) => {
+    const d = Number(row.real_distance);
+    const saves = Number(row.popularity_saves || 0);
+    const score = Number(row.popularity_score || 0);
+    const badge = row.popularity_badge as string | null;
+    const boostBonus = proBoost ? score * 8 : Math.min(80, Math.log1p(saves) * 12);
+    if (d <= 6000) {
+     if (badge === 'top_fav' || saves >= 40) return Math.max(0, d - boostBonus);
+     if (badge === 'popular' || saves >= 10) return 10_000 + Math.max(0, d - boostBonus);
+     if (badge !== null || saves >= 1) return 25_000 + d;
+     return 50_000 + d;
+    }
+    if (d <= 20_000 && (badge === 'top_fav' || badge === 'popular' || saves >= 10)) {
+     return 70_000 + d;
+    }
+    return 100_000 + d;
+   };
+
    const candidates = knn.rows.map((row) => ({
     id: row.id as string,
     primary_group: row.primary_group as string,
     real_distance: Number(row.real_distance),
-    distance: proBoost
-     ? Math.max(0, Number(row.real_distance) - Number(row.popularity_score || 0) * 16)
-     : Number(row.real_distance),
+    distance: toEffectiveDistance(row),
    }));
 
    let selected = nearbySuggestionPage(candidates, page);
-   const furthestKnn = knn.rows.length ? Number(knn.rows[knn.rows.length - 1].real_distance) : Infinity;
-   const selectedMaxDist = selected.items.length ? Math.max(...selected.items.map((x) => x.real_distance)) : Infinity;
-
-   const needFallback = !proBoost && knn.rows.length === knnLimit && (selected.items.length < 4 || selectedMaxDist >= furthestKnn);
-   if (needFallback) {
+   if (selected.items.length < 4 && knn.rows.length === knnLimit) {
     const stats = await catalogueStats(city);
     const excluded = new Set(allExcluded);
     const targetGroups: string[] = moodGroups
@@ -248,14 +276,14 @@ export async function fourSuggestions(
      : stats.primaryGroups.filter((g: any) => g.count > 0 && !excluded.has(g.name)).map((g: any) => g.name);
 
     if (targetGroups.length) {
-     const perGroupLimit = Math.min(60, page + 2);
+     const perGroupLimit = Math.min(60, page + 4);
      const latArgs: any[] = [point.lng, point.lat, targetGroups, perGroupLimit];
      const latCityFilter = city ? (() => { latArgs.push(city); return ` AND r.city_slug = $${latArgs.length}`; })() : '';
      const lateral = await readPool.query(
-      `SELECT sub.id, sub.primary_group, sub.real_distance
+      `SELECT sub.id, sub.primary_group, sub.popularity_badge, sub.popularity_saves, sub.popularity_score, sub.real_distance
        FROM unnest($3::text[]) AS g(grp)
        CROSS JOIN LATERAL (
-        SELECT r.id, r.primary_group,
+        SELECT r.id, r.primary_group, r.popularity_badge, r.popularity_saves, r.popularity_score,
                ST_Distance(r.location, ST_SetSRID(ST_MakePoint($1,$2),4326)::geography) AS real_distance
         FROM restaurants r
         WHERE r.active AND NOT r.demo AND r.location IS NOT NULL AND r.primary_group = g.grp${latCityFilter}${lic}
@@ -265,7 +293,12 @@ export async function fourSuggestions(
       latArgs,
      );
      selected = nearbySuggestionPage(
-      lateral.rows.map((x) => ({ id: x.id, primary_group: x.primary_group, real_distance: Number(x.real_distance), distance: Number(x.real_distance) })),
+      lateral.rows.map((x) => ({
+       id: x.id,
+       primary_group: x.primary_group,
+       real_distance: Number(x.real_distance),
+       distance: toEffectiveDistance(x),
+      })),
       page,
      );
     }
@@ -273,14 +306,17 @@ export async function fourSuggestions(
 
    if (!selected.items.length) return { ...selected, page, mood, reference: origin };
    const byId = await hydrateRestaurants(selected.items.map((r) => r.id));
+   const orderedItems = selected.items
+    .map((candidate) => {
+     const r = byId.get(candidate.id);
+     if (!r) return null;
+     return { ...publicRestaurant(r), open: isOpen(r.hours), distance: Math.round(candidate.real_distance) };
+    })
+    .filter(Boolean)
+    .sort((a: any, b: any) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
+
    return {
-    items: selected.items
-     .map((candidate) => {
-      const r = byId.get(candidate.id);
-      if (!r) return null;
-      return { ...publicRestaurant(r), open: isOpen(r.hours), distance: Math.round(candidate.real_distance) };
-     })
-     .filter(Boolean),
+    items: orderedItems,
     hasMore: selected.hasMore,
     page,
     mood,
@@ -330,7 +366,7 @@ export async function fourSuggestions(
       `SELECT r.*, r.review_count AS count, r.review_avg AS average
        FROM restaurants r
        WHERE r.active AND NOT r.demo AND r.primary_group = $1${cFilter}${lic}
-       ORDER BY (r.image_url IS NOT NULL) DESC, r.popularity_score DESC, r.name, r.id LIMIT 1 OFFSET $2`,
+       ORDER BY (r.popularity_badge = 'top_fav') DESC, r.popularity_saves DESC, r.popularity_score DESC, (r.image_url IS NOT NULL) DESC, r.name, r.id LIMIT 1 OFFSET $2`,
       qArgs,
      );
      return result.rows[0] || null;
@@ -396,6 +432,8 @@ export async function directoryPage(raw: Record<string, unknown>, publicRestaura
    lat: coordinate.shape.lat.optional(),
    lng: coordinate.shape.lng.optional(),
    city: CITY_SLUG_ENUM.optional(),
+   mood: MOOD_ENUM.optional(),
+   excludeGroups: z.string().max(600).default(''),
    q: z.string().max(120).default(''),
    group: z.string().max(80).optional(),
    limit: z.coerce.number().int().min(1).max(60).default(24),
@@ -403,6 +441,14 @@ export async function directoryPage(raw: Record<string, unknown>, publicRestaura
   })
   .refine((v) => (v.lat === undefined) === (v.lng === undefined), { message: 'Cần cung cấp đủ cặp tọa độ.' })
   .parse(raw);
+
+ const excludedGroups = f.excludeGroups
+  ? f.excludeGroups
+     .split(',')
+     .map((s) => s.trim())
+     .filter((s) => allFoodGroups.includes(s as any))
+     .slice(0, 20)
+  : [];
 
  const compute = async () => {
   const countArgs: any[] = [];
@@ -413,6 +459,12 @@ export async function directoryPage(raw: Record<string, unknown>, publicRestaura
   }
   if (f.city) where.push(`r.city_slug = ${bindCount(f.city)}`);
   if (f.group) where.push(`r.food_groups @> ARRAY[${bindCount(f.group)}]::text[]`);
+  if (f.mood && SUGGESTION_MOODS[f.mood]) {
+   where.push(`r.primary_group = ANY(${bindCount([...SUGGESTION_MOODS[f.mood]!])}::text[])`);
+  }
+  if (excludedGroups.length) {
+   where.push(`NOT (r.primary_group = ANY(${bindCount(excludedGroups)}::text[]))`);
+  }
 
   const terms = searchTerms(f.q);
   if (terms.length > 1) {
@@ -433,11 +485,28 @@ export async function directoryPage(raw: Record<string, unknown>, publicRestaura
    ? `CASE WHEN r.name_norm LIKE ${bindRow('%' + escapeLike(terms.join(' ')) + '%')} ESCAPE '\\' THEN 0 ELSE 1 END,`
    : '';
 
-  const order =
-   (f.lat === undefined ? '' : 'distance ASC NULLS LAST,') +
-   relevance +
-   (f.lat === undefined && !terms.length ? 'r.popularity_score DESC,' : '') +
-   (f.group ? 'r.name,r.id' : 'r.primary_group,r.name,r.id');
+  const geoOrder = f.lat !== undefined
+   ? `CASE
+       WHEN r.location IS NULL THEN 5
+       WHEN ST_DWithin(r.location, ST_SetSRID(ST_MakePoint(${lng}::float8,${lat}::float8),4326)::geography, 10000)
+            AND (r.popularity_badge IN ('top_fav', 'popular') OR r.popularity_saves >= 10) THEN 0
+       WHEN ST_DWithin(r.location, ST_SetSRID(ST_MakePoint(${lng}::float8,${lat}::float8),4326)::geography, 10000)
+            AND (r.popularity_badge IS NOT NULL OR r.popularity_saves >= 1) THEN 1
+       WHEN ST_DWithin(r.location, ST_SetSRID(ST_MakePoint(${lng}::float8,${lat}::float8),4326)::geography, 10000) THEN 2
+       WHEN (r.popularity_badge IN ('top_fav', 'popular') OR r.popularity_saves >= 10) THEN 3
+       ELSE 4
+      END ASC,
+      distance ASC NULLS LAST,
+      ${relevance}
+      r.popularity_saves DESC,
+      r.popularity_score DESC,`
+   : `${relevance}
+      (r.popularity_badge = 'top_fav') DESC,
+      r.popularity_saves DESC,
+      r.popularity_score DESC,
+      (r.image_url IS NOT NULL) DESC,`;
+
+  const order = geoOrder + (f.group ? 'r.name,r.id' : 'r.primary_group,r.name,r.id');
 
   const [count, result, stats] = await Promise.all([
    readPool.query(`SELECT count(*)::int AS total FROM restaurants r WHERE ${filter}`, countArgs),
@@ -482,7 +551,8 @@ export async function directoryPage(raw: Record<string, unknown>, publicRestaura
   return { ...res, items: await attachWeatherToItems(res.items) };
  }
  const cell = f.lat !== undefined ? quantizePoint(f.lat, f.lng!).cell : 'nogps';
- const cacheKey = `dir:${strictLicenseMode() ? 's' : 'a'}:${f.city || 'all'}:${cell}:${f.group || ''}:${normalize(f.q)}:${f.limit}:${f.offset}`;
+ const exKey = excludedGroups.length ? [...excludedGroups].sort().join(',') : '';
+ const cacheKey = `dir:${strictLicenseMode() ? 's' : 'a'}:${f.city || 'all'}:${f.mood || ''}:${exKey}:${cell}:${f.group || ''}:${normalize(f.q)}:${f.limit}:${f.offset}`;
  const cached = await searchCache.getOrCompute(cacheKey, 20_000, compute);
  return { ...cached, items: await attachWeatherToItems(cached.items) };
 }

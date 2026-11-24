@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import {
  AccountHubData,
  AccountPreferences,
@@ -10,6 +9,8 @@ import {
  CITY_STORAGE_KEY,
  DRINK_MOOD_OPTIONS,
  FOOD_MOOD_OPTIONS,
+ groups as ALL_STATIC_GROUPS,
+ POPULAR_SEARCH_GROUPS,
  Restaurant,
  SuggestionMood,
 } from '../api';
@@ -19,8 +20,20 @@ import { HeaderBar, loadSavedPlaces, SavedPlace, SAVED_PLACES_KEY, toggleLocalSa
 import { siteName } from '../brand';
 import { withMapTab } from '../map-tab';
 
-type Catalogue = { items: Restaurant[]; hasMore: boolean; page?: number; mood?: SuggestionMood };
+type CatalogueResponse = {
+ items: Restaurant[];
+ hasMore: boolean;
+ total?: number;
+ page?: number;
+ mood?: SuggestionMood;
+ groups?: { name: string; count: number }[];
+};
+
 type OriginState = { lat: number; lng: number; label: string };
+
+const SEARCH_PAGE_SIZE = 8;
+const DRINK_QUICK_CHIPS = ['cà phê', 'cà phê trứng', 'trà sữa', 'trà & đồ uống', 'bar & bia'];
+const FOOD_QUICK_CHIPS = POPULAR_SEARCH_GROUPS.filter((g) => !DRINK_QUICK_CHIPS.includes(g));
 
 function quantizeForQuery(lat: number, lng: number) {
  const qLat = Math.round(lat / 0.00135) * 0.00135;
@@ -41,7 +54,19 @@ function getMealGreeting(hour: number, kind: CategoryKind): { heading: string; a
  return { heading: 'Đêm muộn rồi,', accent: 'ăn gì ấm bụng?' };
 }
 
-function buildUrl(
+function popularityBand(r: Restaurant, dist: number | null): number {
+ const beloved = r.popularity_badge === 'top_fav' || r.popularity_badge === 'popular' || (r.popularity_saves ?? 0) >= 10;
+ const rated = r.popularity_badge != null || (r.popularity_saves ?? 0) >= 1;
+ if (dist === null) return beloved ? 4 : 5;
+ if (dist <= 10000) {
+  if (beloved) return 0;
+  if (rated) return 1;
+  return 2;
+ }
+ return beloved ? 3 : 4;
+}
+
+function buildSuggestionsUrl(
  page: number,
  mood: SuggestionMood,
  ref: OriginState | null,
@@ -59,13 +84,41 @@ function buildUrl(
  return '/directory?' + params.toString();
 }
 
-export default function Hanoi() {
- const router = useRouter();
+function buildSearchUrl(
+ page: number,
+ qText: string,
+ group: string,
+ mood: SuggestionMood,
+ ref: OriginState | null,
+ excludedGroups: string[],
+) {
+ const params = new URLSearchParams({
+  limit: String(SEARCH_PAGE_SIZE),
+  offset: String(page * SEARCH_PAGE_SIZE),
+ });
+ if (qText) params.set('q', qText);
+ if (group) params.set('group', group);
+ // Only constrain mood in search when user hasn't typed a free-text query and hasn't chosen a specific dish
+ if (!qText && !group && mood !== 'all') params.set('mood', mood);
+ if (excludedGroups.length) params.set('excludeGroups', excludedGroups.join(','));
+ if (ref) {
+  const q = quantizeForQuery(ref.lat, ref.lng);
+  params.set('lat', String(q.lat));
+  params.set('lng', String(q.lng));
+ }
+ return '/directory?' + params.toString();
+}
+
+export default function UnifiedDiscovery() {
  const [kind, setKind] = useState<CategoryKind>('food');
  const [mood, setMood] = useState<SuggestionMood>('all');
- const [data, setData] = useState<Catalogue | null>(null);
+ const [query, setQuery] = useState('');
+ const [debouncedQuery, setDebouncedQuery] = useState('');
+ const [selectedGroup, setSelectedGroup] = useState('');
+ const [groupCounts, setGroupCounts] = useState<{ name: string; count: number }[]>([]);
+
+ const [data, setData] = useState<CatalogueResponse | null>(null);
  const [page, setPage] = useState(0);
- const [quickQuery, setQuickQuery] = useState('');
  const [hour, setHour] = useState(12);
 
  const [exactGps, setExactGps] = useState<{ lat: number; lng: number } | null>(null);
@@ -97,8 +150,10 @@ export default function Hanoi() {
  const originRef = useRef<OriginState | null>(null);
  const watchId = useRef<number | undefined>(undefined);
  const requestSeq = useRef(0);
- const prefetchCache = useRef<Map<string, Catalogue>>(new Map());
+ const prefetchCache = useRef<Map<string, CatalogueResponse>>(new Map());
  const searchInputRef = useRef<HTMLInputElement>(null);
+
+ const isSearchMode = Boolean(debouncedQuery || selectedGroup);
 
  const refreshHub = useCallback(async () => {
   try {
@@ -115,9 +170,28 @@ export default function Hanoi() {
   setLocalSaved(loadSavedPlaces());
   try {
    window.localStorage.removeItem(CITY_STORAGE_KEY);
+   const sp = new URLSearchParams(window.location.search);
+   const initialQ = sp.get('q') || '';
+   const initialGroup = sp.get('group') || '';
+   if (initialQ) {
+    setQuery(initialQ);
+    setDebouncedQuery(initialQ);
+   }
+   if (initialGroup) setSelectedGroup(initialGroup);
   } catch {}
   refreshHub();
  }, [refreshHub]);
+
+ useEffect(() => {
+  const t = window.setTimeout(() => {
+   setDebouncedQuery((prev) => {
+    const next = query.trim();
+    if (prev !== next) setPage(0);
+    return next;
+   });
+  }, 200);
+  return () => window.clearTimeout(t);
+ }, [query]);
 
  const isPro = Boolean(hub?.user?.pro);
  const activeExcluded = useMemo(
@@ -239,7 +313,10 @@ export default function Hanoi() {
  useEffect(() => {
   if (!gpsResolved) return;
   const seq = ++requestSeq.current;
-  const url = buildUrl(page, mood, origin, activeExcluded, activeProBoost);
+  const url = isSearchMode
+   ? buildSearchUrl(page, debouncedQuery, selectedGroup, mood, origin, activeExcluded)
+   : buildSuggestionsUrl(page, mood, origin, activeExcluded, activeProBoost);
+
   setPickedIdx(null);
   setHighlightIdx(null);
   setError('');
@@ -247,6 +324,7 @@ export default function Hanoi() {
   const cached = prefetchCache.current.get(url);
   if (cached) {
    setData(cached);
+   if (cached.groups?.length) setGroupCounts(cached.groups);
    setLoading(false);
    setGate('');
   } else {
@@ -255,7 +333,7 @@ export default function Hanoi() {
 
   const loadCurrent = cached
    ? Promise.resolve(cached)
-   : api<Catalogue>(url).then((result) => {
+   : api<CatalogueResponse>(url).then((result) => {
       prefetchCache.current.set(url, result);
       return result;
      });
@@ -264,13 +342,16 @@ export default function Hanoi() {
    .then((result) => {
     if (seq !== requestSeq.current) return;
     setData(result);
+    if (result.groups?.length) setGroupCounts(result.groups);
     setGate('');
     setLoading(false);
 
     if (result.hasMore) {
-     const nextUrl = buildUrl(page + 1, mood, origin, activeExcluded, activeProBoost);
+     const nextUrl = isSearchMode
+      ? buildSearchUrl(page + 1, debouncedQuery, selectedGroup, mood, origin, activeExcluded)
+      : buildSuggestionsUrl(page + 1, mood, origin, activeExcluded, activeProBoost);
      if (!prefetchCache.current.has(nextUrl)) {
-      api<Catalogue>(nextUrl)
+      api<CatalogueResponse>(nextUrl)
        .then((nextResult) => {
         if (prefetchCache.current.size > 80) prefetchCache.current.clear();
         prefetchCache.current.set(nextUrl, nextResult);
@@ -289,7 +370,33 @@ export default function Hanoi() {
   return () => {
    requestSeq.current++;
   };
- }, [gpsResolved, page, mood, origin, activeExcluded, activeProBoost, retry]);
+ }, [gpsResolved, isSearchMode, page, mood, debouncedQuery, selectedGroup, origin, activeExcluded, activeProBoost, retry]);
+
+ // Compute exact live distance from device GPS and enforce strict nearest-to-farthest order
+ const displayedCards = useMemo(() => {
+  if (!data?.items) return [];
+  const refPoint = exactGps || origin;
+  const withDist = data.items.map((r) => ({
+   restaurant: r,
+   distance: refPoint ? currentDistanceMeters(refPoint, r) ?? r.distance ?? null : null,
+  }));
+
+  if (!refPoint) return withDist;
+
+  if (!isSearchMode) {
+   // 4 distinct suggestion cards: strictly sort from nearest to farthest on screen
+   return [...withDist].sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
+  }
+
+  // Search mode: preserve beloved-first priority bands, strictly nearest-to-farthest inside each band
+  return [...withDist].sort((a, b) => {
+   const bandDiff = popularityBand(a.restaurant, a.distance) - popularityBand(b.restaurant, b.distance);
+   if (bandDiff !== 0) return bandDiff;
+   const distDiff = (a.distance ?? Infinity) - (b.distance ?? Infinity);
+   if (distDiff !== 0) return distDiff;
+   return (b.restaurant.popularity_saves ?? 0) - (a.restaurant.popularity_saves ?? 0);
+  });
+ }, [data?.items, exactGps, origin, isSearchMode]);
 
  const nextFour = useCallback(() => {
   if (loading || busy || picking) return;
@@ -302,7 +409,7 @@ export default function Hanoi() {
    const target = e.target as HTMLElement | null;
    if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT')) return;
    if (activeCard || compareOpen) return;
-   if (e.key === 'r' || e.key === 'R') {
+   if (!isSearchMode && (e.key === 'r' || e.key === 'R')) {
     e.preventDefault();
     nextFour();
    } else if (e.key === '/') {
@@ -312,43 +419,57 @@ export default function Hanoi() {
   };
   window.addEventListener('keydown', onKeyDown);
   return () => window.removeEventListener('keydown', onKeyDown);
- }, [nextFour, activeCard, compareOpen]);
+ }, [nextFour, activeCard, compareOpen, isSearchMode]);
+
+ function resetToFourSuggestions() {
+  setQuery('');
+  setDebouncedQuery('');
+  setSelectedGroup('');
+  setPage(0);
+  setPickedIdx(null);
+ }
 
  function switchKind(nextKind: CategoryKind) {
-  if (nextKind === kind) return;
+  if (nextKind === kind && !isSearchMode) return;
   setKind(nextKind);
   setMood(nextKind === 'drink' ? 'drink_all' : 'all');
+  setSelectedGroup('');
   setPage(0);
   setPickedIdx(null);
  }
 
  function chooseMood(nextMood: SuggestionMood) {
-  if (nextMood === mood) return;
   setMood(nextMood);
+  setSelectedGroup('');
+  setQuery('');
+  setDebouncedQuery('');
+  setPage(0);
+  setPickedIdx(null);
+ }
+
+ function toggleGroupChip(g: string) {
+  setSelectedGroup((prev) => (prev === g ? '' : g));
   setPage(0);
   setPickedIdx(null);
  }
 
  function quickDecide() {
-  const items = data?.items ?? [];
-  if (!items.length || picking || loading) return;
+  if (!displayedCards.length || picking || loading) return;
   setPicking(true);
   setPickedIdx(null);
-  const winner = Math.floor(Math.random() * items.length);
+  const winner = Math.floor(Math.random() * displayedCards.length);
   let step = 0;
   const totalSteps = 8 + winner;
   const timer = window.setInterval(() => {
-   setHighlightIdx(step % items.length);
+   setHighlightIdx(step % displayedCards.length);
    step++;
    if (step > totalSteps) {
     window.clearInterval(timer);
     setHighlightIdx(null);
     setPickedIdx(winner);
     setPicking(false);
-    const chosen = items[winner];
-    const refPoint = exactGps || origin;
-    const dist = refPoint ? currentDistanceMeters(refPoint, chosen) ?? chosen.distance ?? null : null;
-    setActiveCard({ restaurant: chosen, distance: dist });
+    const chosen = displayedCards[winner];
+    setActiveCard({ restaurant: chosen.restaurant, distance: chosen.distance });
    }
   }, 55);
  }
@@ -374,19 +495,24 @@ export default function Hanoi() {
   }
  }
 
- function submitQuickSearch(e: React.FormEvent) {
+ function handleSearchSubmit(e: React.FormEvent) {
   e.preventDefault();
-  const q = quickQuery.trim();
-  router.push(q ? '/tim-kiem?q=' + encodeURIComponent(q) : '/tim-kiem');
+  setDebouncedQuery(query.trim());
+  setPage(0);
+  searchInputRef.current?.blur();
  }
 
  const greeting = getMealGreeting(hour, kind);
  const moodList = kind === 'drink' ? DRINK_MOOD_OPTIONS : FOOD_MOOD_OPTIONS;
+ const quickChips = kind === 'drink' ? DRINK_QUICK_CHIPS : FOOD_QUICK_CHIPS;
+ const selectGroups = useMemo(() => {
+  if (groupCounts.length) return groupCounts;
+  return ALL_STATIC_GROUPS.filter((g) => g !== 'chưa phân nhóm').map((name) => ({ name, count: 0 }));
+ }, [groupCounts]);
 
  return (
   <main className="discovery-shell">
    <HeaderBar
-    activeTab="suggest"
     hub={hub}
     localSaved={localSaved}
     externalOpenTab={openHubTab}
@@ -395,9 +521,10 @@ export default function Hanoi() {
     onRemoveLocalSaved={removeLocalSaved}
     onVisitPlaceId={visitById}
     onPreferencesChanged={handlePrefsChanged}
+    onResetHome={resetToFourSuggestions}
    />
 
-   <section className="discovery-hero" aria-label="Bắt đầu chọn món">
+   <section className="discovery-hero" aria-label="Gợi ý và tìm kiếm quán ăn uống gần bạn">
     <div className="discovery-prompt-row">
      <div>
       <h1 className="discovery-heading">
@@ -447,34 +574,85 @@ export default function Hanoi() {
      </div>
     </div>
 
-    <form className="quick-search-bar" onSubmit={submitQuickSearch} role="search" aria-label="Tìm nhanh món hoặc tên phố">
-     <input
-      ref={searchInputRef}
-      type="search"
-      value={quickQuery}
-      onChange={(e) => setQuickQuery(e.target.value)}
-      maxLength={120}
-      placeholder={
-       kind === 'drink'
-        ? 'Tìm cà phê, trà sữa, tên quán hoặc tên đường gần bạn…'
-        : 'Tìm phở bò, cơm tấm, bún chả, hủ tiếu, tên quán hoặc đường…'
-      }
-      aria-label="Tìm nhanh món ăn, đồ uống, tên quán hoặc tên đường"
-     />
-     <button type="submit">Tìm món ↗</button>
+    {/* Unified Instant Search + Specific Dish Filter */}
+    <form className="unified-search-row" onSubmit={handleSearchSubmit} role="search" aria-label="Tìm trực tiếp món ăn, đồ uống, quán hoặc tên đường">
+     <div className="unified-search-input-wrap">
+      <span className="unified-search-icon" aria-hidden="true">🔎</span>
+      <input
+       ref={searchInputRef}
+       type="search"
+       value={query}
+       onChange={(e) => setQuery(e.target.value)}
+       maxLength={120}
+       placeholder={
+        kind === 'drink'
+         ? 'Gõ tìm cà phê, trà sữa, tên quán hoặc tên đường gần bạn…'
+         : 'Gõ tìm phở bò, cơm tấm, bún chả, hủ tiếu, tên quán hoặc đường…'
+       }
+       aria-label="Tìm trực tiếp món ăn, đồ uống, tên quán hoặc tên đường"
+      />
+      {query && (
+       <button
+        type="button"
+        className="search-clear-btn"
+        onClick={() => {
+         setQuery('');
+         setDebouncedQuery('');
+         setPage(0);
+         searchInputRef.current?.focus();
+        }}
+        aria-label="Xóa từ khóa tìm kiếm"
+       >
+        ×
+       </button>
+      )}
+     </div>
+
+     <select
+      className="unified-group-select"
+      value={selectedGroup}
+      aria-label="Lọc theo nhóm món hoặc đồ uống"
+      onChange={(e) => {
+       setSelectedGroup(e.target.value);
+       setPage(0);
+      }}
+     >
+      <option value="">✦ Gợi ý 4 món khác nhau</option>
+      {selectGroups.map((g) => (
+       <option key={g.name} value={g.name}>
+        {g.name}{g.count ? ` (${g.count.toLocaleString('vi-VN')})` : ''}
+       </option>
+      ))}
+     </select>
     </form>
 
+    {/* Mood Tabs (4-card modes) */}
     <div className="mood-strip" role="tablist" aria-label={kind === 'drink' ? 'Nhóm đồ uống' : 'Nhóm món ăn'}>
      {moodList.map((m) => (
       <button
        key={m.id}
        type="button"
        role="tab"
-       aria-selected={mood === m.id}
-       className={`mood-chip${kind === 'drink' ? ' is-drink' : ''}${mood === m.id ? ' is-active' : ''}`}
+       aria-selected={!isSearchMode && mood === m.id}
+       className={`mood-chip${kind === 'drink' ? ' is-drink' : ''}${!isSearchMode && mood === m.id ? ' is-active' : ''}`}
        onClick={() => chooseMood(m.id)}
       >
        {m.label}
+      </button>
+     ))}
+    </div>
+
+    {/* One-tap Popular Dish Filter Chips */}
+    <div className="popular-chips is-compact" role="group" aria-label="Chọn nhanh món yêu thích">
+     <span className="popular-chips-label">Tìm nhanh:</span>
+     {quickChips.map((g) => (
+      <button
+       key={g}
+       type="button"
+       className={`popular-chip${selectedGroup === g ? ' is-selected' : ''}`}
+       onClick={() => toggleGroupChip(g)}
+      >
+       {g}
       </button>
      ))}
     </div>
@@ -490,7 +668,7 @@ export default function Hanoi() {
    {gate && <p className="message" role="status">{gate}</p>}
 
    {loading && !data ? (
-    <div className="food-grid" aria-label="Đang tải bốn gợi ý">
+    <div className="food-grid" aria-label="Đang tải danh sách quán">
      {[0, 1, 2, 3].map((i) => (
       <div className="skeleton-card" key={i} aria-hidden="true">
        <div className="skeleton-media" />
@@ -506,34 +684,63 @@ export default function Hanoi() {
     !error &&
     data && (
      <>
-      <div className="food-grid" aria-label={kind === 'drink' ? 'Bốn gợi ý đồ uống' : 'Bốn gợi ý món ăn'} aria-busy={loading}>
-       {data.items.map((r, i) => {
-        const refPoint = exactGps || origin;
-        const distance = refPoint ? currentDistanceMeters(refPoint, r) ?? r.distance ?? null : null;
-        return (
-         <SuggestionCard
-          key={r.id}
-          restaurant={r}
-          index={i}
-          distance={distance}
-          busy={busy}
-          loading={loading}
-          highlighted={highlightIdx === i}
-          picked={pickedIdx === i}
-          liked={likedIdSet.has(r.id)}
-          note={notesById[r.id]}
-          onToggleLike={toggleLike}
-          onSelectCard={(rest, dist) => setActiveCard({ restaurant: rest, distance: dist })}
-          onVisit={(rest) => visitById(rest.id)}
-         />
-        );
-       })}
+      {isSearchMode && (
+       <div className="food-search-caption" role="status">
+        <div className="search-caption-left">
+         <b>
+          {(data.total ?? displayedCards.length).toLocaleString('vi-VN')} quán
+          {selectedGroup ? ` · ${selectedGroup}` : ''}
+          {debouncedQuery ? ` · “${debouncedQuery}”` : ''}
+         </b>
+         <button type="button" className="back-to-four-btn" onClick={resetToFourSuggestions}>
+          ← Về 4 gợi ý
+         </button>
+        </div>
+        <span>
+         {origin
+          ? '🔥 Ưu tiên nhiều lượt yêu thích · Xếp gần → xa'
+          : '🔥 Ưu tiên nhiều lượt yêu thích · Bật vị trí để xếp gần → xa'}
+        </span>
+       </div>
+      )}
+
+      <div
+       className="food-grid"
+       aria-label={isSearchMode ? 'Kết quả tìm kiếm quán' : kind === 'drink' ? 'Bốn gợi ý đồ uống' : 'Bốn gợi ý món ăn'}
+       aria-busy={loading}
+      >
+       {displayedCards.map(({ restaurant: r, distance }, i) => (
+        <SuggestionCard
+         key={r.id}
+         restaurant={r}
+         index={!isSearchMode ? i : page * SEARCH_PAGE_SIZE + i < 9 ? page * SEARCH_PAGE_SIZE + i : undefined}
+         distance={distance}
+         busy={busy}
+         loading={loading}
+         highlighted={highlightIdx === i}
+         picked={pickedIdx === i}
+         liked={likedIdSet.has(r.id)}
+         note={notesById[r.id]}
+         onToggleLike={toggleLike}
+         onSelectCard={(rest, dist) => setActiveCard({ restaurant: rest, distance: dist })}
+         onVisit={(rest) => visitById(rest.id)}
+        />
+       ))}
       </div>
 
-      {data.items.length === 0 && (
+      {displayedCards.length === 0 && !loading && (
        <div className="food-search-empty" role="status">
         <span aria-hidden="true">✦</span>
-        <p>Chưa có đủ quán cho thiết lập hiện tại. Bạn có thể chọn nhóm món khác ở trên.</p>
+        <p>
+         {isSearchMode
+          ? 'Chưa thấy quán nào khớp từ khóa này. Thử gõ ngắn hơn hoặc quay về 4 gợi ý.'
+          : 'Chưa có đủ quán cho thiết lập hiện tại. Bạn có thể chọn nhóm món khác ở trên.'}
+        </p>
+        {isSearchMode && (
+         <button type="button" className="back-to-four-btn" onClick={resetToFourSuggestions}>
+          ← Quay về 4 gợi ý
+         </button>
+        )}
        </div>
       )}
 
@@ -556,44 +763,60 @@ export default function Hanoi() {
        </div>
       )}
 
-      <div className="decision-bar">
-       <button
-        type="button"
-        className={`shuffle-btn${kind === 'drink' ? ' is-drink' : ''}`}
-        disabled={loading || busy || picking}
-        onClick={nextFour}
-       >
-        <span>
-         {loading
-          ? 'Đang đổi gợi ý…'
-          : data.hasMore
-           ? kind === 'drink'
-             ? 'Đổi 4 quán uống khác'
-             : 'Đổi 4 quán ăn khác'
-           : 'Quay lại từ đầu'}
-        </span>
-        <span aria-hidden="true">↻</span>
-       </button>
+      {isSearchMode ? (
+       (page > 0 || data.hasMore) && (
+        <nav className="food-search-pager" aria-label="Phân trang kết quả tìm kiếm">
+         <button type="button" className="secondary" disabled={page === 0 || loading} onClick={() => setPage((v) => v - 1)}>
+          ← Trang trước
+         </button>
+         <span>Trang {page + 1}</span>
+         <button type="button" className="secondary" disabled={!data.hasMore || loading} onClick={() => setPage((v) => v + 1)}>
+          Xem tiếp gần → xa →
+         </button>
+        </nav>
+       )
+      ) : (
+       <>
+        <div className="decision-bar">
+         <button
+          type="button"
+          className={`shuffle-btn${kind === 'drink' ? ' is-drink' : ''}`}
+          disabled={loading || busy || picking}
+          onClick={nextFour}
+         >
+          <span>
+           {loading
+            ? 'Đang đổi gợi ý…'
+            : data.hasMore
+             ? kind === 'drink'
+               ? 'Đổi 4 quán uống khác'
+               : 'Đổi 4 quán ăn khác'
+             : 'Quay lại từ đầu'}
+          </span>
+          <span aria-hidden="true">↻</span>
+         </button>
 
-       <button
-        type="button"
-        className="quick-pick-btn"
-        disabled={loading || busy || picking || !data.items.length}
-        onClick={quickDecide}
-       >
-        <span aria-hidden="true">✦</span>
-        <span>{picking ? 'Đang chọn…' : kind === 'drink' ? 'Chốt hộ 1 quán' : 'Chốt hộ 1 món'}</span>
-       </button>
-      </div>
+         <button
+          type="button"
+          className="quick-pick-btn"
+          disabled={loading || busy || picking || !displayedCards.length}
+          onClick={quickDecide}
+         >
+          <span aria-hidden="true">✦</span>
+          <span>{picking ? 'Đang chọn…' : kind === 'drink' ? 'Chốt hộ 1 quán' : 'Chốt hộ 1 món'}</span>
+         </button>
+        </div>
 
-      <div className="round-meta">
-       <span>
-        Lượt {page + 1} · {kind === 'drink' ? 'Thuần đồ uống' : 'Thuần món ăn'} · Chạm vào thẻ để mở nhanh các tùy chọn.
-       </span>
-       <span className="kbd-hint">
-        Phím tắt: <kbd>R</kbd> đổi 4 quán · <kbd>/</kbd> tìm nhanh
-       </span>
-      </div>
+        <div className="round-meta">
+         <span>
+          Lượt {page + 1} · Ưu tiên nhiều lượt yêu thích · Xếp từ gần đến xa
+         </span>
+         <span className="kbd-hint">
+          Phím tắt: <kbd>R</kbd> đổi 4 quán · <kbd>/</kbd> gõ tìm ngay
+         </span>
+        </div>
+       </>
+      )}
      </>
     )
    )}
@@ -626,9 +849,8 @@ export default function Hanoi() {
    )}
 
    <footer className="discovery-footer">
-    <span>{siteName} · Gắn nhãn độ yêu thích & thời tiết thực tế tại quán.</span>
+    <span>{siteName} · Ưu tiên quán nhiều lượt yêu thích, sắp xếp từ gần đến xa.</span>
     <div className="discovery-footer-links">
-     <a href="/tim-kiem">Tìm món</a>
      <a href="/about">Về dữ liệu</a>
      <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">
       © OpenStreetMap · ODbL
