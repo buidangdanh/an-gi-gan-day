@@ -9,6 +9,7 @@ import {
  PopularityBadgeKind,
  Restaurant,
 } from './api';
+import { siteName } from './brand';
 import { BrandLogo } from './brand-logo';
 
 export type SavedPlace = {
@@ -316,7 +317,6 @@ export function HeaderBar({
      <a
       href="/"
       className="discovery-brand"
-      aria-label="Về trang chủ Ăn gì đây?"
       onClick={(e) => {
        if (onResetHome) {
         e.preventDefault();
@@ -324,7 +324,13 @@ export function HeaderBar({
        }
       }}
      >
-      <BrandLogo variant="header" />
+      <BrandLogo size="header" />
+      <span className="discovery-brand-text">
+       <span className="discovery-brand-name">
+        {siteName.replace('?', '')}
+        <em>?</em>
+       </span>
+      </span>
      </a>
     </div>
    </header>

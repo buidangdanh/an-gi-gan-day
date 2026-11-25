@@ -84,8 +84,14 @@ export function BrandPlaceholder({
     <circle cx="62" cy="212" r="74" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1.2" />
    </svg>
 
-   <div className="brand-fallback-lockup is-emblem-only" aria-hidden="true">
-    <BrandLogo variant={variant === 'compact' ? 'compact' : 'card'} />
+   <div className="brand-fallback-lockup" aria-hidden="true">
+    <BrandLogo size={variant === 'compact' ? 'compact' : 'card'} />
+    <div className="brand-fallback-text">
+     <span className="brand-fallback-title">
+      Ăn gì đây<em>?</em>
+     </span>
+    </div>
+    <span className="brand-fallback-glyph">{glyph}</span>
    </div>
   </div>
  );

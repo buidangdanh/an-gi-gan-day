@@ -1,22 +1,33 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72">
   <defs>
-    <linearGradient id="icBg" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#0ea5e9" />
-      <stop offset="45%" stop-color="#0284c7" />
-      <stop offset="100%" stop-color="#075985" />
+      <stop offset="50%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#0369a1" />
     </linearGradient>
+    <radialGradient id="glow" cx="20%" cy="14%" r="70%">
+      <stop offset="0%" stop-color="#bae6fd" stop-opacity="0.36" />
+      <stop offset="100%" stop-color="#0284c7" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e0f2fe" />
+      <stop offset="100%" stop-color="#7dd3fc" />
+    </linearGradient>
+    <mask id="maskG">
+      <rect width="72" height="72" fill="white" />
+      <line x1="31" y1="32" x2="39" y2="18" stroke="black" stroke-width="9.4" stroke-linecap="round" />
+      <line x1="18" y1="58" x2="26.2" y2="40" stroke="black" stroke-width="9.4" stroke-linecap="round" />
+    </mask>
+    <mask id="maskA">
+      <rect width="72" height="72" fill="white" />
+      <path d="M 35 42 L 54 42 C 54 50, 49 55, 42 57" fill="none" stroke="black" stroke-width="9.4" stroke-linecap="round" stroke-linejoin="round" />
+    </mask>
   </defs>
-  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#icBg)" />
-  <rect x="2.75" y="2.75" width="58.5" height="58.5" rx="15.25" fill="none" stroke="rgba(255,255,255,0.34)" stroke-width="1.5" />
-  <path d="M 11 50 C 25 55, 42 52, 53 45" fill="none" stroke="#7dd3fc" stroke-width="2.6" stroke-linecap="round" />
-  <g transform="translate(8, 46) rotate(-4)" font-family="Segoe UI, Arial, sans-serif" font-weight="900">
-    <text x="0" y="0" font-size="34" fill="#ffffff" stroke="#064e78" stroke-width="5.2" stroke-linejoin="round" paint-order="stroke fill">A</text>
-    <path d="M 6 -28 C 9 -23.5, 16 -23.5, 19 -28" fill="none" stroke="#064e78" stroke-width="5.6" stroke-linecap="round" />
-    <path d="M 6 -28 C 9 -23.5, 16 -23.5, 19 -28" fill="none" stroke="#7dd3fc" stroke-width="2.8" stroke-linecap="round" />
-  </g>
-  <g transform="translate(36, 43) rotate(7)">
-    <path d="M 3 -19 C 3 -28, 18 -29, 18 -18 C 18 -12, 10 -10.5, 10 -4.5" fill="none" stroke="#064e78" stroke-width="8.5" stroke-linecap="round" />
-    <path d="M 3 -19 C 3 -28, 18 -29, 18 -18 C 18 -12, 10 -10.5, 10 -4.5" fill="none" stroke="#bae6fd" stroke-width="4.4" stroke-linecap="round" />
-    <path d="M 10 0 L 11.8 3.2 L 15 5 L 11.8 6.8 L 10 10 L 8.2 6.8 L 5 5 L 8.2 3.2 Z" fill="#ffffff" stroke="#064e78" stroke-width="1.8" stroke-linejoin="round" />
-  </g>
+  <rect width="72" height="72" rx="21" fill="url(#bg)" />
+  <rect width="72" height="72" rx="21" fill="url(#glow)" />
+  <rect x="1.2" y="1.2" width="69.6" height="69.6" rx="19.8" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.2" />
+  <path mask="url(#maskG)" d="M 49 26 C 42 18, 25 18, 17 29 C 10 38, 13 52, 26 57 C 39 61, 54 54, 54 42 L 33.5 42" fill="none" stroke="url(#cyanGrad)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" />
+  <path mask="url(#maskA)" d="M 19 57 L 36 21 L 53 58" fill="none" stroke="#ffffff" stroke-width="5.7" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 29.5 11.5 C 32.5 15.8, 39.5 15.8, 42.5 11.5" fill="none" stroke="#ffffff" stroke-width="4.2" stroke-linecap="round" />
+  <path d="M 56 14 L 57.3 17.2 L 60.5 18.5 L 57.3 19.8 L 56 23 L 54.7 19.8 L 51.5 18.5 L 54.7 17.2 Z" fill="#bae6fd" />
 </svg>
