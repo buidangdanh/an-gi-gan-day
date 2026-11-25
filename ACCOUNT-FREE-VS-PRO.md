@@ -1,6 +1,6 @@
-# Thiết kế Chi tiết Hệ thống Tài khoản Thường (Free) & Pro — Ăn gì đây?
+# Thiết kế Chi tiết Hệ thống Tài khoản Thường (Free) & Pro — Tìm quán ngon (`timquanngon.com`)
 
-Tài liệu đặc tả nghiệp vụ, quyền lợi phân tầng, mô hình dữ liệu, bảo mật xác thực và luồng nâng cấp đã triển khai trực tiếp trong sản phẩm **Ăn gì đây?**.
+Tài liệu đặc tả nghiệp vụ, quyền lợi phân tầng, mô hình dữ liệu, bảo mật xác thực và luồng nâng cấp đã triển khai trực tiếp trong sản phẩm **Tìm quán ngon** (`timquanngon.com`).
 
 ---
 
@@ -8,13 +8,13 @@ Tài liệu đặc tả nghiệp vụ, quyền lợi phân tầng, mô hình d�
 
 - **Không chặn nhu cầu cốt lõi:** Người dùng mới (Khách) mở web lên vẫn thấy ngay **4 gợi ý ăn/uống tách biệt kèm ảnh, thời tiết và nhãn yêu thích** trong 5 giây đầu tiên.
 - **Tài khoản Thường (Free — 0đ) giữ chân người dùng quay lại:** Sau khi mở bản đồ ghé thăm 4 quán khác nhau trong 1 phiên, người dùng đăng ký tài khoản miễn phí trong 10 giây để **mở chỉ đường không giới hạn**, **đồng bộ tối đa 30 quán yêu thích lên đám mây** và xem lại **15 quán vừa ghé**.
-- **Tài khoản Pro (`Ăn gì · Pro` — 29.000đ/tháng hoặc 199.000đ/năm, có dùng thử 14 ngày miễn phí):** Phục vụ nhóm người dùng ăn ngoài thường xuyên (dân văn phòng, cặp đôi, nhóm bạn, foodie) muốn **cá nhân hóa sâu & quản lý danh sách quán ruột chuyên nghiệp**.
+- **Tài khoản Pro (`Quán Ngon · Pro` — 29.000đ/tháng hoặc 199.000đ/năm, có dùng thử 14 ngày miễn phí):** Phục vụ nhóm người dùng ăn ngoài thường xuyên (dân văn phòng, cặp đôi, nhóm bạn, foodie) muốn **cá nhân hóa sâu & quản lý danh sách quán ruột chuyên nghiệp**.
 
 ---
 
 ## 2. Bảng Ma trận Quyền lợi Chi tiết: Khách vs Thường vs Pro
 
-| Nhóm tính năng | Khách (Chưa đăng nhập) | Tài khoản Thường (`Free` — 0đ) | Tài khoản `Ăn gì · Pro` |
+| Nhóm tính năng | Khách (Chưa đăng nhập) | Tài khoản Thường (`Free` — 0đ) | Tài khoản `Quán Ngon · Pro` |
 | --- | --- | --- | --- |
 | **Gợi ý 4 thẻ (Ăn riêng / Uống riêng)** | ✅ Không giới hạn lượt đổi | ✅ Không giới hạn lượt đổi | ✅ Không giới hạn + **Chế độ `⚡ Ưu tiên quán Top Yêu thích`** |
 | **Xem ảnh quán, thời tiết & nhãn ưa chuộng** | ✅ Đầy đủ | ✅ Đầy đủ | ✅ Đầy đủ |

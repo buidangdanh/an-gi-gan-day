@@ -9,7 +9,6 @@ import {
  PopularityBadgeKind,
  Restaurant,
 } from './api';
-import { siteName } from './brand';
 import { BrandLogo } from './brand-logo';
 
 export type SavedPlace = {
@@ -196,7 +195,7 @@ export function HeaderBar({
    await api('/pro/trial', 'POST');
    const updated = await onRefreshHub();
    if (updated?.preferences && onPreferencesChanged) onPreferencesChanged(updated.preferences);
-   setNotice('🎉 Đã kích hoạt Ăn gì · Pro 14 ngày miễn phí! Mọi đặc quyền Pro đã mở khóa.');
+   setNotice('🎉 Đã kích hoạt Quán Ngon · Pro 14 ngày miễn phí! Mọi đặc quyền Pro đã mở khóa.');
   } catch (e) {
    setErr((e as Error).message);
   } finally {
@@ -304,8 +303,7 @@ export function HeaderBar({
       <BrandLogo size="header" />
       <span className="discovery-brand-text">
        <span className="discovery-brand-name">
-        {siteName.replace('?', '')}
-        <em>?</em>
+        Tìm quán <em>ngon</em>
        </span>
       </span>
      </a>
@@ -448,7 +446,7 @@ export function HeaderBar({
             <ul>
              <li>Mở chỉ đường Google Maps <b>không giới hạn</b> (bỏ giới hạn 4 quán/phiên).</li>
              <li>Đồng bộ tối đa <b>30 quán yêu thích</b> và xem lại <b>15 quán vừa ghé</b>.</li>
-             <li>Nhận ngay <b>14 ngày dùng thử Ăn gì · Pro miễn phí</b>!</li>
+             <li>Nhận ngay <b>14 ngày dùng thử Quán Ngon · Pro miễn phí</b>!</li>
             </ul>
            </div>
           </div>
@@ -472,7 +470,7 @@ export function HeaderBar({
            {!isPro && hub?.trialAvailable && (
             <div className="pro-promo-banner">
              <div>
-              <b>🎁 Trải nghiệm Ăn gì · Pro 14 ngày (0đ)</b>
+              <b>🎁 Trải nghiệm Quán Ngon · Pro 14 ngày (0đ)</b>
               <p>Mở khóa Bộ sưu tập quán ruột, Ghi chú bí kíp từng quán, Tự động né món không ăn & So sánh quán!</p>
              </div>
              <button type="button" className="pro-cta-btn" disabled={busy} onClick={handleClaimTrial}>
@@ -687,7 +685,7 @@ export function HeaderBar({
            </label>
           ) : (
            <button type="button" className="pro-cta-btn" onClick={() => (user && hub?.trialAvailable ? handleClaimTrial() : setTab('plans'))}>
-            Mở khóa với Ăn gì · Pro ✦
+            Mở khóa với Quán Ngon · Pro ✦
            </button>
           )}
          </div>
@@ -743,7 +741,7 @@ export function HeaderBar({
 
          <div className="plan-card is-pro-plan">
           <div className="plan-head-row">
-           <span className="tier-badge is-pro">✦ ĂN GÌ · PRO</span>
+           <span className="tier-badge is-pro">✦ QUÁN NGON · PRO</span>
            <span className="save-tag">Tiết kiệm 45% gói năm</span>
           </div>
           <h3>29.000đ <small>/ tháng · hoặc 199k/năm</small></h3>
@@ -758,7 +756,7 @@ export function HeaderBar({
            <li>✦ Lịch sử <b>100 quán</b> + Viết đánh giá & Huy hiệu PRO</li>
           </ul>
           {isPro ? (
-           <div className="pro-active-pill">✓ Bạn đang sử dụng gói Ăn gì · Pro</div>
+           <div className="pro-active-pill">✓ Bạn đang sử dụng gói Quán Ngon · Pro</div>
           ) : hub?.trialAvailable !== false ? (
            <button type="button" className="pro-cta-btn is-full" disabled={busy} onClick={handleClaimTrial}>
             🎁 Dùng thử miễn phí 14 ngày (0đ)

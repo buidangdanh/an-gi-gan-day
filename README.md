@@ -1,18 +1,18 @@
-# Ăn gì đây? (`angiday.vn`)
+# Tìm quán ngon (`timquanngon.com`)
 
-Ứng dụng gợi ý **4 thẻ món ăn / đồ uống khác nhau mỗi lượt** giúp chốt nhanh quán ngon khi chưa biết ăn gì, phủ sóng **10 thành phố lớn Việt Nam** (**99.467 địa điểm**: TP. Hồ Chí Minh, Hà Nội, Đà Nẵng, Hải Phòng, Nha Trang, Cần Thơ, Đà Lạt, Vũng Tàu, Huế, Hạ Long).
+Ứng dụng gợi ý **4 thẻ món ăn / đồ uống khác nhau mỗi lượt** giúp chốt nhanh quán ngon gần bạn, phủ sóng **10 thành phố lớn Việt Nam** (**99.467 địa điểm**: TP. Hồ Chí Minh, Hà Nội, Đà Nẵng, Hải Phòng, Nha Trang, Cần Thơ, Đà Lạt, Vũng Tàu, Huế, Hạ Long).
 
 ### Điểm nổi bật phiên bản mới nhất
 - **Tách bạch 100% Món ăn & Đồ uống:** 4 gợi ý mỗi lượt luôn thuộc 4 nhóm khác nhau, giao diện tông xanh dương mát mẻ (`#0284c7`), chạm thẻ mở bảng hành động nhanh (`CardActionSheet`) hoặc bấm **Chốt hộ 1 món**.
-- **Đa thành phố & Thời tiết thực tế tại quán:** Chọn nhanh 10 thành phố lớn và từng quận/khu vực (hoặc tự động nhận diện theo GPS riêng tư trên thiết bị); đính kèm ảnh quán tham khảo, nhãn độ yêu thích cộng đồng và sắc thái thời tiết trực tiếp (`Open-Meteo`).
-- **Tài khoản Thường (0đ) & `Ăn gì · Pro`:** Đăng ký/đăng nhập mật khẩu băm `scrypt`, dùng thử Pro 14 ngày miễn phí, Bộ sưu tập cá nhân, Ghi chú bí kíp riêng từng quán, Tự động ẩn món dị ứng/không ăn và Bảng so sánh trực quan 2–4 quán. Xem chi tiết tại [ACCOUNT-FREE-VS-PRO.md](ACCOUNT-FREE-VS-PRO.md).
+- **Ghép Gợi ý & Tìm kiếm trực tiếp:** Tự động lấy vị trí GPS của bạn khi vào web, ưu tiên các quán nhiều lượt yêu thích sắp xếp nghiêm ngặt từ gần đến xa; đính kèm ảnh quán tham khảo (hoặc ảnh bìa thương hiệu **Tìm quán ngon**), nhãn độ yêu thích cộng đồng và sắc thái thời tiết trực tiếp (`Open-Meteo`).
+- **Tài khoản Thường (0đ) & `Quán Ngon · Pro`:** Đăng ký/đăng nhập mật khẩu băm `scrypt`, dùng thử Pro 14 ngày miễn phí, Bộ sưu tập cá nhân, Ghi chú bí kíp riêng từng quán, Tự động ẩn món dị ứng/không ăn và Bảng so sánh trực quan 2–4 quán. Xem chi tiết tại [ACCOUNT-FREE-VS-PRO.md](ACCOUNT-FREE-VS-PRO.md).
 - **Hiệu năng `<1ms` & Kiến trúc 1 triệu CCU:** Tách luồng đọc công khai phi trạng thái (stateless), bộ nhớ đệm hai tầng + chống stampede, PostGIS KNN + GIN FTS không dấu. Xem thiết kế hệ thống tại [ARCHITECTURE-1M-CCU.md](ARCHITECTURE-1M-CCU.md) và hồ sơ bảo mật/bản quyền tại [SECURITY-AND-COMPLIANCE.md](SECURITY-AND-COMPLIANCE.md).
 
 ---
 
-# Thương hiệu: Ăn gì đây?
+# Thương hiệu: Tìm quán ngon
 
-Tên miền dự kiến khi đưa website online: **https://angiday.vn**. Hiện chạy local tại http://127.0.0.1:3100/. Chưa cấu hình DNS hoặc triển khai tên miền trong tác vụ đổi tên.
+Tên miền dự kiến khi đưa website online: **https://timquanngon.com**. Hiện chạy local tại http://127.0.0.1:3100/. Chưa cấu hình DNS hoặc triển khai tên miền trong tác vụ đổi tên.
 
 # Dữ liệu Foody đã tích hợp — 18/11/2026
 

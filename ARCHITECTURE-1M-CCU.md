@@ -1,6 +1,6 @@
-# Kiến trúc Hệ thống Chịu tải 1.000.000 CCU — Ăn gì đây?
+# Kiến trúc Hệ thống Chịu tải 1.000.000 CCU — Tìm quán ngon (`timquanngon.com`)
 
-Tài liệu thiết kế kiến trúc hệ thống chịu tải đến **1.000.000 người dùng đồng thời (1M CCU)** cho ứng dụng **Ăn gì đây?** (ưu tiên trải nghiệm chọn 4 thẻ món ăn trong < 50 ms trên di động tại Việt Nam).
+Tài liệu thiết kế kiến trúc hệ thống chịu tải đến **1.000.000 người dùng đồng thời (1M CCU)** cho ứng dụng **Tìm quán ngon** (`timquanngon.com`, ưu tiên trải nghiệm chọn 4 thẻ món ăn trong < 50 ms trên di động tại Việt Nam).
 
 ---
 
@@ -129,7 +129,7 @@ Tại 1M CCU, ~3% lưu lượng là ghi (**~10.000 Write RPS**, chủ yếu là 
   - Nếu PostGIS Read Replica chậm/quá tải -> Edge CDN tự động phục vụ bản cũ bằng **`stale-if-error=3600`** (người dùng vẫn xem được 4 gợi ý bình thường!).
   - Nếu Redis lỗi -> API tự chuyển sang L1 in-process cache + circuit breaker bảo vệ PostgreSQL.
   - Nếu chức năng đăng nhập gặp sự cố -> luồng gợi ý 4 món & tìm kiếm công khai vẫn hoạt động 100% vì hoàn toàn tách rời (decoupled).
-- **Tách biệt hoàn toàn `/admin`:** Khu vực `/admin` và `/api/admin/*` **không mở trên domain công khai `angiday.vn`**; đưa vào subdomain nội bộ qua VPN / Zero-Trust (Cloudflare Access + SSO + MFA + RBAC nhiều vai trò).
+- **Tách biệt hoàn toàn `/admin`:** Khu vực `/admin` và `/api/admin/*` **không mở trên domain công khai `timquanngon.com`**; đưa vào subdomain nội bộ qua VPN / Zero-Trust (Cloudflare Access + SSO + MFA + RBAC nhiều vai trò).
 - **Kiểm thử chịu tải trước go-live (Load Testing):**
   - Dùng **k6** phân tán (Cloud / Kubernetes k6-operator) mô phỏng đúng kịch bản 11:45 trưa: 92% `GET /api/directory?suggestions=true` theo phân bố mật độ dân số Hà Nội/TP.HCM + 5% `GET /tim-kiem` + 3% `POST /visit`.
   - Chỉ xác nhận đạt mốc 1M CCU khi: p95 Edge < 50 ms, p95 Origin < 120 ms, DB CPU < 60%, Error rate < 0.05%, Chaos test tắt 1 AZ + 1 Redis shard không rớt dịch vụ.

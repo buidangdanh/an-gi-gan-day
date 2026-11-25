@@ -63,7 +63,7 @@ export function BrandPlaceholder({
   <div
    className={`food-card-illustration${variant === 'sheet' ? ' is-large' : variant === 'compact' ? ' is-compact' : ''}`}
    role="img"
-   aria-label="Ảnh đại diện mặc định Ăn gì đây?"
+   aria-label="Ảnh đại diện mặc định Tìm quán ngon"
   >
    <svg
     className="brand-fallback-bg-svg"
@@ -88,7 +88,7 @@ export function BrandPlaceholder({
     <BrandLogo size={variant === 'compact' ? 'compact' : 'card'} />
     <div className="brand-fallback-text">
      <span className="brand-fallback-title">
-      Ăn gì đây<em>?</em>
+      Tìm quán <em>ngon</em>
      </span>
     </div>
     <span className="brand-fallback-glyph">{glyph}</span>
@@ -439,7 +439,7 @@ export function CardActionSheet({
      {/* PRO TOOLS INSIDE CARD SHEET */}
      <div className="sheet-pro-zone">
       <div className="sheet-pro-head">
-       <span>✦ Tiện ích Ăn gì · Pro</span>
+       <span>✦ Tiện ích Quán Ngon · Pro</span>
        {!isPro && onOpenProPlans && (
         <button type="button" className="sheet-unlock-link" onClick={() => { onClose(); onOpenProPlans(); }}>
          Dùng thử 14 ngày (0đ) ↗

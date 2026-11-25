@@ -597,11 +597,10 @@
 }
 
 .brand-fallback-title em {
- font-family: var(--serif);
- font-style: italic;
- font-weight: 700;
+ font-family: var(--sans);
+ font-style: normal;
+ font-weight: 800;
  color: #bae6fd;
- margin-left: 1px;
 }
 
 .food-card-illustration.is-compact .brand-fallback-title {

@@ -65,7 +65,7 @@ export class FoodService {
   try {
    if (process.env.NODE_ENV === 'test') await check();
    else await healthCache.getOrCompute('health', 5_000, check);
-   return { ok: true, service: 'Ăn gì đây?', database: 'PostgreSQL + PostGIS' };
+   return { ok: true, service: 'Tìm quán ngon', domain: 'timquanngon.com', database: 'PostgreSQL + PostGIS' };
   } catch {
    fail('Cơ sở dữ liệu tạm thời chưa sẵn sàng.', 503);
   }
@@ -121,7 +121,7 @@ export class FoodService {
  async requireUser(s: Session, pro = false) {
   const u = await this.user(s);
   if (!u) fail('Bạn cần đăng nhập tài khoản miễn phí.', 401);
-  if (pro && !u.pro) fail('Tính năng cần tài khoản Ăn gì · Pro đang còn hạn.', 403);
+  if (pro && !u.pro) fail('Tính năng cần tài khoản Quán Ngon · Pro đang còn hạn.', 403);
   return u;
  }
 
@@ -320,7 +320,7 @@ export class FoodService {
    .parse(body);
 
   if ((b.excluded_groups !== undefined || b.pro_boost !== undefined) && !u.pro) {
-   fail('Hồ sơ Né món & Ưu tiên quán đỉnh dành riêng cho tài khoản Ăn gì · Pro.', 403);
+   fail('Hồ sơ Né món & Ưu tiên quán đỉnh dành riêng cho tài khoản Quán Ngon · Pro.', 403);
   }
 
   const validExcluded = b.excluded_groups

@@ -1,4 +1,4 @@
-# Bảo mật & Tuân thủ Bản quyền — Ăn gì đây?
+# Bảo mật & Tuân thủ Bản quyền — Tìm quán ngon (`timquanngon.com`)
 
 Tài liệu này tổng hợp các biện pháp bảo mật đã triển khai trong mã nguồn và lộ trình tuân thủ bản quyền bắt buộc trước khi thương mại hóa.
 

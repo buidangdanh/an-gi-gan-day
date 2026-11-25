@@ -8,16 +8,18 @@ type BrandLogoProps = {
 };
 
 /**
- * Square Ocean-Blue Brand Mark (36x36px in header) featuring interwoven
- * stylized "Ă × G" monogram with 4 alternating over/under weave crossings.
+ * Square Ocean-Blue Brand Mark (36x36px in header) for "Tìm quán ngon" (timquanngon.com),
+ * featuring interwoven stylized "T × Q" monogram (Q doubles as a search magnifying glass & plate)
+ * with 3 alternating over/under weave crossings + culinary sparkle star.
  */
 export function BrandLogo({ size = 'header', className = '' }: BrandLogoProps) {
  const rawId = useId().replace(/[^a-zA-Z0-9]/g, '');
- const bgId = `sqBg_${rawId}`;
- const glowId = `sqGlow_${rawId}`;
- const cyanId = `sqCyan_${rawId}`;
- const maskGId = `sqMaskG_${rawId}`;
- const maskAId = `sqMaskA_${rawId}`;
+ const bgId = `tqBg_${rawId}`;
+ const glowId = `tqGlow_${rawId}`;
+ const cyanId = `tqCyan_${rawId}`;
+ const clipRightId = `tqRight_${rawId}`;
+ const maskQId = `tqMaskQ_${rawId}`;
+ const maskTId = `tqMaskT_${rawId}`;
 
  return (
   <svg
@@ -34,7 +36,7 @@ export function BrandLogo({ size = 'header', className = '' }: BrandLogoProps) {
     </linearGradient>
 
     <radialGradient id={glowId} cx="20%" cy="14%" r="70%">
-     <stop offset="0%" stopColor="#bae6fd" stopOpacity="0.36" />
+     <stop offset="0%" stopColor="#bae6fd" stopOpacity="0.38" />
      <stop offset="100%" stopColor="#0284c7" stopOpacity="0" />
     </radialGradient>
 
@@ -43,28 +45,33 @@ export function BrandLogo({ size = 'header', className = '' }: BrandLogoProps) {
      <stop offset="100%" stopColor="#7dd3fc" />
     </linearGradient>
 
-    {/* Mask for 'G': Ă crosses OVER top arc & bottom-left arc of G */}
-    <mask id={maskGId}>
+    <clipPath id={clipRightId}>
+     <rect x="37" y="0" width="35" height="40" />
+    </clipPath>
+
+    {/* Mask for 'Q': T's left crossbar & bottom stem cross OVER Q */}
+    <mask id={maskQId}>
      <rect width="72" height="72" fill="white" />
-     <line x1="31" y1="32" x2="39" y2="18" stroke="black" strokeWidth="9.4" strokeLinecap="round" />
-     <line x1="18" y1="58" x2="26.2" y2="40" stroke="black" strokeWidth="9.4" strokeLinecap="round" />
+     <path d="M 12 28.5 Q 23 26.2 31 26" fill="none" stroke="black" strokeWidth="9.4" strokeLinecap="round" />
+     <line x1="33.5" y1="45" x2="33.5" y2="63" stroke="black" strokeWidth="9.4" strokeLinecap="round" />
     </mask>
 
-    {/* Mask for 'Ă': G's inward bar & lower-right curve cross OVER right leg of Ă */}
-    <mask id={maskAId}>
+    {/* Mask for 'T': Q's upper-right ring crosses OVER T's right crossbar */}
+    <mask id={maskTId}>
      <rect width="72" height="72" fill="white" />
-     <path
-      d="M 35 42 L 54 42 C 54 50, 49 55, 42 57"
+     <circle
+      cx="33.5"
+      cy="37.5"
+      r="18"
       fill="none"
       stroke="black"
       strokeWidth="9.4"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      clipPath={`url(#${clipRightId})`}
      />
     </mask>
    </defs>
 
-   {/* Rounded Square Ocean-Blue Background */}
+   {/* Rounded Square Ocean-Blue Badge */}
    <rect width="72" height="72" rx="21" fill={`url(#${bgId})`} />
    <rect width="72" height="72" rx="21" fill={`url(#${glowId})`} />
    <rect
@@ -78,39 +85,22 @@ export function BrandLogo({ size = 'header', className = '' }: BrandLogoProps) {
     strokeWidth="1.2"
    />
 
-   {/* Interwoven Stylized 'G' */}
-   <path
-    mask={`url(#${maskGId})`}
-    d="M 49 26 C 42 18, 25 18, 17 29 C 10 38, 13 52, 26 57 C 39 61, 54 54, 54 42 L 33.5 42"
-    fill="none"
-    stroke={`url(#${cyanId})`}
-    strokeWidth="5.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-   />
+   {/* Interwoven Stylized 'Q' (Magnifying-glass ring + handle) */}
+   <g mask={`url(#${maskQId})`}>
+    <circle cx="33.5" cy="37.5" r="18" fill="none" stroke={`url(#${cyanId})`} strokeWidth="5.4" />
+    <path d="M 44 48 L 57.5 59.5" fill="none" stroke={`url(#${cyanId})`} strokeWidth="5.8" strokeLinecap="round" />
+   </g>
 
-   {/* Interwoven Stylized 'Ă' */}
-   <path
-    mask={`url(#${maskAId})`}
-    d="M 19 57 L 36 21 L 53 58"
-    fill="none"
-    stroke="#ffffff"
-    strokeWidth="5.7"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-   />
+   {/* Interwoven Stylized 'T' */}
+   <g mask={`url(#${maskTId})`}>
+    <path d="M 12.5 28.5 Q 34.5 24.5 56.5 28.5" fill="none" stroke="#ffffff" strokeWidth="5.7" strokeLinecap="round" />
+    <line x1="33.5" y1="26.5" x2="33.5" y2="60" stroke="#ffffff" strokeWidth="5.7" strokeLinecap="round" />
+   </g>
 
-   {/* Smiling Bowl Breve (˘) + 4-point Sparkle */}
+   {/* Culinary Sparkle Star ("Ngon") */}
    <path
-    d="M 29.5 11.5 C 32.5 15.8, 39.5 15.8, 42.5 11.5"
-    fill="none"
-    stroke="#ffffff"
-    strokeWidth="4.2"
-    strokeLinecap="round"
-   />
-   <path
-    d="M 56 14 L 57.3 17.2 L 60.5 18.5 L 57.3 19.8 L 56 23 L 54.7 19.8 L 51.5 18.5 L 54.7 17.2 Z"
-    fill="#bae6fd"
+    d="M 57.5 12 L 58.9 15.4 L 62.3 16.8 L 58.9 18.2 L 57.5 21.6 L 56.1 18.2 L 52.7 16.8 L 56.1 15.4 Z"
+    fill="#ffffff"
    />
   </svg>
  );
