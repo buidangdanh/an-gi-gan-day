@@ -7,19 +7,22 @@ type BrandLogoProps = {
  className?: string;
 };
 
+const STICK_UPPER =
+ 'M 21.82 32.56 L 60.22 16.03 A 2.45 2.45 0 0 0 58.18 11.57 L 20.58 29.84 A 1.5 1.5 0 0 0 21.82 32.56 Z';
+const STICK_LOWER =
+ 'M 24.27 37.17 L 61.57 25.22 A 2.35 2.35 0 0 0 60.03 20.78 L 23.33 34.43 A 1.45 1.45 0 0 0 24.27 37.17 Z';
+
 /**
  * Square Ocean-Blue Brand Mark (36x36px in header) for "Tìm quán ngon" (timquanngon.com),
- * featuring interwoven stylized "T × Q" monogram (Q doubles as a search magnifying glass & plate)
- * with 3 alternating over/under weave crossings + culinary sparkle star.
+ * combining a stylized 'Q' magnifying-glass search lens with a Vietnamese bowl ('cái bát')
+ * and a pair of tapered chopsticks ('đôi đũa') interwoven over the upper-right lens ring.
  */
 export function BrandLogo({ size = 'header', className = '' }: BrandLogoProps) {
  const rawId = useId().replace(/[^a-zA-Z0-9]/g, '');
  const bgId = `tqBg_${rawId}`;
  const glowId = `tqGlow_${rawId}`;
- const cyanId = `tqCyan_${rawId}`;
- const clipRightId = `tqRight_${rawId}`;
+ const iceId = `tqIce_${rawId}`;
  const maskQId = `tqMaskQ_${rawId}`;
- const maskTId = `tqMaskT_${rawId}`;
 
  return (
   <svg
@@ -40,34 +43,17 @@ export function BrandLogo({ size = 'header', className = '' }: BrandLogoProps) {
      <stop offset="100%" stopColor="#0284c7" stopOpacity="0" />
     </radialGradient>
 
-    <linearGradient id={cyanId} x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id={iceId} gradientUnits="userSpaceOnUse" x1="12" y1="15" x2="60" y2="62">
      <stop offset="0%" stopColor="#e0f2fe" />
+     <stop offset="65%" stopColor="#bae6fd" />
      <stop offset="100%" stopColor="#7dd3fc" />
     </linearGradient>
 
-    <clipPath id={clipRightId}>
-     <rect x="37" y="0" width="35" height="40" />
-    </clipPath>
-
-    {/* Mask for 'Q': T's left crossbar & bottom stem cross OVER Q */}
+    {/* Cutout mask so the pair of chopsticks weaves cleanly OVER the upper-right 'Q' search ring */}
     <mask id={maskQId}>
      <rect width="72" height="72" fill="white" />
-     <path d="M 12 28.5 Q 23 26.2 31 26" fill="none" stroke="black" strokeWidth="9.4" strokeLinecap="round" />
-     <line x1="33.5" y1="45" x2="33.5" y2="63" stroke="black" strokeWidth="9.4" strokeLinecap="round" />
-    </mask>
-
-    {/* Mask for 'T': Q's upper-right ring crosses OVER T's right crossbar */}
-    <mask id={maskTId}>
-     <rect width="72" height="72" fill="white" />
-     <circle
-      cx="33.5"
-      cy="37.5"
-      r="18"
-      fill="none"
-      stroke="black"
-      strokeWidth="9.4"
-      clipPath={`url(#${clipRightId})`}
-     />
+     <path d={STICK_UPPER} fill="black" stroke="black" strokeWidth="5.2" strokeLinejoin="round" />
+     <path d={STICK_LOWER} fill="black" stroke="black" strokeWidth="5.2" strokeLinejoin="round" />
     </mask>
    </defs>
 
@@ -85,22 +71,33 @@ export function BrandLogo({ size = 'header', className = '' }: BrandLogoProps) {
     strokeWidth="1.2"
    />
 
-   {/* Interwoven Stylized 'Q' (Magnifying-glass ring + handle) */}
+   {/* Seamless 'Q' Search Magnifying-Glass Lens + Handle ("Tìm Quán") */}
    <g mask={`url(#${maskQId})`}>
-    <circle cx="33.5" cy="37.5" r="18" fill="none" stroke={`url(#${cyanId})`} strokeWidth="5.4" />
-    <path d="M 44 48 L 57.5 59.5" fill="none" stroke={`url(#${cyanId})`} strokeWidth="5.8" strokeLinecap="round" />
+    <circle cx="32.2" cy="36.2" r="20.2" fill="none" stroke={`url(#${iceId})`} strokeWidth="4.8" />
+    <path
+     d="M 46.5 50.5 L 59.0 61.5"
+     fill="none"
+     stroke={`url(#${iceId})`}
+     strokeWidth="5.8"
+     strokeLinecap="round"
+    />
    </g>
 
-   {/* Interwoven Stylized 'T' */}
-   <g mask={`url(#${maskTId})`}>
-    <path d="M 12.5 28.5 Q 34.5 24.5 56.5 28.5" fill="none" stroke="#ffffff" strokeWidth="5.7" strokeLinecap="round" />
-    <line x1="33.5" y1="26.5" x2="33.5" y2="60" stroke="#ffffff" strokeWidth="5.7" strokeLinecap="round" />
-   </g>
+   {/* Sleek Tapered Chopsticks ('đôi đũa') interwoven OVER the 'Q' ring */}
+   <path d={STICK_UPPER} fill="#ffffff" />
+   <path d={STICK_LOWER} fill="#e0f2fe" />
 
-   {/* Culinary Sparkle Star ("Ngon") */}
+   {/* Vietnamese Bowl ('cái bát') with rounded lip, pedestal foot & rim wave */}
    <path
-    d="M 57.5 12 L 58.9 15.4 L 62.3 16.8 L 58.9 18.2 L 57.5 21.6 L 56.1 18.2 L 52.7 16.8 L 56.1 15.4 Z"
+    d="M 18.8 38.6 Q 17.6 38.6 17.8 39.8 C 18.7 46.4 23.2 50.2 27.6 51.0 L 27.6 52.2 Q 27.6 53.0 28.6 53.0 L 35.8 53.0 Q 36.8 53.0 36.8 52.2 L 36.8 51.0 C 41.2 50.2 45.7 46.4 46.6 39.8 Q 46.8 38.6 45.6 38.6 Z"
     fill="#ffffff"
+   />
+   <path
+    d="M 22.8 42.6 Q 32.2 46.2 41.6 42.6"
+    fill="none"
+    stroke="#0284c7"
+    strokeWidth="2.7"
+    strokeLinecap="round"
    />
   </svg>
  );

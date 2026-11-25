@@ -15,17 +15,15 @@
       <stop offset="50%" stop-color="#0284c7" />
       <stop offset="100%" stop-color="#0369a1" />
     </linearGradient>
-    <clipPath id="mkRight">
-      <rect x="37" y="0" width="35" height="40" />
-    </clipPath>
+    <linearGradient id="mkIce" gradientUnits="userSpaceOnUse" x1="12" y1="15" x2="60" y2="62">
+      <stop offset="0%" stop-color="#e0f2fe" />
+      <stop offset="65%" stop-color="#bae6fd" />
+      <stop offset="100%" stop-color="#7dd3fc" />
+    </linearGradient>
     <mask id="mkQ">
       <rect width="72" height="72" fill="white" />
-      <path d="M 12 28.5 Q 23 26.2 31 26" fill="none" stroke="black" stroke-width="9.4" stroke-linecap="round" />
-      <line x1="33.5" y1="45" x2="33.5" y2="63" stroke="black" stroke-width="9.4" stroke-linecap="round" />
-    </mask>
-    <mask id="mkT">
-      <rect width="72" height="72" fill="white" />
-      <circle cx="33.5" cy="37.5" r="18" fill="none" stroke="black" stroke-width="9.4" clip-path="url(#mkRight)" />
+      <path d="M 21.82 32.56 L 60.22 16.03 A 2.45 2.45 0 0 0 58.18 11.57 L 20.58 29.84 A 1.5 1.5 0 0 0 21.82 32.56 Z" fill="black" stroke="black" stroke-width="5.2" stroke-linejoin="round" />
+      <path d="M 24.27 37.17 L 61.57 25.22 A 2.35 2.35 0 0 0 60.03 20.78 L 23.33 34.43 A 1.45 1.45 0 0 0 24.27 37.17 Z" fill="black" stroke="black" stroke-width="5.2" stroke-linejoin="round" />
     </mask>
   </defs>
   <rect width="640" height="400" fill="url(#bg)" />
@@ -37,14 +35,13 @@
     <g transform="translate(16, 12) scale(0.722)">
       <rect width="72" height="72" rx="21" fill="url(#mkBg)" />
       <g mask="url(#mkQ)">
-        <circle cx="33.5" cy="37.5" r="18" fill="none" stroke="#bae6fd" stroke-width="5.4" />
-        <path d="M 44 48 L 57.5 59.5" fill="none" stroke="#bae6fd" stroke-width="5.8" stroke-linecap="round" />
+        <circle cx="32.2" cy="36.2" r="20.2" fill="none" stroke="url(#mkIce)" stroke-width="4.8" />
+        <path d="M 46.5 50.5 L 59.0 61.5" fill="none" stroke="url(#mkIce)" stroke-width="5.8" stroke-linecap="round" />
       </g>
-      <g mask="url(#mkT)">
-        <path d="M 12.5 28.5 Q 34.5 24.5 56.5 28.5" fill="none" stroke="#ffffff" stroke-width="5.7" stroke-linecap="round" />
-        <line x1="33.5" y1="26.5" x2="33.5" y2="60" stroke="#ffffff" stroke-width="5.7" stroke-linecap="round" />
-      </g>
-      <path d="M 57.5 12 L 58.9 15.4 L 62.3 16.8 L 58.9 18.2 L 57.5 21.6 L 56.1 18.2 L 52.7 16.8 L 56.1 15.4 Z" fill="#ffffff" />
+      <path d="M 21.82 32.56 L 60.22 16.03 A 2.45 2.45 0 0 0 58.18 11.57 L 20.58 29.84 A 1.5 1.5 0 0 0 21.82 32.56 Z" fill="#ffffff" />
+      <path d="M 24.27 37.17 L 61.57 25.22 A 2.35 2.35 0 0 0 60.03 20.78 L 23.33 34.43 A 1.45 1.45 0 0 0 24.27 37.17 Z" fill="#e0f2fe" />
+      <path d="M 18.8 38.6 Q 17.6 38.6 17.8 39.8 C 18.7 46.4 23.2 50.2 27.6 51.0 L 27.6 52.2 Q 27.6 53.0 28.6 53.0 L 35.8 53.0 Q 36.8 53.0 36.8 52.2 L 36.8 51.0 C 41.2 50.2 45.7 46.4 46.6 39.8 Q 46.8 38.6 45.6 38.6 Z" fill="#ffffff" />
+      <path d="M 22.8 42.6 Q 32.2 46.2 41.6 42.6" fill="none" stroke="#0284c7" stroke-width="2.7" stroke-linecap="round" />
     </g>
     <text x="80" y="48" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="30" font-weight="800" fill="#ffffff">Tìm quán <tspan fill="#bae6fd">ngon</tspan></text>
   </g>
