@@ -291,7 +291,27 @@ export function HeaderBar({
   <>
    <header className="discovery-topbar">
     <div className="topbar-left">
-     {/* Tài khoản đứng TRƯỚC Ăn gì đây? */}
+     <a
+      href="/"
+      className="discovery-brand"
+      onClick={(e) => {
+       if (onResetHome) {
+        e.preventDefault();
+        onResetHome();
+       }
+      }}
+     >
+      <BrandLogo size="header" />
+      <span className="discovery-brand-text">
+       <span className="discovery-brand-name">
+        {siteName.replace('?', '')}
+        <em>?</em>
+       </span>
+      </span>
+     </a>
+    </div>
+
+    <div className="topbar-right">
      <button
       type="button"
       className={`account-first-btn${isPro ? ' is-pro-member' : ''}`}
@@ -313,25 +333,6 @@ export function HeaderBar({
        </span>
       )}
      </button>
-
-     <a
-      href="/"
-      className="discovery-brand"
-      onClick={(e) => {
-       if (onResetHome) {
-        e.preventDefault();
-        onResetHome();
-       }
-      }}
-     >
-      <BrandLogo size="header" />
-      <span className="discovery-brand-text">
-       <span className="discovery-brand-name">
-        {siteName.replace('?', '')}
-        <em>?</em>
-       </span>
-      </span>
-     </a>
     </div>
    </header>
 

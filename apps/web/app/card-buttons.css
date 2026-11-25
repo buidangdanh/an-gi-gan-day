@@ -8,7 +8,7 @@
  padding: 18px 24px 48px;
 }
 
-/* Top bar: [Tài khoản] -> [Ăn gì đây?] on left, [Gợi ý] [Tìm món] on right */
+/* Top bar: [Ăn gì đây?] on left <---> [Tài khoản] symmetric on right */
 .discovery-topbar {
  display: flex;
  align-items: center;
@@ -28,6 +28,14 @@
  align-items: center;
  gap: 12px;
  min-width: 0;
+}
+
+.topbar-right {
+ display: flex;
+ align-items: center;
+ justify-content: flex-end;
+ gap: 10px;
+ flex-shrink: 0;
 }
 
 .account-first-btn {
