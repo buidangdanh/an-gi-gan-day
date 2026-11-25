@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="icBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0ea5e9" />
+      <stop offset="45%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#075985" />
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#icBg)" />
+  <rect x="2.75" y="2.75" width="58.5" height="58.5" rx="15.25" fill="none" stroke="rgba(255,255,255,0.34)" stroke-width="1.5" />
+  <path d="M 11 50 C 25 55, 42 52, 53 45" fill="none" stroke="#7dd3fc" stroke-width="2.6" stroke-linecap="round" />
+  <g transform="translate(8, 46) rotate(-4)" font-family="Segoe UI, Arial, sans-serif" font-weight="900">
+    <text x="0" y="0" font-size="34" fill="#ffffff" stroke="#064e78" stroke-width="5.2" stroke-linejoin="round" paint-order="stroke fill">A</text>
+    <path d="M 6 -28 C 9 -23.5, 16 -23.5, 19 -28" fill="none" stroke="#064e78" stroke-width="5.6" stroke-linecap="round" />
+    <path d="M 6 -28 C 9 -23.5, 16 -23.5, 19 -28" fill="none" stroke="#7dd3fc" stroke-width="2.8" stroke-linecap="round" />
+  </g>
+  <g transform="translate(36, 43) rotate(7)">
+    <path d="M 3 -19 C 3 -28, 18 -29, 18 -18 C 18 -12, 10 -10.5, 10 -4.5" fill="none" stroke="#064e78" stroke-width="8.5" stroke-linecap="round" />
+    <path d="M 3 -19 C 3 -28, 18 -29, 18 -18 C 18 -12, 10 -10.5, 10 -4.5" fill="none" stroke="#bae6fd" stroke-width="4.4" stroke-linecap="round" />
+    <path d="M 10 0 L 11.8 3.2 L 15 5 L 11.8 6.8 L 10 10 L 8.2 6.8 L 5 5 L 8.2 3.2 Z" fill="#ffffff" stroke="#064e78" stroke-width="1.8" stroke-linejoin="round" />
+  </g>
+</svg>

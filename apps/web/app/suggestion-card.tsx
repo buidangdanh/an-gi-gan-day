@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { api, PopularityBadgeKind, Restaurant, UserCollection } from './api';
+import { BrandLogo } from './brand-logo';
 
 export function getPopularityInfo(
  badge?: PopularityBadgeKind | null,
@@ -83,14 +84,8 @@ export function BrandPlaceholder({
     <circle cx="62" cy="212" r="74" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1.2" />
    </svg>
 
-   <div className="brand-fallback-lockup" aria-hidden="true">
-    <span className="brand-fallback-mark">ă.</span>
-    <div className="brand-fallback-text">
-     <span className="brand-fallback-title">
-      Ăn gì đây<em>?</em>
-     </span>
-    </div>
-    <span className="brand-fallback-glyph">{glyph}</span>
+   <div className="brand-fallback-lockup is-emblem-only" aria-hidden="true">
+    <BrandLogo variant={variant === 'compact' ? 'compact' : 'card'} />
    </div>
   </div>
  );
