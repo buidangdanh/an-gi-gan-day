@@ -869,18 +869,18 @@ export function HeaderBar({
         </span>
         <div>
          <div className="hub-title-row">
-          <h2>{user ? user.display_name : 'Đăng nhập Tìm quán ngon'}</h2>
+          <h2>{user ? user.display_name : 'Đăng nhập'}</h2>
           <span className={`tier-badge ${isPro ? 'is-pro' : user ? 'is-free' : 'is-guest'}`}>
            {isPro ? '✦ PRO' : user ? 'THƯỜNG · 0đ' : 'KHÁCH'}
           </span>
          </div>
-         <p>
-          {isPro && user?.expires_at
-           ? `Đặc quyền Pro hiệu lực đến ${new Date(user.expires_at).toLocaleDateString('vi-VN')}`
-           : user
-            ? `${user.email || user.phone || '@' + (user.username || 'thanh-vien')} · ${user.verified ? 'Đã xác thực ✓' : 'Chờ xác thực email'}`
-            : `Đã mở ${hub?.distinctVisits ?? 0}/4 lượt chỉ đường miễn phí trong phiên`}
-         </p>
+         {user && (
+          <p>
+           {isPro && user.expires_at
+            ? `Đặc quyền Pro hiệu lực đến ${new Date(user.expires_at).toLocaleDateString('vi-VN')}`
+            : `${user.email || user.phone || '@' + (user.username || 'thanh-vien')} · ${user.verified ? 'Đã xác thực ✓' : 'Chờ xác thực email'}`}
+          </p>
+         )}
         </div>
        </div>
        <button type="button" className="action-sheet-close is-static" onClick={() => setOpen(false)} aria-label="Đóng">
@@ -964,7 +964,7 @@ export function HeaderBar({
             <form className="auth-form" onSubmit={submitAuth}>
              {authMode === 'register' && (
               <label>
-               <span>Tên hiển thị của bạn</span>
+               <span>Tên hiển thị</span>
                <input
                 required
                 minLength={2}
@@ -978,7 +978,7 @@ export function HeaderBar({
 
              {authMode === 'register' ? (
               <label>
-               <span>Địa chỉ Email chính chủ (cần xác thực trong 7 ngày)</span>
+               <span>Địa chỉ Email</span>
                <input
                 type="email"
                 required
@@ -1039,15 +1039,9 @@ export function HeaderBar({
               {busy
                ? 'Đang xử lý bảo mật…'
                : authMode === 'register'
-                 ? 'Tạo tài khoản & Nhận mã xác thực Email'
+                 ? 'Tạo tài khoản'
                  : 'Đăng nhập ngay'}
              </button>
-
-             {authMode === 'register' && (
-              <p className="account-auth-hint">
-               🛡️ Để chống tài khoản ảo, tài khoản Email cần bấm xác thực trong vòng <b>7 ngày</b> (quá 7 ngày chưa xác thực sẽ tự động xóa).
-              </p>
-             )}
             </form>
            )}
 

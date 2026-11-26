@@ -445,20 +445,20 @@
 
 .food-card {
  background: var(--surface);
- border: 1px solid #cfe3f6;
+ border: 1.5px solid #bcd7f0;
  border-radius: 18px;
  overflow: hidden;
  display: flex;
  flex-direction: column;
  min-width: 0;
- box-shadow: 0 6px 20px rgba(12, 53, 84, 0.06);
+ box-shadow: 0 10px 28px rgba(12, 53, 84, 0.14), 0 3px 9px rgba(12, 53, 84, 0.08);
  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .food-card:hover {
- transform: translateY(-3px);
- border-color: #7dd3fc;
- box-shadow: 0 14px 32px rgba(2, 132, 199, 0.13);
+ transform: translateY(-4px);
+ border-color: #38bdf8;
+ box-shadow: 0 18px 40px rgba(2, 132, 199, 0.22), 0 6px 14px rgba(12, 53, 84, 0.10);
 }
 
 .food-card.is-highlighted {
@@ -953,9 +953,20 @@
 
 .action-sheet-close.is-static {
  position: static;
- background: #e8f4fe;
+ width: 44px;
+ height: 44px;
+ font-size: 28px;
+ font-weight: 600;
+ background: #e3f1fd;
+ border: 1px solid #c3def6;
  box-shadow: none;
  flex-shrink: 0;
+ transition: background 0.15s, transform 0.12s;
+}
+
+.action-sheet-close.is-static:hover {
+ background: #cde5fb;
+ transform: scale(1.05);
 }
 
 .action-sheet-hero-meta {
@@ -2501,7 +2512,7 @@
 /* Unified Search + Suggestion Controls */
 .unified-search-row {
  display: grid;
- grid-template-columns: minmax(0, 1fr) minmax(190px, 240px);
+ grid-template-columns: 1fr;
  gap: 8px;
  margin-top: 2px;
 }

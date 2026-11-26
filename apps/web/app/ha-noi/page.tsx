@@ -32,8 +32,10 @@ type CatalogueResponse = {
 type OriginState = { lat: number; lng: number; label: string };
 
 const SEARCH_PAGE_SIZE = 8;
-const DRINK_QUICK_CHIPS = ['cà phê', 'cà phê trứng', 'trà sữa', 'trà & đồ uống', 'bar & bia'];
-const FOOD_QUICK_CHIPS = POPULAR_SEARCH_GROUPS.filter((g) => !DRINK_QUICK_CHIPS.includes(g));
+const DRINK_QUICK_CHIPS = ['cà phê', 'trà sữa', 'trà & đồ uống'];
+const FOOD_QUICK_CHIPS = POPULAR_SEARCH_GROUPS.filter(
+ (g) => !['cà phê', 'cà phê trứng', 'trà sữa', 'trà & đồ uống', 'bar & bia'].includes(g),
+).slice(0, 3);
 
 function quantizeForQuery(lat: number, lng: number) {
  const qLat = Math.round(lat / 0.00135) * 0.00135;
@@ -504,11 +506,7 @@ export default function UnifiedDiscovery() {
 
  const greeting = getMealGreeting(hour, kind);
  const moodList = kind === 'drink' ? DRINK_MOOD_OPTIONS : FOOD_MOOD_OPTIONS;
- const quickChips = kind === 'drink' ? DRINK_QUICK_CHIPS : FOOD_QUICK_CHIPS;
- const selectGroups = useMemo(() => {
-  if (groupCounts.length) return groupCounts;
-  return ALL_STATIC_GROUPS.filter((g) => g !== 'chưa phân nhóm').map((name) => ({ name, count: 0 }));
- }, [groupCounts]);
+ const quickChips = (kind === 'drink' ? DRINK_QUICK_CHIPS : FOOD_QUICK_CHIPS).slice(0, 3);
 
  return (
   <main className="discovery-shell">
@@ -607,23 +605,6 @@ export default function UnifiedDiscovery() {
        </button>
       )}
      </div>
-
-     <select
-      className="unified-group-select"
-      value={selectedGroup}
-      aria-label="Lọc theo nhóm món hoặc đồ uống"
-      onChange={(e) => {
-       setSelectedGroup(e.target.value);
-       setPage(0);
-      }}
-     >
-      <option value="">✦ Gợi ý 4 món khác nhau</option>
-      {selectGroups.map((g) => (
-       <option key={g.name} value={g.name}>
-        {g.name}{g.count ? ` (${g.count.toLocaleString('vi-VN')})` : ''}
-       </option>
-      ))}
-     </select>
     </form>
 
     {/* Mood Tabs (4-card modes) */}
