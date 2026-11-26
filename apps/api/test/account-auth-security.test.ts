@@ -47,6 +47,9 @@ async function guestCookie() {
 }
 
 before(async () => {
+ for (const key of ['TURNSTILE_SECRET_KEY', 'NEXT_PUBLIC_TURNSTILE_SITE_KEY', 'RESEND_API_KEY', 'BREVO_API_KEY']) {
+  delete process.env[key];
+ }
  process.env.NODE_ENV = 'test';
  process.env.ENABLE_DEV_AUTH = 'true';
  process.env.WEB_ORIGIN = origin;

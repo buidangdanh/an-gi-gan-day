@@ -157,7 +157,18 @@ export function HeaderBar({
  const [err, setErr] = useState('');
 
  const turnstileBoxRef = useRef<HTMLDivElement | null>(null);
+ const turnstileWidgetIdRef = useRef<string | null>(null);
  const urlHandledRef = useRef(false);
+
+ function resetTurnstileWidget() {
+  setTurnstileToken('');
+  const win = typeof window !== 'undefined' ? (window as any) : null;
+  if (turnstileWidgetIdRef.current && win?.turnstile?.reset) {
+   try {
+    win.turnstile.reset(turnstileWidgetIdRef.current);
+   } catch {}
+  }
+ }
 
  const user = hub?.user ?? null;
  const isPro = Boolean(user?.pro);
@@ -242,6 +253,7 @@ export function HeaderBar({
      callback: (tok: string) => setTurnstileToken(tok),
      'expired-callback': () => setTurnstileToken(''),
     });
+    turnstileWidgetIdRef.current = widgetId || null;
    })
    .catch(() => {});
   return () => {
@@ -326,6 +338,7 @@ export function HeaderBar({
     setNotice('Đăng nhập thành công!');
    }
   } catch (e) {
+   resetTurnstileWidget();
    setErr((e as Error).message);
   } finally {
    setBusy(false);
@@ -342,10 +355,12 @@ export function HeaderBar({
     email: emailInput.trim(),
     ...(turnstileToken ? { turnstileToken } : {}),
    });
+   resetTurnstileWidget();
    setResetLinkToken('');
    setAuthMode('reset');
    setNotice(res.message);
   } catch (e) {
+   resetTurnstileWidget();
    setErr((e as Error).message);
   } finally {
    setBusy(false);
