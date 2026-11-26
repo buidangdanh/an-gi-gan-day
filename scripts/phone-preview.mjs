@@ -129,6 +129,7 @@ const server = http.createServer((req, res) => {
  delete headers['x-forwarded-for'];
  delete headers['x-forwarded-host'];
  delete headers['x-forwarded-proto'];
+ if (host !== '127.0.0.1') delete headers['cf-connecting-ip'];
  if (!isReadMethod) headers.origin = process.env.WEB_ORIGIN || 'http://127.0.0.1:3100';
 
  const upstream = http.request({ hostname: '127.0.0.1', port: 3100, path: req.url, method, headers }, (reply) => {
