@@ -375,6 +375,9 @@ export default function AdminManagementPage() {
  const [listLoading, setListLoading] = useState(false);
  const [copiedId, setCopiedId] = useState<string | null>(null);
 
+ // Detail Popup Modal (shows 100% full info of 1 restaurant when clicked)
+ const [detailRecord, setDetailRecord] = useState<FullRestaurantRecord | null>(null);
+
  // Editor Modal
  const [editorOpen, setEditorOpen] = useState(false);
  const [editingId, setEditingId] = useState<string | null>(null);
@@ -666,6 +669,9 @@ export default function AdminManagementPage() {
    const method = editingId ? 'PUT' : 'POST';
    const res = await cmsApi(url, method, payload);
    setEditorOpen(false);
+   if (res?.restaurant && detailRecord?.id === res.restaurant.id) {
+    setDetailRecord(res.restaurant);
+   }
    setNotice(
     editingId
      ? `Đã lưu chỉnh sửa quán "${res.restaurant?.name}" (lúc ${fmtDateTime(res.restaurant?.updated_at)}).`
@@ -687,6 +693,9 @@ export default function AdminManagementPage() {
   setError('');
   try {
    const res = await cmsApi(`/admin/cms/restaurants/${r.id}`, 'DELETE');
+   if (res?.restaurant && detailRecord?.id === r.id) {
+    setDetailRecord(res.restaurant);
+   }
    setNotice(`Đã xóa quán "${r.name}" lúc ${fmtDateTime(res.restaurant?.deleted_at)}.`);
    await Promise.all([loadRestaurants(), loadOverview()]);
   } catch (e) {
@@ -701,6 +710,9 @@ export default function AdminManagementPage() {
   setError('');
   try {
    const res = await cmsApi(`/admin/cms/restaurants/${r.id}/restore`, 'POST');
+   if (res?.restaurant && detailRecord?.id === r.id) {
+    setDetailRecord(res.restaurant);
+   }
    setNotice(`Đã khôi phục quán "${r.name}" lúc ${fmtDateTime(res.restaurant?.updated_at)}.`);
    await Promise.all([loadRestaurants(), loadOverview()]);
   } catch (e) {
@@ -722,6 +734,9 @@ export default function AdminManagementPage() {
   setError('');
   try {
    await cmsApi(`/admin/cms/restaurants/${r.id}?permanent=true`, 'DELETE');
+   if (detailRecord?.id === r.id) {
+    setDetailRecord(null);
+   }
    setNotice(`Đã xóa vĩnh viễn quán "${r.name}" và lưu dấu thời gian xóa vào lịch sử.`);
    await Promise.all([loadRestaurants(), loadOverview()]);
   } catch (e) {
@@ -1044,10 +1059,10 @@ export default function AdminManagementPage() {
        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         <div>
          <strong style={{ fontSize: 15 }}>
-          Danh sách bản ghi đầy đủ ({restData.total.toLocaleString('vi-VN')} quán khớp bộ lọc)
+          Danh sách quán ăn ({restData.total.toLocaleString('vi-VN')} bản ghi khớp bộ lọc)
          </strong>
          <span style={{ fontSize: 12.5, color: '#64748b', marginLeft: 10 }}>
-          Mỗi bản ghi hiển thị toàn bộ 100% trường dữ liệu và mốc thời gian Tạo · Sửa · Xóa.
+          Hiển thị gọn 1 dòng / quán — bấm vào dòng hoặc nút <b>Xem chi tiết</b> để mở popup đầy đủ thông tin.
          </span>
         </div>
         <button type="button" className="cms-btn is-primary" onClick={openCreateModal}>
@@ -1208,216 +1223,102 @@ export default function AdminManagementPage() {
         Không tìm thấy bản ghi quán ăn nào khớp bộ lọc hiện tại.
        </div>
       ) : (
-       <div className="cms-records-stack">
-        {restData.items.map((r, idx) => (
-         <article key={r.id} className={`cms-record-card${!r.active ? ' is-deleted' : ''}`}>
-          {/* TOP HEADER: IMAGE + TITLE + STATUS BADGES + EDIT/DELETE ACTIONS */}
-          <div className="cms-record-top">
-           <div className="cms-record-thumb">
-            {r.image_url ? (
-             <img src={r.image_url} alt={r.name} referrerPolicy="no-referrer" />
-            ) : (
-             <div className="cms-record-thumb-empty">
-              <BrandLogo size="compact" />
-              <span>Ảnh bìa mặc định</span>
-             </div>
-            )}
-           </div>
-
-           <div className="cms-record-title-wrap">
-            <h3>
-             <span style={{ color: '#64748b', fontSize: 14 }}>#{page * pageSize + idx + 1}</span>
-             <span>{r.name}</span>
-             <span className={`cms-badge ${r.active ? 'is-active' : 'is-deleted'}`}>
-              {r.active ? '● Đang hoạt động' : '✕ Đã xóa (Đang ẩn)'}
-             </span>
-             {r.demo && <span className="cms-badge is-demo">Bản ghi Demo</span>}
-             <span className="cms-badge is-city">{CITY_LABELS[r.city_slug] || r.city_slug} ({r.city_slug})</span>
-             <span className="cms-badge is-verified">Xác minh: {r.verification_status}</span>
-             {r.popularity_badge && (
-              <span className="cms-badge is-pop">
-               {BADGE_LABELS[r.popularity_badge] || r.popularity_badge}
-              </span>
-             )}
-            </h3>
-            <p style={{ margin: '4px 0 6px', fontSize: 14, color: '#1e293b' }}>
-             📍 <b>Địa chỉ:</b> {r.address}
-            </p>
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', fontSize: 12, color: '#475569' }}>
-             <span className="cms-mono">UUID: {r.id}</span>
-             <button type="button" className="cms-btn" style={{ padding: '2px 8px', fontSize: 11.5 }} onClick={() => copyUuid(r.id)}>
-              {copiedId === r.id ? '✓ Đã chép ID' : '📋 Chép ID'}
-             </button>
-             {r.lat !== null && r.lng !== null && (
-              <a
-               href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${r.lat},${r.lng}`)}`}
-               target="_blank"
-               rel="noopener noreferrer"
-               className="cms-btn"
-               style={{ padding: '2px 8px', fontSize: 11.5 }}
-              >
-               🗺️ Xem Maps ({r.lat.toFixed(6)}, {r.lng.toFixed(6)}) ↗
-              </a>
-             )}
-             {r.external_url && (
-              <a
-               href={r.external_url}
-               target="_blank"
-               rel="noopener noreferrer"
-               className="cms-btn"
-               style={{ padding: '2px 8px', fontSize: 11.5 }}
-              >
-               🔗 Nguồn tham chiếu ↗
-              </a>
-             )}
-            </div>
-           </div>
-
-           <div className="cms-record-actions">
-            <button type="button" className="cms-btn is-primary" onClick={() => openEditModal(r)}>
-             ✏️ Chỉnh sửa tất cả
-            </button>
-            <button type="button" className="cms-btn" onClick={() => openRestaurantHistory(r)}>
-             🕓 Lịch sử ({r.deleted_at ? 'Tạo/Sửa/Xóa' : 'Tạo/Sửa'})
-            </button>
-            {r.active ? (
-             <button type="button" className="cms-btn is-danger" disabled={busy} onClick={() => handleSoftDelete(r)}>
-              🗑️ Xóa quán
-             </button>
-            ) : (
-             <button type="button" className="cms-btn is-success" disabled={busy} onClick={() => handleRestore(r)}>
-              ♻️ Khôi phục
-             </button>
-            )}
-            <button
-             type="button"
-             className="cms-btn is-danger"
-             disabled={busy}
-             onClick={() => handleHardDelete(r)}
-             title="Xóa hẳn khỏi bảng restaurants"
-            >
-             ⚠️ Xóa vĩnh viễn
-            </button>
-           </div>
-          </div>
-
-          {/* PROMINENT TIMESTAMPS BAR: CREATED_AT, UPDATED_AT, DELETED_AT */}
-          <div className="cms-timestamps-bar">
-           <div className="cms-ts-item">
-            <span>🟢 Thời gian tạo (created_at)</span>
-            <b>{fmtDateTime(r.created_at)}</b>
-           </div>
-           <div className="cms-ts-item">
-            <span>🔵 Thời gian sửa gần nhất (updated_at)</span>
-            <b>{fmtDateTime(r.updated_at)}</b>
-           </div>
-           <div className={`cms-ts-item${r.deleted_at ? ' is-deleted' : ''}`}>
-            <span>🔴 Thời gian xóa (deleted_at)</span>
-            <b>{r.deleted_at ? fmtDateTime(r.deleted_at) : 'Chưa xóa (Đang hoạt động)'}</b>
-           </div>
-           <div className="cms-ts-item">
-            <span>🛰️ Kiểm tra Tọa độ / Ảnh</span>
-            <b>GPS: {fmtDateTime(r.location_checked_at)} · Ảnh: {fmtDateTime(r.image_checked_at)}</b>
-           </div>
-          </div>
-
-          {/* COMPLETE 100% ATTRIBUTE GRID OF THIS RECORD */}
-          <dl className="cms-spec-grid">
-           <div className="cms-spec-box">
-            <dt>Phân loại món ăn (primary_group & food_groups)</dt>
-            <dd>
-             <b>Nhóm chính:</b> {r.primary_group} <br />
-             <b>Tất cả nhóm ({r.food_groups?.length || 0}):</b> {(r.food_groups || []).join(', ') || '—'} <br />
-             <b>Nguồn phân loại:</b> {r.classification_source}
-            </dd>
-           </div>
-
-           <div className="cms-spec-box">
-            <dt>Tọa độ địa lý & Nguồn vị trí (lat, lng, location_source)</dt>
-            <dd>
-             <b>Vĩ độ (lat):</b> {r.lat ?? 'null'} · <b>Kinh độ (lng):</b> {r.lng ?? 'null'} <br />
-             <b>Nguồn tọa độ:</b> {r.location_source} <br />
-             <b>Chi nhánh của (branch_of):</b> <span className="cms-mono">{r.branch_of || 'null (Quán độc lập)'}</span>
-            </dd>
-           </div>
-
-           <div className="cms-spec-box">
-            <dt>Khoảng giá & Giờ mở cửa (price_min, price_max, hours)</dt>
-            <dd>
-             <b>Giá tối thiểu:</b> {formatVnd(r.price_min)} · <b>Giá tối đa:</b> {formatVnd(r.price_max)} <br />
-             <b>Khung giờ:</b> {formatHoursSummary(r.hours)}
-            </dd>
-           </div>
-
-           <div className="cms-spec-box">
-            <dt>Độ yêu thích & Điểm xếp hạng (popularity_*)</dt>
-            <dd>
-             <b>Lượt thả tim:</b> {r.popularity_saves.toLocaleString('vi-VN')} ❤️ (Tài khoản đang lưu: {r.live_favorites_count ?? 0}) <br />
-             <b>Điểm xếp hạng ưu tiên:</b> {Number(r.popularity_score || 0).toFixed(2)} / 100 · <b>Huy hiệu:</b> {r.popularity_badge || 'null'} <br />
-             <b>Điểm nguồn tham khảo:</b> {r.popularity_rating ?? 'null'} / 10 ({r.popularity_reviews.toLocaleString('vi-VN')} lượt đánh giá nguồn)
-            </dd>
-           </div>
-
-           <div className="cms-spec-box">
-            <dt>Tương tác người dùng thực tế & Kiểm duyệt</dt>
-            <dd>
-             <b>Đánh giá nội bộ đã duyệt:</b> {r.review_count} bài (Điểm TB: {r.review_avg ? Number(r.review_avg).toFixed(2) : 'null'}/5) <br />
-             <b>Lượt bấm mở Google Maps:</b> {(r.live_visits_count ?? 0).toLocaleString('vi-VN')} · <b>Ghi chú Pro:</b> {r.live_notes_count ?? 0} <br />
-             <b>Báo sai chưa xử lý:</b>{' '}
-             <span style={{ color: (r.open_reports_count ?? 0) > 0 ? '#dc2626' : 'inherit', fontWeight: 700 }}>
-              {r.open_reports_count ?? 0}
-             </span>
-            </dd>
-           </div>
-
-           <div className="cms-spec-box">
-            <dt>Nguồn gốc, Giấy phép & Đối chiếu ngoài</dt>
-            <dd>
-             <b>Nguồn (source):</b> {r.source} <br />
-             <b>Giấy phép (data_license):</b> {r.data_license} · <b>Foody ID:</b> {r.foody_id ?? 'null'} <br />
-             <b>Mã import (import_record_id):</b> {r.import_record_id || 'null'}
-            </dd>
-           </div>
-
-           <div className="cms-spec-box">
-            <dt>Đường dẫn Ảnh đại diện & URL tham chiếu</dt>
-            <dd className="cms-mono">
-             <b>image_url:</b> {r.image_url || 'null (Hiển thị ảnh bìa Tìm quán ngon)'} <br />
-             <b>external_url:</b> {r.external_url || 'null'}
-            </dd>
-           </div>
-
-           <div className="cms-spec-box">
-            <dt>Chỉ mục tìm kiếm không dấu (name_norm & search_text)</dt>
-            <dd className="cms-mono">
-             <b>name_norm:</b> {r.name_norm || '—'} <br />
-             <b>search_text:</b> {r.search_text || '—'}
-            </dd>
-           </div>
-          </dl>
-
-          {/* FULL MENU / DISHES LIST */}
-          <div className="cms-dishes-box">
-           <strong style={{ fontSize: 12.5, color: '#334155' }}>
-            🍜 Danh sách thực đơn chi tiết (`dishes` — {Array.isArray(r.dishes) ? r.dishes.length : 0} món):
-           </strong>
-           {Array.isArray(r.dishes) && r.dishes.length > 0 ? (
-            <div className="cms-dishes-list">
-             {r.dishes.map((d, dIdx) => (
-              <div key={dIdx} className="cms-dish-chip">
-               <b>{d.name}</b> <span style={{ color: '#0284c7' }}>({d.group})</span>
-               {' · '}Giá: <b>{d.price !== null && d.price !== undefined ? formatVnd(d.price) : 'null'}</b>
-               {d.tags?.length ? ` · Nhãn: [${d.tags.join(', ')}]` : ''}
-               {d.bestsellerSource ? ` · ★ Bestseller (${d.bestsellerSource})` : ''}
+       <div className="cms-table-wrap">
+        <table className="cms-oneline-table">
+         <thead>
+          <tr>
+           <th style={{ width: 52 }}>#</th>
+           <th style={{ width: 250 }}>Tên quán ăn</th>
+           <th style={{ width: 220 }}>Địa chỉ</th>
+           <th style={{ width: 110 }}>Tỉnh / TP</th>
+           <th style={{ width: 115 }}>Nhóm món</th>
+           <th style={{ width: 78 }}>Lượt ❤️</th>
+           <th style={{ width: 112 }}>Trạng thái</th>
+           <th style={{ width: 148 }}>Thời gian sửa / xóa</th>
+           <th style={{ width: 215 }}>Thao tác</th>
+          </tr>
+         </thead>
+         <tbody>
+          {restData.items.map((r, idx) => (
+           <tr
+            key={r.id}
+            className={`cms-oneline-row${!r.active ? ' is-deleted' : ''}`}
+            onClick={() => setDetailRecord(r)}
+            title="Bấm để xem toàn bộ thông tin chi tiết của quán"
+           >
+            <td style={{ color: '#64748b', fontWeight: 600 }}>{page * pageSize + idx + 1}</td>
+            <td>
+             <div className="cms-row-name-cell">
+              <div className="cms-row-mini-thumb">
+               {r.image_url ? (
+                <img src={r.image_url} alt="" referrerPolicy="no-referrer" />
+               ) : (
+                <span style={{ fontSize: 13 }}>🍜</span>
+               )}
               </div>
-             ))}
-            </div>
-           ) : (
-            <p style={{ margin: '4px 0 0', fontSize: 12, color: '#64748b' }}>Chưa khai báo món ăn chi tiết ([]).</p>
-           )}
-          </div>
-         </article>
-        ))}
+              <span className="cms-row-name-text" title={r.name}>{r.name}</span>
+             </div>
+            </td>
+            <td title={r.address} style={{ color: '#334155' }}>{r.address}</td>
+            <td>
+             <span className="cms-badge is-city">{CITY_LABELS[r.city_slug] || r.city_slug}</span>
+            </td>
+            <td title={(r.food_groups || []).join(', ')}>{r.primary_group}</td>
+            <td>
+             <b>{r.popularity_saves.toLocaleString('vi-VN')}</b> ❤️
+            </td>
+            <td>
+             <span className={`cms-badge ${r.active ? 'is-active' : 'is-deleted'}`}>
+              {r.active ? '● Hoạt động' : '✕ Đã xóa'}
+             </span>
+            </td>
+            <td
+             title={`Tạo: ${fmtDateTime(r.created_at)} | Sửa: ${fmtDateTime(r.updated_at)}${r.deleted_at ? ` | Xóa: ${fmtDateTime(r.deleted_at)}` : ''}`}
+             style={{ fontSize: 12, color: r.deleted_at ? '#dc2626' : '#475569' }}
+            >
+             {r.deleted_at ? fmtDateTime(r.deleted_at) : fmtDateTime(r.updated_at)}
+            </td>
+            <td onClick={(e) => e.stopPropagation()}>
+             <div className="cms-row-actions">
+              <button
+               type="button"
+               className="cms-btn is-primary is-xs"
+               onClick={() => setDetailRecord(r)}
+              >
+               Xem chi tiết
+              </button>
+              <button
+               type="button"
+               className="cms-btn is-xs"
+               onClick={() => openEditModal(r)}
+              >
+               Sửa
+              </button>
+              {r.active ? (
+               <button
+                type="button"
+                className="cms-btn is-danger is-xs"
+                disabled={busy}
+                onClick={() => handleSoftDelete(r)}
+               >
+                Xóa
+               </button>
+              ) : (
+               <button
+                type="button"
+                className="cms-btn is-success is-xs"
+                disabled={busy}
+                onClick={() => handleRestore(r)}
+               >
+                Khôi phục
+               </button>
+              )}
+             </div>
+            </td>
+           </tr>
+          ))}
+         </tbody>
+        </table>
        </div>
       )}
 
@@ -1820,6 +1721,235 @@ export default function AdminManagementPage() {
      </div>
     )}
    </div>
+
+   {/* ======================================================================= */}
+   {/* MODAL 0: FULL RESTAURANT DETAIL POPUP (100% ALL FIELDS)                 */}
+   {/* ======================================================================= */}
+   {detailRecord && (
+    <div className="cms-modal-backdrop" role="dialog" aria-modal="true" onClick={() => setDetailRecord(null)}>
+     <div className="cms-modal-card" onClick={(e) => e.stopPropagation()}>
+      <div className="cms-modal-head">
+       <div>
+        <h2>📋 Chi tiết đầy đủ quán ăn: {detailRecord.name}</h2>
+        <small style={{ color: '#64748b' }}>
+         UUID: <span className="cms-mono">{detailRecord.id}</span>
+        </small>
+       </div>
+       <button type="button" className="cms-btn" onClick={() => setDetailRecord(null)}>✕ Đóng</button>
+      </div>
+
+      <div className="cms-modal-body">
+       <div className="cms-record-top" style={{ borderBottom: 'none', paddingBottom: 0 }}>
+        <div className="cms-record-thumb">
+         {detailRecord.image_url ? (
+          <img src={detailRecord.image_url} alt={detailRecord.name} referrerPolicy="no-referrer" />
+         ) : (
+          <div className="cms-record-thumb-empty">
+           <BrandLogo size="compact" />
+           <span>Ảnh bìa mặc định</span>
+          </div>
+         )}
+        </div>
+
+        <div className="cms-record-title-wrap">
+         <h3>
+          <span>{detailRecord.name}</span>
+          <span className={`cms-badge ${detailRecord.active ? 'is-active' : 'is-deleted'}`}>
+           {detailRecord.active ? '● Đang hoạt động' : '✕ Đã xóa (Đang ẩn)'}
+          </span>
+          {detailRecord.demo && <span className="cms-badge is-demo">Bản ghi Demo</span>}
+          <span className="cms-badge is-city">
+           {CITY_LABELS[detailRecord.city_slug] || detailRecord.city_slug} ({detailRecord.city_slug})
+          </span>
+          <span className="cms-badge is-verified">Xác minh: {detailRecord.verification_status}</span>
+          {detailRecord.popularity_badge && (
+           <span className="cms-badge is-pop">
+            {BADGE_LABELS[detailRecord.popularity_badge] || detailRecord.popularity_badge}
+           </span>
+          )}
+         </h3>
+         <p style={{ margin: '4px 0 8px', fontSize: 14, color: '#1e293b' }}>
+          📍 <b>Địa chỉ:</b> {detailRecord.address}
+         </p>
+         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', fontSize: 12 }}>
+          <button
+           type="button"
+           className="cms-btn is-xs"
+           onClick={() => copyUuid(detailRecord.id)}
+          >
+           {copiedId === detailRecord.id ? '✓ Đã chép UUID' : '📋 Chép UUID'}
+          </button>
+          {detailRecord.lat !== null && detailRecord.lng !== null && (
+           <a
+            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${detailRecord.lat},${detailRecord.lng}`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="cms-btn is-xs"
+           >
+            🗺️ Xem Google Maps ({detailRecord.lat.toFixed(6)}, {detailRecord.lng.toFixed(6)}) ↗
+           </a>
+          )}
+          {detailRecord.external_url && (
+           <a
+            href={detailRecord.external_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="cms-btn is-xs"
+           >
+            🔗 Nguồn tham chiếu ↗
+           </a>
+          )}
+         </div>
+        </div>
+       </div>
+
+       <div className="cms-timestamps-bar" style={{ margin: 0 }}>
+        <div className="cms-ts-item">
+         <span>🟢 Thời gian tạo (created_at)</span>
+         <b>{fmtDateTime(detailRecord.created_at)}</b>
+        </div>
+        <div className="cms-ts-item">
+         <span>🔵 Thời gian sửa gần nhất (updated_at)</span>
+         <b>{fmtDateTime(detailRecord.updated_at)}</b>
+        </div>
+        <div className={`cms-ts-item${detailRecord.deleted_at ? ' is-deleted' : ''}`}>
+         <span>🔴 Thời gian xóa (deleted_at)</span>
+         <b>{detailRecord.deleted_at ? fmtDateTime(detailRecord.deleted_at) : 'Chưa xóa (Đang hoạt động)'}</b>
+        </div>
+        <div className="cms-ts-item">
+         <span>🛰️ Kiểm tra Tọa độ / Ảnh</span>
+         <b>GPS: {fmtDateTime(detailRecord.location_checked_at)} · Ảnh: {fmtDateTime(detailRecord.image_checked_at)}</b>
+        </div>
+       </div>
+
+       <dl className="cms-spec-grid" style={{ marginBottom: 0 }}>
+        <div className="cms-spec-box">
+         <dt>Phân loại món ăn (primary_group & food_groups)</dt>
+         <dd>
+          <b>Nhóm chính:</b> {detailRecord.primary_group} <br />
+          <b>Tất cả nhóm ({detailRecord.food_groups?.length || 0}):</b> {(detailRecord.food_groups || []).join(', ') || '—'} <br />
+          <b>Nguồn phân loại:</b> {detailRecord.classification_source}
+         </dd>
+        </div>
+
+        <div className="cms-spec-box">
+         <dt>Tọa độ địa lý & Nguồn vị trí (lat, lng, location_source)</dt>
+         <dd>
+          <b>Vĩ độ (lat):</b> {detailRecord.lat ?? 'null'} · <b>Kinh độ (lng):</b> {detailRecord.lng ?? 'null'} <br />
+          <b>Nguồn tọa độ:</b> {detailRecord.location_source} <br />
+          <b>Chi nhánh của (branch_of):</b> <span className="cms-mono">{detailRecord.branch_of || 'null (Quán độc lập)'}</span>
+         </dd>
+        </div>
+
+        <div className="cms-spec-box">
+         <dt>Khoảng giá & Giờ mở cửa (price_min, price_max, hours)</dt>
+         <dd>
+          <b>Giá tối thiểu:</b> {formatVnd(detailRecord.price_min)} · <b>Giá tối đa:</b> {formatVnd(detailRecord.price_max)} <br />
+          <b>Khung giờ:</b> {formatHoursSummary(detailRecord.hours)}
+         </dd>
+        </div>
+
+        <div className="cms-spec-box">
+         <dt>Độ yêu thích & Điểm xếp hạng (popularity_*)</dt>
+         <dd>
+          <b>Lượt thả tim:</b> {detailRecord.popularity_saves.toLocaleString('vi-VN')} ❤️ (Tài khoản đang lưu: {detailRecord.live_favorites_count ?? 0}) <br />
+          <b>Điểm xếp hạng ưu tiên:</b> {Number(detailRecord.popularity_score || 0).toFixed(2)} / 100 · <b>Huy hiệu:</b> {detailRecord.popularity_badge || 'null'} <br />
+          <b>Điểm nguồn tham khảo:</b> {detailRecord.popularity_rating ?? 'null'} / 10 ({detailRecord.popularity_reviews.toLocaleString('vi-VN')} lượt đánh giá nguồn)
+         </dd>
+        </div>
+
+        <div className="cms-spec-box">
+         <dt>Tương tác người dùng thực tế & Kiểm duyệt</dt>
+         <dd>
+          <b>Đánh giá nội bộ đã duyệt:</b> {detailRecord.review_count} bài (Điểm TB: {detailRecord.review_avg ? Number(detailRecord.review_avg).toFixed(2) : 'null'}/5) <br />
+          <b>Lượt bấm mở Google Maps:</b> {(detailRecord.live_visits_count ?? 0).toLocaleString('vi-VN')} · <b>Ghi chú Pro:</b> {detailRecord.live_notes_count ?? 0} <br />
+          <b>Báo sai chưa xử lý:</b>{' '}
+          <span style={{ color: (detailRecord.open_reports_count ?? 0) > 0 ? '#dc2626' : 'inherit', fontWeight: 700 }}>
+           {detailRecord.open_reports_count ?? 0}
+          </span>
+         </dd>
+        </div>
+
+        <div className="cms-spec-box">
+         <dt>Nguồn gốc, Giấy phép & Đối chiếu ngoài</dt>
+         <dd>
+          <b>Nguồn (source):</b> {detailRecord.source} <br />
+          <b>Giấy phép (data_license):</b> {detailRecord.data_license} · <b>Foody ID:</b> {detailRecord.foody_id ?? 'null'} <br />
+          <b>Mã import (import_record_id):</b> {detailRecord.import_record_id || 'null'}
+         </dd>
+        </div>
+
+        <div className="cms-spec-box">
+         <dt>Đường dẫn Ảnh đại diện & URL tham chiếu</dt>
+         <dd className="cms-mono">
+          <b>image_url:</b> {detailRecord.image_url || 'null (Hiển thị ảnh bìa Tìm quán ngon)'} <br />
+          <b>external_url:</b> {detailRecord.external_url || 'null'}
+         </dd>
+        </div>
+
+        <div className="cms-spec-box">
+         <dt>Chỉ mục tìm kiếm không dấu (name_norm & search_text)</dt>
+         <dd className="cms-mono">
+          <b>name_norm:</b> {detailRecord.name_norm || '—'} <br />
+          <b>search_text:</b> {detailRecord.search_text || '—'}
+         </dd>
+        </div>
+       </dl>
+
+       <div className="cms-dishes-box" style={{ marginTop: 0 }}>
+        <strong style={{ fontSize: 12.5, color: '#334155' }}>
+         🍜 Danh sách thực đơn chi tiết (`dishes` — {Array.isArray(detailRecord.dishes) ? detailRecord.dishes.length : 0} món):
+        </strong>
+        {Array.isArray(detailRecord.dishes) && detailRecord.dishes.length > 0 ? (
+         <div className="cms-dishes-list">
+          {detailRecord.dishes.map((d, dIdx) => (
+           <div key={dIdx} className="cms-dish-chip">
+            <b>{d.name}</b> <span style={{ color: '#0284c7' }}>({d.group})</span>
+            {' · '}Giá: <b>{d.price !== null && d.price !== undefined ? formatVnd(d.price) : 'null'}</b>
+            {d.tags?.length ? ` · Nhãn: [${d.tags.join(', ')}]` : ''}
+            {d.bestsellerSource ? ` · ★ Bestseller (${d.bestsellerSource})` : ''}
+           </div>
+          ))}
+         </div>
+        ) : (
+         <p style={{ margin: '4px 0 0', fontSize: 12, color: '#64748b' }}>Chưa khai báo món ăn chi tiết ([]).</p>
+        )}
+       </div>
+      </div>
+
+      <div className="cms-modal-foot">
+       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <button type="button" className="cms-btn" onClick={() => openRestaurantHistory(detailRecord)}>
+         🕓 Lịch sử Tạo / Sửa / Xóa
+        </button>
+        {detailRecord.active ? (
+         <button type="button" className="cms-btn is-danger" disabled={busy} onClick={() => handleSoftDelete(detailRecord)}>
+          🗑️ Xóa quán
+         </button>
+        ) : (
+         <button type="button" className="cms-btn is-success" disabled={busy} onClick={() => handleRestore(detailRecord)}>
+          ♻️ Khôi phục quán
+         </button>
+        )}
+        <button type="button" className="cms-btn is-danger" disabled={busy} onClick={() => handleHardDelete(detailRecord)}>
+         ⚠️ Xóa vĩnh viễn
+        </button>
+       </div>
+
+       <div style={{ display: 'flex', gap: 8 }}>
+        <button type="button" className="cms-btn" onClick={() => setDetailRecord(null)}>Đóng</button>
+        <button
+         type="button"
+         className="cms-btn is-primary"
+         onClick={() => openEditModal(detailRecord)}
+        >
+         ✏️ Chỉnh sửa tất cả thông tin
+        </button>
+       </div>
+      </div>
+     </div>
+    </div>
+   )}
 
    {/* ======================================================================= */}
    {/* MODAL 1: FULL-FIELD RESTAURANT EDITOR (ALL COLUMNS)                     */}
