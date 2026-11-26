@@ -8,12 +8,13 @@ export function getPopularityInfo(
  badge?: PopularityBadgeKind | null,
  saves?: number,
 ): { icon: string; text: string; cls: string } | null {
- if (!badge) return null;
- const saveSuffix = saves && saves >= 5 ? ` · ${saves.toLocaleString('vi-VN')} lưu` : '';
+ const count = Math.max(0, Math.floor(saves ?? 0));
+ const saveSuffix = count >= 1 ? ` · ${count.toLocaleString('vi-VN')} ❤️` : '';
  if (badge === 'top_fav') return { icon: '🔥', text: `Rất được yêu thích${saveSuffix}`, cls: 'is-top-fav' };
  if (badge === 'popular') return { icon: '❤️', text: `Nhiều người ưa chuộng${saveSuffix}`, cls: 'is-popular' };
  if (badge === 'good_rating') return { icon: '⭐', text: `Đánh giá tốt${saveSuffix}`, cls: 'is-good' };
  if (badge === 'worth_try') return { icon: '✨', text: `Quán đáng thử${saveSuffix}`, cls: 'is-try' };
+ if (count >= 1) return { icon: '', text: `${count.toLocaleString('vi-VN')} ❤️`, cls: 'is-try' };
  return null;
 }
 
@@ -188,7 +189,7 @@ export function SuggestionCard({
      <span className="card-dish-pill">{dishName}</span>
      {pop && (
       <span className={`card-pop-pill ${pop.cls}`}>
-       <span aria-hidden="true">{pop.icon}</span> {pop.text}
+       {pop.icon ? <><span aria-hidden="true">{pop.icon}</span> </> : null}{pop.text}
       </span>
      )}
     </div>
@@ -378,7 +379,7 @@ export function CardActionSheet({
      <div className="action-sheet-hero-meta">
       <div className="action-sheet-pills">
        <span className="card-dish-pill">{dishName}</span>
-       {pop && <span className={`card-pop-pill ${pop.cls}`}>{pop.icon} {pop.text}</span>}
+       {pop && <span className={`card-pop-pill ${pop.cls}`}>{pop.icon ? `${pop.icon} ` : ''}{pop.text}</span>}
        {distText && <span className="card-float-badge is-dist">{distText}</span>}
       </div>
       <h2>{r.name}</h2>
@@ -559,7 +560,7 @@ export function ProCompareModal({
          <p className="compare-addr">{r.address}</p>
          <div className="compare-specs">
           <div><b>Khoảng cách:</b> <span>{dist || 'Chưa rõ'}</span></div>
-          <div><b>Độ yêu thích:</b> <span>{pop ? `${pop.icon} ${pop.text}` : 'Mới / chưa xếp hạng'}</span></div>
+          <div><b>Độ yêu thích:</b> <span>{pop ? `${pop.icon ? `${pop.icon} ` : ''}${pop.text}` : 'Mới / chưa xếp hạng'}</span></div>
           {r.weather && (
            <div><b>Thời tiết:</b> <span>{r.weather.icon} {r.weather.tempC}°C · {r.weather.condition}</span></div>
           )}

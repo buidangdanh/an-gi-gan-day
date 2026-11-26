@@ -99,7 +99,13 @@ test('Pro trên API; review cần chờ và tự xác nhận; moderation đổi 
  assert.ok(Number((await db.query('SELECT count(*) FROM review_history WHERE review_id=$1',[created.data.id])).rows[0].count)>=3);assert.equal(Number((await db.query('SELECT count(*) FROM reviews WHERE account_id=$1',[account])).rows[0].count),1);
 });
 test('Free yêu thích/lịch sử; saved filters cần Pro, báo sai và audit quản trị',async()=>{
- const l=await login(),cookie=l.cookie;assert.equal((await call('/restaurants/'+ids[2]+'/favorite',{method:'POST',cookie})).status,200);await call('/restaurants/'+ids[2]+'/visit',{method:'POST',cookie});const library=(await call('/library',{cookie})).data;assert.equal(library.favorites.length,1);assert.equal(library.history.length,1);
+ const l=await login(),cookie=l.cookie;
+ const beforeSaves=Number((await db.query('SELECT popularity_saves FROM restaurants WHERE id=$1',[ids[2]])).rows[0].popularity_saves??0);
+ const favOn=await call('/restaurants/'+ids[2]+'/favorite',{method:'POST',cookie});assert.equal(favOn.status,200);assert.equal(favOn.data.popularity_saves,beforeSaves+1);
+ const favDup=await call('/restaurants/'+ids[2]+'/favorite',{method:'POST',cookie});assert.equal(favDup.data.popularity_saves,beforeSaves+1);
+ const favOff=await call('/restaurants/'+ids[2]+'/favorite',{method:'DELETE',cookie});assert.equal(favOff.status,200);assert.equal(favOff.data.popularity_saves,beforeSaves);
+ assert.equal((await call('/restaurants/'+ids[2]+'/favorite',{method:'POST',cookie})).data.popularity_saves,beforeSaves+1);
+ await call('/restaurants/'+ids[2]+'/visit',{method:'POST',cookie});const library=(await call('/library',{cookie})).data;assert.equal(library.favorites.length,1);assert.equal(library.history.length,1);
  assert.equal((await call('/filters',{method:'POST',cookie,body:{name:'Test',filters:{lat:10,lng:106}}})).status,403);
  await call('/restaurants/'+ids[2]+'/reports',{method:'POST',cookie,body:{body:'Báo sai thông tin hư cấu trong test.'}});const admin=(await call('/admin',{admin:true})).data;assert.equal(admin.reports.length,1);assert.equal((await call('/admin/reports/'+admin.reports[0].id,{method:'PATCH',admin:true})).status,200);assert.ok((await call('/admin',{admin:true})).data.audit.length>0);
 });

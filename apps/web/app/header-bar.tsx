@@ -109,6 +109,7 @@ type HeaderProps = {
  onClearExternalOpen?: () => void;
  onRefreshHub: () => Promise<AccountHubData | null>;
  onRemoveLocalSaved: (id: string) => void;
+ onFavoriteChanged?: (id: string, exactSaves?: number) => void;
  onVisitPlaceId: (id: string) => void;
  onPreferencesChanged?: (prefs: AccountPreferences) => void;
  onResetHome?: () => void;
@@ -121,6 +122,7 @@ export function HeaderBar({
  onClearExternalOpen,
  onRefreshHub,
  onRemoveLocalSaved,
+ onFavoriteChanged,
  onVisitPlaceId,
  onPreferencesChanged,
  onResetHome,
@@ -298,7 +300,9 @@ export function HeaderBar({
 
  async function syncGuestFavoritesAndRefresh(continuation?: { url?: string } | null) {
   for (const item of localSaved.slice(0, 10)) {
-   await api('/restaurants/' + item.id + '/favorite', 'POST').catch(() => {});
+   const res = await api<{ ok: boolean; popularity_saves?: number }>('/restaurants/' + item.id + '/favorite', 'POST').catch(() => null);
+   if (res && onFavoriteChanged) onFavoriteChanged(item.id, res.popularity_saves);
+   onRemoveLocalSaved(item.id);
   }
   const updated = await onRefreshHub();
   if (updated?.preferences && onPreferencesChanged) onPreferencesChanged(updated.preferences);
@@ -734,7 +738,8 @@ export function HeaderBar({
   }
   setBusy(true);
   try {
-   await api('/restaurants/' + id + '/favorite', 'DELETE');
+   const res = await api<{ ok: boolean; popularity_saves?: number }>('/restaurants/' + id + '/favorite', 'DELETE');
+   if (onFavoriteChanged) onFavoriteChanged(id, res?.popularity_saves);
    await onRefreshHub();
   } catch (e) {
    setErr((e as Error).message);

@@ -5,7 +5,7 @@ export async function api<T = any>(path: string, method = 'GET', body?: unknown)
  const response = await fetch('/api' + path, {
   method,
   credentials: isPublicRead ? 'omit' : 'same-origin',
-  cache: isPublicRead ? 'default' : 'no-store',
+  cache: 'no-store',
   headers: method === 'GET' ? {} : { 'Content-Type': 'application/json' },
   body: body === undefined ? (method === 'GET' ? undefined : '{}') : JSON.stringify(body),
  });

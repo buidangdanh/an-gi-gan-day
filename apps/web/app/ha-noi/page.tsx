@@ -207,6 +207,62 @@ export default function UnifiedDiscovery() {
   return new Set(localSaved.map((f) => f.id));
  }, [hub?.user, hub?.favorites, localSaved]);
 
+ const guestLikedIdSet = useMemo(() => {
+  if (hub?.user) return new Set<string>();
+  return new Set(localSaved.map((f) => f.id));
+ }, [hub?.user, localSaved]);
+
+ const withEffectiveSaves = useCallback(
+  (r: Restaurant): Restaurant => {
+   const item = r as Restaurant & { _guestBoosted?: boolean };
+   const guestLiked = guestLikedIdSet.has(item.id);
+   if (guestLiked && !item._guestBoosted) {
+    const nextSaves = (item.popularity_saves ?? 0) + 1;
+    return {
+     ...item,
+     popularity_saves: nextSaves,
+     popularity_badge: item.popularity_badge ?? 'worth_try',
+     _guestBoosted: true,
+    } as Restaurant;
+   }
+   if (!guestLiked && item._guestBoosted) {
+    return {
+     ...item,
+     popularity_saves: Math.max(0, (item.popularity_saves ?? 0) - 1),
+     _guestBoosted: false,
+    } as Restaurant;
+   }
+   return item;
+  },
+  [guestLikedIdSet],
+ );
+
+ const patchRestaurantSaves = useCallback(
+  (id: string, computeNext: (prev: number) => number, exact?: boolean) => {
+   const patchItem = (raw: Restaurant): Restaurant => {
+    if (raw.id !== id) return raw;
+    const item = raw as Restaurant & { _guestBoosted?: boolean };
+    const baseSaves = item._guestBoosted && exact ? Math.max(0, (item.popularity_saves ?? 0) - 1) : item.popularity_saves ?? 0;
+    const nextSaves = Math.max(0, computeNext(baseSaves));
+    return {
+     ...item,
+     popularity_saves: nextSaves,
+     popularity_badge: nextSaves > 0 ? (item.popularity_badge ?? 'worth_try') : item.popularity_badge,
+     _guestBoosted: false,
+    } as Restaurant;
+   };
+   setData((prev) => (prev ? { ...prev, items: prev.items.map(patchItem) } : prev));
+   setActiveCard((prev) => (prev && prev.restaurant.id === id ? { ...prev, restaurant: patchItem(prev.restaurant) } : prev));
+   setCompareItems((prev) => prev.map((x) => (x.restaurant.id === id ? { ...x, restaurant: patchItem(x.restaurant) } : x)));
+   for (const [k, v] of prefetchCache.current.entries()) {
+    if (v.items.some((it) => it.id === id)) {
+     prefetchCache.current.set(k, { ...v, items: v.items.map(patchItem) });
+    }
+   }
+  },
+  [],
+ );
+
  const notesById = useMemo(() => {
   const map: Record<string, string> = {};
   for (const n of hub?.notes ?? []) map[n.restaurant_id] = n.note;
@@ -220,15 +276,44 @@ export default function UnifiedDiscovery() {
     return;
    }
    const currentlyLiked = (hub.favorites ?? []).some((f) => f.id === r.id);
+   const delta = currentlyLiked ? -1 : 1;
+   setHub((prev) => {
+    if (!prev) return prev;
+    const prevFavs = prev.favorites ?? [];
+    const nextFavs = currentlyLiked
+     ? prevFavs.filter((f) => f.id !== r.id)
+     : [
+        {
+         id: r.id,
+         name: r.name,
+         address: r.address,
+         city_slug: r.city_slug,
+         primary_group: r.primary_group,
+         image_url: r.image_url,
+         popularity_badge: r.popularity_badge ?? 'worth_try',
+        },
+        ...prevFavs,
+       ];
+    return { ...prev, favorites: nextFavs };
+   });
+   patchRestaurantSaves(r.id, (prev) => prev + delta);
    try {
-    await api('/restaurants/' + r.id + '/favorite', currentlyLiked ? 'DELETE' : 'POST');
+    const res = await api<{ ok: boolean; popularity_saves?: number }>(
+     '/restaurants/' + r.id + '/favorite',
+     currentlyLiked ? 'DELETE' : 'POST',
+    );
+    if (typeof res?.popularity_saves === 'number') {
+     patchRestaurantSaves(r.id, () => res.popularity_saves!, true);
+    }
     await refreshHub();
    } catch (e) {
+    patchRestaurantSaves(r.id, (prev) => prev - delta);
+    await refreshHub();
     setError((e as Error).message);
     setOpenHubTab('plans');
    }
   },
-  [hub, refreshHub],
+  [hub, patchRestaurantSaves, refreshHub],
  );
 
  const removeLocalSaved = useCallback((id: string) => {
@@ -378,10 +463,13 @@ export default function UnifiedDiscovery() {
  const displayedCards = useMemo(() => {
   if (!data?.items) return [];
   const refPoint = exactGps || origin;
-  const withDist = data.items.map((r) => ({
-   restaurant: r,
-   distance: refPoint ? currentDistanceMeters(refPoint, r) ?? r.distance ?? null : null,
-  }));
+  const withDist = data.items.map((raw) => {
+   const r = withEffectiveSaves(raw);
+   return {
+    restaurant: r,
+    distance: refPoint ? currentDistanceMeters(refPoint, r) ?? r.distance ?? null : null,
+   };
+  });
 
   if (!refPoint) return withDist;
 
@@ -517,6 +605,9 @@ export default function UnifiedDiscovery() {
     onClearExternalOpen={() => setOpenHubTab(null)}
     onRefreshHub={refreshHub}
     onRemoveLocalSaved={removeLocalSaved}
+    onFavoriteChanged={(id, exactSaves) =>
+     patchRestaurantSaves(id, (prev) => (typeof exactSaves === 'number' ? exactSaves : prev - 1), typeof exactSaves === 'number')
+    }
     onVisitPlaceId={visitById}
     onPreferencesChanged={handlePrefsChanged}
     onResetHome={resetToFourSuggestions}
@@ -803,7 +894,7 @@ export default function UnifiedDiscovery() {
    )}
 
    <CardActionSheet
-    restaurant={activeCard?.restaurant ?? null}
+    restaurant={activeCard ? withEffectiveSaves(activeCard.restaurant) : null}
     distance={activeCard?.distance ?? null}
     liked={activeCard ? likedIdSet.has(activeCard.restaurant.id) : false}
     isPro={isPro}
@@ -821,7 +912,7 @@ export default function UnifiedDiscovery() {
 
    {compareOpen && (
     <ProCompareModal
-     items={compareItems}
+     items={compareItems.map((x) => ({ ...x, restaurant: withEffectiveSaves(x.restaurant) }))}
      notesById={notesById}
      onClose={() => setCompareOpen(false)}
      onRemove={(id) => setCompareItems((prev) => prev.filter((x) => x.restaurant.id !== id))}

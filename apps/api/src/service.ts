@@ -699,21 +699,46 @@ export class FoodService {
  async favorite(s: Session, id: string, on: boolean) {
   const u = await this.requireUser(s);
   await this.detail(id);
-  if (on) {
-   if (!u.pro) {
-    const existing = await pool.query('SELECT 1 FROM favorites WHERE account_id=$1 AND restaurant_id=$2', [u.id, id]);
-    if (!existing.rowCount) {
-     const count = Number((await pool.query('SELECT count(*) FROM favorites WHERE account_id=$1', [u.id])).rows[0].count);
-     if (count >= FREE_FAVORITES_LIMIT) {
-      fail(`Tài khoản Thường lưu tối đa ${FREE_FAVORITES_LIMIT} quán yêu thích. Nâng cấp Pro để lưu không giới hạn và tạo Bộ sưu tập!`, 403);
+  const popularitySaves = await transaction(async (c) => {
+   if (on) {
+    if (!u.pro) {
+     const existing = await c.query('SELECT 1 FROM favorites WHERE account_id=$1 AND restaurant_id=$2', [u.id, id]);
+     if (!existing.rowCount) {
+      const count = Number((await c.query('SELECT count(*) FROM favorites WHERE account_id=$1', [u.id])).rows[0].count);
+      if (count >= FREE_FAVORITES_LIMIT) {
+       fail(`Tài khoản Basic lưu tối đa ${FREE_FAVORITES_LIMIT} quán yêu thích. Nâng cấp Pro để lưu không giới hạn và tạo Bộ sưu tập!`, 403);
+      }
      }
     }
+    const ins = await c.query('INSERT INTO favorites VALUES($1,$2) ON CONFLICT DO NOTHING RETURNING account_id', [u.id, id]);
+    if (ins.rowCount) {
+     const upd = await c.query(
+      `UPDATE restaurants
+       SET popularity_saves = popularity_saves + 1,
+           popularity_badge = COALESCE(popularity_badge, 'worth_try')
+       WHERE id = $1
+       RETURNING popularity_saves`,
+      [id],
+     );
+     return Number(upd.rows[0]?.popularity_saves ?? 1);
+    }
+    const cur = await c.query('SELECT popularity_saves FROM restaurants WHERE id = $1', [id]);
+    return Number(cur.rows[0]?.popularity_saves ?? 0);
+   } else {
+    const del = await c.query('DELETE FROM favorites WHERE account_id=$1 AND restaurant_id=$2 RETURNING account_id', [u.id, id]);
+    if (del.rowCount) {
+     const upd = await c.query(
+      'UPDATE restaurants SET popularity_saves = GREATEST(0, popularity_saves - 1) WHERE id = $1 RETURNING popularity_saves',
+      [id],
+     );
+     return Number(upd.rows[0]?.popularity_saves ?? 0);
+    }
+    const cur = await c.query('SELECT popularity_saves FROM restaurants WHERE id = $1', [id]);
+    return Number(cur.rows[0]?.popularity_saves ?? 0);
    }
-   await pool.query('INSERT INTO favorites VALUES($1,$2) ON CONFLICT DO NOTHING', [u.id, id]);
-  } else {
-   await pool.query('DELETE FROM favorites WHERE account_id=$1 AND restaurant_id=$2', [u.id, id]);
-  }
-  return { ok: true };
+  });
+  invalidateCatalogueCache();
+  return { ok: true, popularity_saves: popularitySaves };
  }
 
  async saveFilter(s: Session, body: unknown) {
