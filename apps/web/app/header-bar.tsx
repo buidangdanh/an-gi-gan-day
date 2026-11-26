@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
  AccountHubData,
  AccountPreferences,
@@ -49,14 +49,57 @@ export function toggleLocalSavedPlace(list: SavedPlace[], r: Restaurant): SavedP
       popularity_badge: r.popularity_badge ?? null,
      },
      ...list,
-    ].slice(0, 10); // Guest local limit = 10
+    ].slice(0, 10);
  try {
   window.localStorage.setItem(SAVED_PLACES_KEY, JSON.stringify(next));
  } catch {}
  return next;
 }
 
+function toBase64Url(buf: ArrayBuffer): string {
+ const bytes = new Uint8Array(buf);
+ let binary = '';
+ for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+ return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function fromBase64Url(b64url: string): Uint8Array {
+ const pad = '='.repeat((4 - (b64url.length % 4)) % 4);
+ const base64 = (b64url + pad).replace(/-/g, '+').replace(/_/g, '/');
+ const raw = atob(base64);
+ const out = new Uint8Array(raw.length);
+ for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+ return out;
+}
+
+function loadExternalScript(src: string, id: string): Promise<void> {
+ return new Promise((resolve, reject) => {
+  if (typeof document === 'undefined') return reject(new Error('No DOM'));
+  if (document.getElementById(id)) return resolve();
+  const s = document.createElement('script');
+  s.id = id;
+  s.src = src;
+  s.async = true;
+  s.defer = true;
+  s.onload = () => resolve();
+  s.onerror = () => reject(new Error('Không tải được SDK xác thực bên ngoài.'));
+  document.head.appendChild(s);
+ });
+}
+
+function formatRemainingCountdown(deadlineIso?: string | null): string {
+ if (!deadlineIso) return '7 ngày';
+ const diffMs = new Date(deadlineIso).getTime() - Date.now();
+ if (diffMs <= 0) return 'Sắp hết hạn';
+ const totalHours = Math.floor(diffMs / 3600_000);
+ const days = Math.floor(totalHours / 24);
+ const hours = totalHours % 24;
+ if (days >= 1) return `${days} ngày ${hours} giờ`;
+ return `${Math.max(1, hours)} giờ`;
+}
+
 type HubTab = 'profile' | 'saved' | 'personalize' | 'plans';
+type AuthSubMode = 'login' | 'register' | 'phone' | 'forgot' | 'reset';
 
 type HeaderProps = {
  activeTab?: 'suggest' | 'search';
@@ -84,12 +127,27 @@ export function HeaderBar({
 }: HeaderProps) {
  const [open, setOpen] = useState(false);
  const [tab, setTab] = useState<HubTab>('profile');
- const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+ const [authMode, setAuthMode] = useState<AuthSubMode>('login');
+
  const [displayName, setDisplayName] = useState('');
  const [username, setUsername] = useState('');
+ const [emailInput, setEmailInput] = useState('');
  const [password, setPassword] = useState('');
+ const [newPassword, setNewPassword] = useState('');
+ const [otpCode, setOtpCode] = useState('');
+ const [resetLinkToken, setResetLinkToken] = useState('');
+ const [turnstileToken, setTurnstileToken] = useState('');
+
+ const [verifyCodeInput, setVerifyCodeInput] = useState('');
  const [editName, setEditName] = useState('');
  const [editingName, setEditingName] = useState(false);
+
+ // Telegram reverse phone challenge state
+ const [tgChallenge, setTgChallenge] = useState<{
+  challengeId: string;
+  pollSecret: string;
+  botUrl: string;
+ } | null>(null);
 
  const [newColName, setNewColName] = useState('');
  const [newColIcon, setNewColIcon] = useState('📌');
@@ -97,6 +155,53 @@ export function HeaderBar({
  const [busy, setBusy] = useState(false);
  const [notice, setNotice] = useState('');
  const [err, setErr] = useState('');
+
+ const turnstileBoxRef = useRef<HTMLDivElement | null>(null);
+ const urlHandledRef = useRef(false);
+
+ const user = hub?.user ?? null;
+ const isPro = Boolean(user?.pro);
+ const authCfg = hub?.config;
+ const cloudFavs = hub?.favorites ?? [];
+ const displayedFavs = user ? cloudFavs : localSaved;
+ const favCount = displayedFavs.length;
+ const prefs = hub?.preferences || { excluded_groups: [], default_area: null, pro_boost: true };
+ const passkeySupported =
+  typeof window !== 'undefined' && Boolean(window.PublicKeyCredential && navigator.credentials);
+
+ // Handle 1-click Email Verification (`?verifyEmail=...`) & Password Reset (`?resetToken=...`) links from inbox
+ useEffect(() => {
+  if (typeof window === 'undefined' || urlHandledRef.current) return;
+  const sp = new URLSearchParams(window.location.search);
+  const verifyTok = sp.get('verifyEmail');
+  const resetTok = sp.get('resetToken');
+  if (!verifyTok && !resetTok) return;
+  urlHandledRef.current = true;
+
+  // Clean token from URL address bar immediately so Referer / browser history never leaks it
+  const cleanUrl = new URL(window.location.href);
+  cleanUrl.searchParams.delete('verifyEmail');
+  cleanUrl.searchParams.delete('resetToken');
+  window.history.replaceState({}, '', cleanUrl.pathname + cleanUrl.search + cleanUrl.hash);
+
+  setTab('profile');
+  setOpen(true);
+
+  if (verifyTok) {
+   setBusy(true);
+   api('/auth/verify-email', 'POST', { token: verifyTok })
+    .then(async () => {
+     await onRefreshHub();
+     setNotice('🎉 Đã xác thực địa chỉ email thành công! Tài khoản của bạn được bảo lưu vĩnh viễn.');
+    })
+    .catch((e: Error) => setErr(e.message))
+    .finally(() => setBusy(false));
+  } else if (resetTok) {
+   setResetLinkToken(resetTok);
+   setAuthMode('reset');
+   setNotice('Nhập mật khẩu mới (tối thiểu 8 ký tự) bên dưới để hoàn tất khôi phục tài khoản.');
+  }
+ }, [onRefreshHub]);
 
  useEffect(() => {
   if (externalOpenTab) {
@@ -109,7 +214,10 @@ export function HeaderBar({
  }, [externalOpenTab, onClearExternalOpen]);
 
  useEffect(() => {
-  if (!open) return;
+  if (!open) {
+   setTgChallenge(null);
+   return;
+  }
   const onKey = (e: KeyboardEvent) => {
    if (e.key === 'Escape') setOpen(false);
   };
@@ -117,12 +225,75 @@ export function HeaderBar({
   return () => window.removeEventListener('keydown', onKey);
  }, [open]);
 
- const user = hub?.user ?? null;
- const isPro = Boolean(user?.pro);
- const cloudFavs = hub?.favorites ?? [];
- const displayedFavs = user ? cloudFavs : localSaved;
- const favCount = displayedFavs.length;
- const prefs = hub?.preferences || { excluded_groups: [], default_area: null, pro_boost: true };
+ // Render Cloudflare Turnstile widget automatically when configured
+ useEffect(() => {
+  const siteKey = authCfg?.turnstileSiteKey;
+  if (!open || !siteKey || !turnstileBoxRef.current) return;
+  let widgetId: string | undefined;
+  let cancelled = false;
+  loadExternalScript('https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit', 'cf-turnstile-sdk')
+   .then(() => {
+    const win = window as any;
+    if (cancelled || !win.turnstile || !turnstileBoxRef.current) return;
+    turnstileBoxRef.current.innerHTML = '';
+    widgetId = win.turnstile.render(turnstileBoxRef.current, {
+     sitekey: siteKey,
+     theme: 'light',
+     callback: (tok: string) => setTurnstileToken(tok),
+     'expired-callback': () => setTurnstileToken(''),
+    });
+   })
+   .catch(() => {});
+  return () => {
+   cancelled = true;
+   const win = window as any;
+   if (widgetId && win?.turnstile?.remove) {
+    try {
+     win.turnstile.remove(widgetId);
+    } catch {}
+   }
+  };
+ }, [open, authMode, authCfg?.turnstileSiteKey]);
+
+ // Poll Telegram phone verification when active
+ useEffect(() => {
+  if (!tgChallenge || !open) return;
+  let stopped = false;
+  const interval = window.setInterval(async () => {
+   if (stopped) return;
+   try {
+    const res = await api('/auth/phone/telegram/poll', 'POST', {
+     challengeId: tgChallenge.challengeId,
+     pollSecret: tgChallenge.pollSecret,
+    });
+    if (res.status === 'verified') {
+     stopped = true;
+     setTgChallenge(null);
+     await syncGuestFavoritesAndRefresh(res.continuation);
+     setNotice('🎉 Đã xác thực số điện thoại chính chủ thành công! Bạn có thể bật thêm FaceID/Vân tay bên dưới.');
+    }
+   } catch (e) {
+    stopped = true;
+    setTgChallenge(null);
+    setErr((e as Error).message);
+   }
+  }, 2500);
+  return () => {
+   stopped = true;
+   window.clearInterval(interval);
+  };
+ }, [tgChallenge, open]);
+
+ async function syncGuestFavoritesAndRefresh(continuation?: { url?: string } | null) {
+  for (const item of localSaved.slice(0, 10)) {
+   await api('/restaurants/' + item.id + '/favorite', 'POST').catch(() => {});
+  }
+  const updated = await onRefreshHub();
+  if (updated?.preferences && onPreferencesChanged) onPreferencesChanged(updated.preferences);
+  if (continuation?.url) {
+   window.open(continuation.url, '_blank', 'noopener,noreferrer');
+  }
+ }
 
  async function submitAuth(e: React.FormEvent) {
   e.preventDefault();
@@ -130,20 +301,344 @@ export function HeaderBar({
   setErr('');
   setNotice('');
   try {
-   const endpoint = authMode === 'register' ? '/auth/register' : '/auth/password-login';
-   const payload = authMode === 'register' ? { displayName, username, password } : { username, password };
-   const res = await api(endpoint, 'POST', payload);
-   // Sync any guest local favorites to the newly logged-in account
-   for (const item of localSaved.slice(0, 10)) {
-    await api('/restaurants/' + item.id + '/favorite', 'POST').catch(() => {});
+   if (authMode === 'register') {
+    const res = await api('/auth/register', 'POST', {
+     displayName,
+     email: emailInput.trim(),
+     password,
+     ...(turnstileToken ? { turnstileToken } : {}),
+    });
+    await syncGuestFavoritesAndRefresh(res.continuation);
+    setPassword('');
+    setNotice(
+     res.verificationSent
+      ? '🎉 Đã tạo tài khoản! Mã xác thực 6 số đã gửi tới email của bạn (vui lòng xác thực trong 7 ngày).'
+      : '🎉 Đã tạo tài khoản Thường (0đ)! Vui lòng xác thực email trong vòng 7 ngày.',
+    );
+   } else if (authMode === 'login') {
+    const res = await api('/auth/password-login', 'POST', {
+     username: username.trim(),
+     password,
+     ...(turnstileToken ? { turnstileToken } : {}),
+    });
+    await syncGuestFavoritesAndRefresh(res.continuation);
+    setPassword('');
+    setNotice('Đăng nhập thành công!');
    }
-   const updated = await onRefreshHub();
-   if (updated?.preferences && onPreferencesChanged) onPreferencesChanged(updated.preferences);
-   setPassword('');
-   setNotice(authMode === 'register' ? 'Chào mừng bạn! Tài khoản Thường (0đ) đã sẵn sàng.' : 'Đăng nhập thành công!');
-   if (res.continuation?.url) {
-    window.open(res.continuation.url, '_blank', 'noopener,noreferrer');
+  } catch (e) {
+   setErr((e as Error).message);
+  } finally {
+   setBusy(false);
+  }
+ }
+
+ async function handleForgotPassword(e: React.FormEvent) {
+  e.preventDefault();
+  setBusy(true);
+  setErr('');
+  setNotice('');
+  try {
+   const res = await api('/auth/forgot-password', 'POST', {
+    email: emailInput.trim(),
+    ...(turnstileToken ? { turnstileToken } : {}),
+   });
+   setResetLinkToken('');
+   setAuthMode('reset');
+   setNotice(res.message);
+  } catch (e) {
+   setErr((e as Error).message);
+  } finally {
+   setBusy(false);
+  }
+ }
+
+ async function handleResetPassword(e: React.FormEvent) {
+  e.preventDefault();
+  setBusy(true);
+  setErr('');
+  setNotice('');
+  try {
+   const payload = resetLinkToken
+    ? { token: resetLinkToken, newPassword }
+    : { email: emailInput.trim(), code: otpCode.trim(), newPassword };
+   const res = await api('/auth/reset-password', 'POST', payload);
+   await syncGuestFavoritesAndRefresh(res.continuation);
+   setNewPassword('');
+   setOtpCode('');
+   setResetLinkToken('');
+   setAuthMode('login');
+   setNotice('✅ Đã đặt lại mật khẩu mới và đăng xuất toàn bộ các thiết bị cũ!');
+  } catch (e) {
+   setErr((e as Error).message);
+  } finally {
+   setBusy(false);
+  }
+ }
+
+ async function handleGoogleSignIn() {
+  setErr('');
+  setNotice('');
+  if (!authCfg?.googleClientId) {
+   setAuthMode('register');
+   setNotice('Google OAuth sẵn sàng kích hoạt ngay khi thêm GOOGLE_CLIENT_ID vào .env.local — hiện bạn có thể tạo nhanh bằng Email hoặc Passkey!');
+   return;
+  }
+  setBusy(true);
+  try {
+   await loadExternalScript('https://accounts.google.com/gsi/client', 'google-gis-sdk');
+   const win = window as any;
+   win.google.accounts.id.initialize({
+    client_id: authCfg.googleClientId,
+    callback: async (resp: { credential?: string }) => {
+     if (!resp?.credential) {
+      setBusy(false);
+      return;
+     }
+     try {
+      const r = await api('/auth/oauth/google', 'POST', { token: resp.credential });
+      await syncGuestFavoritesAndRefresh(r.continuation);
+      setNotice('🎉 Đăng nhập bằng Google thành công!');
+     } catch (errObj) {
+      setErr((errObj as Error).message);
+     } finally {
+      setBusy(false);
+     }
+    },
+   });
+   win.google.accounts.id.prompt((notification: any) => {
+    if (notification?.isNotDisplayed?.() || notification?.isSkippedMoment?.()) {
+     setBusy(false);
+     setErr('Trình duyệt đang chặn cửa sổ bật lên của Google. Hãy cho phép popup hoặc đăng nhập bằng Email.');
+    }
+   });
+  } catch (e) {
+   setBusy(false);
+   setErr((e as Error).message);
+  }
+ }
+
+ async function handleFacebookSignIn() {
+  setErr('');
+  setNotice('');
+  if (!authCfg?.facebookAppId) {
+   setAuthMode('register');
+   setNotice('Facebook Login sẵn sàng kích hoạt ngay khi thêm FACEBOOK_APP_ID vào .env.local — hiện bạn có thể đăng ký bằng Email!');
+   return;
+  }
+  setBusy(true);
+  try {
+   await loadExternalScript('https://connect.facebook.net/vi_VN/sdk.js', 'facebook-jssdk');
+   const win = window as any;
+   win.FB.init({
+    appId: authCfg.facebookAppId,
+    cookie: false,
+    xfbml: false,
+    version: 'v20.0',
+   });
+   win.FB.login(
+    async (response: any) => {
+     const accessToken = response?.authResponse?.accessToken;
+     if (!accessToken) {
+      setBusy(false);
+      return;
+     }
+     try {
+      const r = await api('/auth/oauth/facebook', 'POST', { token: accessToken });
+      await syncGuestFavoritesAndRefresh(r.continuation);
+      setNotice('🎉 Đăng nhập bằng Facebook thành công!');
+     } catch (errObj) {
+      setErr((errObj as Error).message);
+     } finally {
+      setBusy(false);
+     }
+    },
+    { scope: 'public_profile,email' },
+   );
+  } catch (e) {
+   setBusy(false);
+   setErr((e as Error).message);
+  }
+ }
+
+ async function handleStartTelegramPhone() {
+  setBusy(true);
+  setErr('');
+  setNotice('');
+  try {
+   const ch = await api('/auth/phone/telegram/start', 'POST');
+   setTgChallenge({ challengeId: ch.challengeId, pollSecret: ch.pollSecret, botUrl: ch.botUrl });
+   window.open(ch.botUrl, '_blank', 'noopener,noreferrer');
+  } catch (e) {
+   setErr((e as Error).message);
+  } finally {
+   setBusy(false);
+  }
+ }
+
+ async function handlePasskeyLogin() {
+  if (!passkeySupported) {
+   setErr('Trình duyệt hiện tại chưa hỗ trợ FaceID / Vân tay (Passkey).');
+   return;
+  }
+  setBusy(true);
+  setErr('');
+  setNotice('');
+  try {
+   const opts = await api('/auth/passkey/login/options', 'POST', {
+    ...(username.trim() ? { identifier: username.trim() } : {}),
+   });
+   const publicKey: PublicKeyCredentialRequestOptions = {
+    challenge: fromBase64Url(opts.challenge) as BufferSource,
+    rpId: opts.rpId,
+    timeout: opts.timeout || 60000,
+    userVerification: 'preferred',
+    ...(opts.allowCredentials?.length
+     ? {
+        allowCredentials: opts.allowCredentials.map((c: { id: string }) => ({
+         id: fromBase64Url(c.id) as BufferSource,
+         type: 'public-key' as const,
+        })),
+       }
+     : {}),
+   };
+   const cred = (await navigator.credentials.get({ publicKey })) as PublicKeyCredential | null;
+   if (!cred) throw new Error('Đã hủy xác thực sinh trắc học.');
+   const assertion = cred.response as AuthenticatorAssertionResponse;
+   const res = await api('/auth/passkey/login/verify', 'POST', {
+    challenge: opts.challenge,
+    credentialId: toBase64Url(cred.rawId),
+    clientDataJSON: toBase64Url(assertion.clientDataJSON),
+    authenticatorData: toBase64Url(assertion.authenticatorData),
+    signature: toBase64Url(assertion.signature),
+   });
+   await syncGuestFavoritesAndRefresh(res.continuation);
+   setNotice('🎉 Đăng nhập nhanh bằng FaceID / Vân tay thành công!');
+  } catch (e) {
+   const msg = (e as Error).message || '';
+   if (!/NotAllowedError|AbortError/i.test((e as Error).name || '')) {
+    setErr(msg || 'Không thể đăng nhập bằng Passkey trên thiết bị này.');
    }
+  } finally {
+   setBusy(false);
+  }
+ }
+
+ async function handleRegisterPasskey() {
+  if (!passkeySupported) {
+   setErr('Thiết bị / trình duyệt này chưa hỗ trợ tạo Passkey.');
+   return;
+  }
+  setBusy(true);
+  setErr('');
+  setNotice('');
+  try {
+   const opts = await api('/auth/passkey/register/options', 'POST');
+   const cred = (await navigator.credentials.create({
+    publicKey: {
+     challenge: fromBase64Url(opts.challenge) as BufferSource,
+     rp: opts.rp,
+     user: {
+      id: fromBase64Url(opts.user.id) as BufferSource,
+      name: opts.user.name,
+      displayName: opts.user.displayName,
+     },
+     pubKeyCredParams: opts.pubKeyCredParams,
+     timeout: opts.timeout || 60000,
+     authenticatorSelection: {
+      residentKey: 'preferred',
+      userVerification: 'preferred',
+     },
+     excludeCredentials: (opts.excludeCredentials || []).map((c: { id: string }) => ({
+      id: fromBase64Url(c.id) as BufferSource,
+      type: 'public-key' as const,
+     })),
+    },
+   })) as PublicKeyCredential | null;
+
+   if (!cred) throw new Error('Đã hủy thiết lập FaceID / Vân tay.');
+   const att = cred.response as AuthenticatorAttestationResponse & {
+    getPublicKey?: () => ArrayBuffer | null;
+    getPublicKeyAlgorithm?: () => number;
+    getAuthenticatorData?: () => ArrayBuffer;
+   };
+   const spki = att.getPublicKey?.();
+   const authData = att.getAuthenticatorData?.();
+   const alg = att.getPublicKeyAlgorithm?.() ?? -7;
+   if (!spki || !authData) {
+    throw new Error('Trình duyệt chưa hỗ trợ chuẩn xuất khóa WebAuthn Level 2.');
+   }
+   const uaPlatform = /iPhone|iPad/i.test(navigator.userAgent)
+    ? 'iPhone / iPad (FaceID)'
+    : /Android/i.test(navigator.userAgent)
+      ? 'Điện thoại Android (Vân tay)'
+      : /Windows/i.test(navigator.userAgent)
+        ? 'Máy tính Windows Hello'
+        : 'Thiết bị cá nhân';
+
+   await api('/auth/passkey/register/verify', 'POST', {
+    challenge: opts.challenge,
+    credentialId: toBase64Url(cred.rawId),
+    clientDataJSON: toBase64Url(att.clientDataJSON),
+    authenticatorData: toBase64Url(authData),
+    publicKeySpki: toBase64Url(spki),
+    algorithm: alg,
+    deviceLabel: uaPlatform,
+   });
+   await onRefreshHub();
+   setNotice('✅ Đã bật đăng nhập nhanh bằng FaceID / Vân tay (0đ) trên thiết bị này!');
+  } catch (e) {
+   if (!/NotAllowedError|AbortError/i.test((e as Error).name || '')) {
+    setErr((e as Error).message || 'Chưa bật được Passkey.');
+   }
+  } finally {
+   setBusy(false);
+  }
+ }
+
+ async function handleDeletePasskey(credId: string) {
+  setBusy(true);
+  setErr('');
+  try {
+   await api('/auth/passkey/' + encodeURIComponent(credId), 'DELETE');
+   await onRefreshHub();
+   setNotice('Đã gỡ khóa sinh trắc học khỏi tài khoản.');
+  } catch (e) {
+   setErr((e as Error).message);
+  } finally {
+   setBusy(false);
+  }
+ }
+
+ async function handleVerifyEmailCode(e: React.FormEvent) {
+  e.preventDefault();
+  setBusy(true);
+  setErr('');
+  setNotice('');
+  try {
+   await api('/auth/verify-email', 'POST', { code: verifyCodeInput.trim() });
+   setVerifyCodeInput('');
+   await onRefreshHub();
+   setNotice('🎉 Đã xác thực địa chỉ email thành công! Tài khoản được giữ vĩnh viễn và mở khóa dùng thử Pro 14 ngày.');
+  } catch (e) {
+   setErr((e as Error).message);
+  } finally {
+   setBusy(false);
+  }
+ }
+
+ async function handleResendVerifyEmail() {
+  setBusy(true);
+  setErr('');
+  setNotice('');
+  try {
+   const r = await api('/auth/resend-verification', 'POST', {
+    ...(turnstileToken ? { turnstileToken } : {}),
+   });
+   setNotice(
+    r.delivered
+     ? '📨 Đã gửi lại mã xác thực 6 số vào hộp thư của bạn!'
+     : 'Chưa cấu hình RESEND_API_KEY trong .env.local nên máy chủ chưa gửi thư ra ngoài.',
+   );
   } catch (e) {
    setErr((e as Error).message);
   } finally {
@@ -158,6 +653,20 @@ export function HeaderBar({
    await api('/auth/logout', 'POST');
    await onRefreshHub();
    setNotice('Đã đăng xuất tài khoản.');
+  } catch (e) {
+   setErr((e as Error).message);
+  } finally {
+   setBusy(false);
+  }
+ }
+
+ async function handleLogoutOtherDevices() {
+  setBusy(true);
+  setErr('');
+  try {
+   const r = await api('/auth/logout-all', 'POST');
+   await onRefreshHub();
+   setNotice(`Đã đăng xuất an toàn khỏi ${r.revokedCount || 0} phiên thiết bị khác.`);
   } catch (e) {
    setErr((e as Error).message);
   } finally {
@@ -185,7 +694,7 @@ export function HeaderBar({
   if (!user) {
    setTab('profile');
    setAuthMode('register');
-   setNotice('Hãy tạo tài khoản miễn phí (10 giây) trước để nhận 14 ngày Pro!');
+   setNotice('Hãy đăng nhập Google hoặc tạo tài khoản miễn phí trước để nhận 14 ngày Pro!');
    return;
   }
   setBusy(true);
@@ -324,6 +833,7 @@ export function HeaderBar({
        {user ? user.display_name.slice(0, 1).toUpperCase() : '👤'}
       </span>
       <span className="account-btn-label">{user ? user.display_name : 'Tài khoản'}</span>
+      {user && !user.verified && <span className="verify-dot-warn" title="Chờ xác thực email">!</span>}
       {isPro && <span className="pro-mini-pill">PRO</span>}
       {favCount > 0 && (
        <span className="account-saved-count" title="Số quán yêu thích">
@@ -344,7 +854,7 @@ export function HeaderBar({
         </span>
         <div>
          <div className="hub-title-row">
-          <h2>{user ? user.display_name : 'Khách đang dạo quán'}</h2>
+          <h2>{user ? user.display_name : 'Đăng nhập Tìm quán ngon'}</h2>
           <span className={`tier-badge ${isPro ? 'is-pro' : user ? 'is-free' : 'is-guest'}`}>
            {isPro ? '✦ PRO' : user ? 'THƯỜNG · 0đ' : 'KHÁCH'}
           </span>
@@ -353,7 +863,7 @@ export function HeaderBar({
           {isPro && user?.expires_at
            ? `Đặc quyền Pro hiệu lực đến ${new Date(user.expires_at).toLocaleDateString('vi-VN')}`
            : user
-            ? `@${user.username || 'thanh-vien'} · Mở bản đồ không giới hạn`
+            ? `${user.email || user.phone || '@' + (user.username || 'thanh-vien')} · ${user.verified ? 'Đã xác thực ✓' : 'Chờ xác thực email'}`
             : `Đã mở ${hub?.distinctVisits ?? 0}/4 lượt chỉ đường miễn phí trong phiên`}
          </p>
         </div>
@@ -383,75 +893,295 @@ export function HeaderBar({
       {notice && <p className="hub-alert is-ok" role="status">{notice}</p>}
 
       <div className="account-sheet-body">
-       {/* TAB 1: PROFILE / LOGIN / REGISTER */}
+       {/* TAB 1: PROFILE / MULTI-CHANNEL AUTH */}
        {tab === 'profile' && (
         <>
          {!user ? (
           <div className="auth-card-box">
-           <div className="auth-mode-switch">
-            <button type="button" className={authMode === 'login' ? 'is-active' : ''} onClick={() => { setAuthMode('login'); setErr(''); }}>
-             Đăng nhập
+           {/* PRIORITY #1: 1-CLICK GOOGLE / FACEBOOK / PASSKEY */}
+           <div className="social-auth-grid">
+            <button type="button" className="social-auth-btn is-google" disabled={busy} onClick={handleGoogleSignIn}>
+             <span className="social-icon" aria-hidden="true">G</span>
+             <span>Tiếp tục với Google</span>
             </button>
-            <button type="button" className={authMode === 'register' ? 'is-active' : ''} onClick={() => { setAuthMode('register'); setErr(''); }}>
-             Tạo tài khoản (0đ)
+            <button type="button" className="social-auth-btn is-facebook" disabled={busy} onClick={handleFacebookSignIn}>
+             <span className="social-icon" aria-hidden="true">f</span>
+             <span>Tiếp tục với Facebook</span>
             </button>
            </div>
 
-           <form className="auth-form" onSubmit={submitAuth}>
-            {authMode === 'register' && (
+           {passkeySupported && (
+            <button type="button" className="passkey-fast-btn" disabled={busy} onClick={handlePasskeyLogin}>
+             🔑 Đăng nhập 1 chạm bằng FaceID / Vân tay (Passkey)
+            </button>
+           )}
+
+           <div className="auth-divider"><span>hoặc dùng Email / Số điện thoại</span></div>
+
+           <div className="auth-mode-switch is-three-tabs">
+            <button
+             type="button"
+             className={authMode === 'login' ? 'is-active' : ''}
+             onClick={() => { setAuthMode('login'); setErr(''); setTgChallenge(null); }}
+            >
+             Đăng nhập
+            </button>
+            <button
+             type="button"
+             className={authMode === 'register' ? 'is-active' : ''}
+             onClick={() => { setAuthMode('register'); setErr(''); setTgChallenge(null); }}
+            >
+             Đăng ký Email
+            </button>
+            <button
+             type="button"
+             className={authMode === 'phone' ? 'is-active' : ''}
+             onClick={() => { setAuthMode('phone'); setErr(''); }}
+            >
+             Số điện thoại
+            </button>
+           </div>
+
+           {/* MODE A & B: EMAIL LOGIN / REGISTER */}
+           {(authMode === 'login' || authMode === 'register') && (
+            <form className="auth-form" onSubmit={submitAuth}>
+             {authMode === 'register' && (
+              <label>
+               <span>Tên hiển thị của bạn</span>
+               <input
+                required
+                minLength={2}
+                maxLength={50}
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder="Ví dụ: Minh Anh"
+               />
+              </label>
+             )}
+
+             {authMode === 'register' ? (
+              <label>
+               <span>Địa chỉ Email chính chủ (cần xác thực trong 7 ngày)</span>
+               <input
+                type="email"
+                required
+                maxLength={120}
+                autoComplete="email"
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
+                placeholder="Ví dụ: minhanh@gmail.com"
+               />
+              </label>
+             ) : (
+              <label>
+               <span>Email hoặc Tên đăng nhập</span>
+               <input
+                required
+                minLength={3}
+                maxLength={120}
+                autoComplete="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Ví dụ: minhanh@gmail.com"
+               />
+              </label>
+             )}
+
              <label>
-              <span>Tên hiển thị của bạn</span>
+              <div className="auth-label-split">
+               <span>Mật khẩu {authMode === 'register' ? '(tối thiểu 8 ký tự)' : ''}</span>
+               {authMode === 'login' && (
+                <button
+                 type="button"
+                 className="inline-link-btn"
+                 onClick={() => {
+                  setEmailInput(username.includes('@') ? username : '');
+                  setAuthMode('forgot');
+                  setErr('');
+                 }}
+                >
+                 Quên mật khẩu?
+                </button>
+               )}
+              </div>
               <input
+               type="password"
                required
-               minLength={2}
-               maxLength={50}
-               value={displayName}
-               onChange={(e) => setDisplayName(e.target.value)}
-               placeholder="Ví dụ: Minh Anh"
+               minLength={authMode === 'register' ? 8 : 1}
+               maxLength={128}
+               autoComplete={authMode === 'register' ? 'new-password' : 'current-password'}
+               value={password}
+               onChange={(e) => setPassword(e.target.value)}
+               placeholder="••••••••"
               />
              </label>
-            )}
-            <label>
-             <span>Tên đăng nhập hoặc Email</span>
-             <input
-              required
-              minLength={3}
-              maxLength={120}
-              autoComplete="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Ví dụ: minhanh@gmail.com"
-             />
-            </label>
-            <label>
-             <span>Mật khẩu (tối thiểu 8 ký tự)</span>
-             <input
-              type="password"
-              required
-              minLength={authMode === 'register' ? 8 : 1}
-              maxLength={128}
-              autoComplete={authMode === 'register' ? 'new-password' : 'current-password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-             />
-            </label>
-            <button type="submit" className="account-primary-btn" disabled={busy}>
-             {busy ? 'Đang xử lý…' : authMode === 'register' ? 'Tạo tài khoản Thường miễn phí' : 'Đăng nhập ngay'}
-            </button>
-           </form>
+
+             {authCfg?.turnstileSiteKey && <div ref={turnstileBoxRef} className="turnstile-slot" />}
+
+             <button type="submit" className="account-primary-btn" disabled={busy}>
+              {busy
+               ? 'Đang xử lý bảo mật…'
+               : authMode === 'register'
+                 ? 'Tạo tài khoản & Nhận mã xác thực Email'
+                 : 'Đăng nhập ngay'}
+             </button>
+
+             {authMode === 'register' && (
+              <p className="account-auth-hint">
+               🛡️ Để chống tài khoản ảo, tài khoản Email cần bấm xác thực trong vòng <b>7 ngày</b> (quá 7 ngày chưa xác thực sẽ tự động xóa).
+              </p>
+             )}
+            </form>
+           )}
+
+           {/* MODE C: ZERO-COST PHONE VERIFICATION */}
+           {authMode === 'phone' && (
+            <div className="phone-verify-box">
+             <p className="hub-desc">
+              Xác thực số điện thoại chính chủ <b>miễn phí 0đ trọn đời</b> qua nút chia sẻ danh bạ xác minh của Telegram Bot (chống hoàn toàn tin nhắn rác & lộ OTP):
+             </p>
+             {!tgChallenge ? (
+              <button type="button" className="account-primary-btn" disabled={busy} onClick={handleStartTelegramPhone}>
+               {busy ? 'Đang khởi tạo phiên…' : '📱 Xác thực SĐT miễn phí qua Telegram (2 giây)'}
+              </button>
+             ) : (
+              <div className="tg-waiting-card">
+               <b>⏳ Đang chờ bạn xác nhận trên Telegram…</b>
+               <p>Bấm nút <b>“📱 Xác nhận Số điện thoại chính chủ”</b> trong cửa sổ Telegram vừa mở — trang này sẽ tự động đăng nhập ngay!</p>
+               <div className="profile-actions-row">
+                <a href={tgChallenge.botUrl} target="_blank" rel="noopener noreferrer" className="saved-go-btn">
+                 Mở lại Telegram ↗
+                </a>
+                <button type="button" className="account-secondary-btn is-auto" onClick={() => setTgChallenge(null)}>
+                 Hủy
+                </button>
+               </div>
+              </div>
+             )}
+
+             {passkeySupported && (
+              <p className="account-auth-hint">
+               💡 Đã từng xác thực SĐT và bật sinh trắc học? Bấm nút <b>FaceID / Vân tay</b> ở trên để vào trong 1 giây không cần mở Telegram!
+              </p>
+             )}
+            </div>
+           )}
+
+           {/* MODE D: FORGOT PASSWORD */}
+           {authMode === 'forgot' && (
+            <form className="auth-form" onSubmit={handleForgotPassword}>
+             <label>
+              <span>Nhập Email đã đăng ký để nhận mã khôi phục 6 số</span>
+              <input
+               type="email"
+               required
+               maxLength={120}
+               value={emailInput}
+               onChange={(e) => setEmailInput(e.target.value)}
+               placeholder="Ví dụ: minhanh@gmail.com"
+              />
+             </label>
+             {authCfg?.turnstileSiteKey && <div ref={turnstileBoxRef} className="turnstile-slot" />}
+             <button type="submit" className="account-primary-btn" disabled={busy}>
+              {busy ? 'Đang gửi mã…' : 'Gửi mã khôi phục mật khẩu'}
+             </button>
+             <button type="button" className="account-secondary-btn" onClick={() => setAuthMode('login')}>
+              ← Quay lại Đăng nhập
+             </button>
+            </form>
+           )}
+
+           {/* MODE E: RESET PASSWORD */}
+           {authMode === 'reset' && (
+            <form className="auth-form" onSubmit={handleResetPassword}>
+             {!resetLinkToken && (
+              <>
+               <label>
+                <span>Địa chỉ Email</span>
+                <input
+                 type="email"
+                 required
+                 maxLength={120}
+                 value={emailInput}
+                 onChange={(e) => setEmailInput(e.target.value)}
+                />
+               </label>
+               <label>
+                <span>Mã khôi phục 6 chữ số trong Email (hiệu lực 15 phút)</span>
+                <input
+                 required
+                 pattern="\d{6}"
+                 maxLength={6}
+                 inputMode="numeric"
+                 value={otpCode}
+                 onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                 placeholder="123456"
+                />
+               </label>
+              </>
+             )}
+             <label>
+              <span>Mật khẩu mới (tối thiểu 8 ký tự)</span>
+              <input
+               type="password"
+               required
+               minLength={8}
+               maxLength={128}
+               autoComplete="new-password"
+               value={newPassword}
+               onChange={(e) => setNewPassword(e.target.value)}
+               placeholder="Nhập mật khẩu mới an toàn…"
+              />
+             </label>
+             <button type="submit" className="account-primary-btn" disabled={busy}>
+              {busy ? 'Đang cập nhật…' : 'Lưu mật khẩu mới & Đăng nhập'}
+             </button>
+             <button type="button" className="account-secondary-btn" onClick={() => { setResetLinkToken(''); setAuthMode('login'); }}>
+              ← Hủy
+             </button>
+            </form>
+           )}
 
            <div className="guest-perks-note">
-            <b>Quyền lợi ngay khi tạo tài khoản Thường (0đ):</b>
+            <b>Quyền lợi ngay khi đăng nhập Thường (0đ):</b>
             <ul>
              <li>Mở chỉ đường Google Maps <b>không giới hạn</b> (bỏ giới hạn 4 quán/phiên).</li>
              <li>Đồng bộ tối đa <b>30 quán yêu thích</b> và xem lại <b>15 quán vừa ghé</b>.</li>
-             <li>Nhận ngay <b>14 ngày dùng thử Quán Ngon · Pro miễn phí</b>!</li>
+             <li>Nhận ngay <b>14 ngày dùng thử Quán Ngon · Pro miễn phí</b> sau khi xác thực!</li>
             </ul>
            </div>
           </div>
          ) : (
           <div className="logged-profile-box">
+           {/* 7-DAY UNVERIFIED EMAIL WARNING & INLINE 6-DIGIT VERIFIER */}
+           {!user.verified && user.email && (
+            <div className="verify-warning-banner">
+             <div className="verify-warning-head">
+              <b>⏳ Xác thực Email trong {formatRemainingCountdown(user.verification_deadline)}</b>
+              <p>
+               Tài khoản <b>{user.email}</b> chưa xác thực sẽ tự động bị xóa sau 7 ngày kể từ lúc tạo. Nhập mã 6 số đã gửi vào hộp thư của bạn:
+              </p>
+             </div>
+             <form className="verify-code-inline" onSubmit={handleVerifyEmailCode}>
+              <input
+               required
+               pattern="\d{6}"
+               maxLength={6}
+               inputMode="numeric"
+               value={verifyCodeInput}
+               onChange={(e) => setVerifyCodeInput(e.target.value.replace(/\D/g, '').slice(0, 6))}
+               placeholder="Nhập mã 6 số"
+              />
+              <button type="submit" className="saved-go-btn" disabled={busy}>
+               Xác thực
+              </button>
+              <button type="button" className="account-secondary-btn is-auto" disabled={busy} onClick={handleResendVerifyEmail}>
+               Gửi lại mã
+              </button>
+             </form>
+            </div>
+           )}
+
            <div className="hub-stats-grid">
             <div className="hub-stat-tile">
              <b>{cloudFavs.length}{!isPro ? '/30' : ''}</b>
@@ -479,6 +1209,50 @@ export function HeaderBar({
             </div>
            )}
 
+           {/* SECURITY & PASSKEY BIOMETRIC PANEL */}
+           <div className="hub-subblock">
+            <div className="account-section-title">🛡️ Bảo mật & Đăng nhập nhanh (FaceID / Vân tay)</div>
+            <div className="security-pills-row">
+             {user.email && (
+              <span className={`sec-pill ${user.email_verified_at ? 'is-ok' : 'is-warn'}`}>
+               {user.email_verified_at ? `✓ Email: ${user.email}` : `⏳ Chờ xác thực: ${user.email}`}
+              </span>
+             )}
+             {user.phone && <span className="sec-pill is-ok">✓ SĐT: {user.phone}</span>}
+             {(user.providers || []).includes('google') && <span className="sec-pill is-ok">✓ Đã nối Google</span>}
+             {(user.providers || []).includes('facebook') && <span className="sec-pill is-ok">✓ Đã nối Facebook</span>}
+            </div>
+
+            {passkeySupported && (
+             <div className="passkey-manage-box">
+              {(hub?.passkeys?.length ?? 0) > 0 && (
+               <div className="saved-places-list">
+                {hub!.passkeys!.map((pk) => (
+                 <div className="saved-place-row" key={pk.credential_id}>
+                  <div className="saved-place-info">
+                   <b>🔑 {pk.device_label}</b>
+                   <small>Tạo ngày {new Date(pk.created_at).toLocaleDateString('vi-VN')}</small>
+                  </div>
+                  <button
+                   type="button"
+                   className="saved-remove-btn"
+                   disabled={busy}
+                   onClick={() => handleDeletePasskey(pk.credential_id)}
+                   aria-label="Xóa khóa sinh trắc học"
+                  >
+                   ×
+                  </button>
+                 </div>
+                ))}
+               </div>
+              )}
+              <button type="button" className="passkey-fast-btn" disabled={busy} onClick={handleRegisterPasskey}>
+               ＋ Bật đăng nhập nhanh bằng FaceID / Vân tay trên máy này (0đ)
+              </button>
+             </div>
+            )}
+           </div>
+
            {editingName ? (
             <form className="inline-edit-row" onSubmit={handleSaveProfile}>
              <input
@@ -503,6 +1277,11 @@ export function HeaderBar({
              >
               ✎ Đổi tên hiển thị
              </button>
+             {(hub?.activeSessions ?? 1) > 1 && (
+              <button type="button" className="account-secondary-btn" disabled={busy} onClick={handleLogoutOtherDevices}>
+               Khóa {hub!.activeSessions! - 1} thiết bị khác
+              </button>
+             )}
              <button type="button" className="account-secondary-btn is-danger" disabled={busy} onClick={handleLogout}>
               Đăng xuất
              </button>
@@ -725,8 +1504,8 @@ export function HeaderBar({
           <h3>0đ <small>/ mãi mãi</small></h3>
           <p>Đủ gọn nhẹ cho nhu cầu tìm quán hằng ngày.</p>
           <ul>
+           <li>✓ Đăng nhập 1 chạm Google, Facebook, Email, SĐT & FaceID</li>
            <li>✓ Đổi 4 thẻ gợi ý Ăn / Uống không giới hạn</li>
-           <li>✓ Xem ảnh quán, thời tiết & nhãn yêu thích</li>
            <li>✓ Mở chỉ đường Google Maps <b>không giới hạn</b></li>
            <li>✓ Lưu đồng bộ tối đa <b>30 quán yêu thích</b></li>
            <li>✓ Xem lại <b>15 quán</b> mở bản đồ gần nhất</li>

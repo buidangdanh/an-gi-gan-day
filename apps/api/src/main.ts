@@ -4,7 +4,7 @@ import { All, ArgumentsHost, Catch, Controller, ExceptionFilter, HttpException, 
 import type { Request, Response } from 'express';
 import { json } from 'express';
 import { ZodError } from 'zod';
-import { FoodService, clientIp } from './service';
+import { FoodService, clientIp, getAllowedOrigins } from './service';
 
 export const service = new FoodService();
 
@@ -52,6 +52,20 @@ class ApiController {
   if (method === 'POST' && path === '/payments/webhook') {
    return service.webhook(req);
   }
+  // Official Telegram Bot signed webhook (authenticated via X-Telegram-Bot-Api-Secret-Token)
+  if (method === 'POST' && path === '/auth/phone/telegram/webhook') {
+   service.readRate('tg-wh:' + ip, 120, 60);
+   return service.authManager.handleTelegramWebhook(req);
+  }
+
+  // Layer 5 DDoS Payload Guard: Strictly cap /api/auth/* request bodies at 8 KB
+  if (path.startsWith('/auth/')) {
+   const rawBuf = (req as any).rawBody as Buffer | undefined;
+   const contentLen = Number(req.headers['content-length'] || 0);
+   if (contentLen > 8192 || (rawBuf && rawBuf.length > 8192)) {
+    throw new HttpException('Dữ liệu gửi lên vượt quá giới hạn bảo mật (8KB).', 413);
+   }
+  }
 
   // Stateless, zero-DB-write public read endpoints
   const publicCacheHeader = process.env.NODE_ENV === 'test'
@@ -80,8 +94,8 @@ class ApiController {
 
   // Strict origin & content-type check on all state-changing mutations
   if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) {
-   const allowedOrigin = process.env.WEB_ORIGIN || 'http://127.0.0.1:3100';
-   if (req.headers.origin !== allowedOrigin) {
+   const allowedOrigins = getAllowedOrigins();
+   if (!req.headers.origin || !allowedOrigins.has(req.headers.origin)) {
     throw new HttpException('Nguồn yêu cầu không hợp lệ.', 403);
    }
    const fetchSite = req.headers['sec-fetch-site'];
@@ -105,6 +119,14 @@ class ApiController {
    if (adminMatch[1] === 'reports' && method === 'PATCH') return service.resolve(req, adminMatch[2]);
   }
 
+  // Stateless password recovery request (does not require creating a DB session before validation)
+  if (method === 'POST' && path === '/auth/forgot-password') {
+   return service.authManager.forgotPassword(req);
+  }
+  if (method === 'POST' && path === '/auth/passkey/login/options') {
+   return service.authManager.passkeyLoginOptions(req);
+  }
+
   // Session-backed endpoints (Guest / Thường / Pro)
   service.readRate('api:' + ip, 300, 60);
   const s = await service.session(req, res);
@@ -115,10 +137,25 @@ class ApiController {
   if (method === 'PUT' && path === '/account/preferences') return service.updatePreferences(s, req.body);
   if (method === 'POST' && path === '/pro/trial') return service.claimProTrial(s);
 
+  // Account & Multi-Channel Authentication Endpoints
   if (method === 'POST' && path === '/auth/register') return service.register(s, req, res);
   if (method === 'POST' && path === '/auth/password-login') return service.passwordLogin(s, req, res);
+  if (method === 'POST' && path === '/auth/verify-email') return service.authManager.verifyEmail(s, req);
+  if (method === 'POST' && path === '/auth/resend-verification') return service.authManager.resendVerification(s, req);
+  if (method === 'POST' && path === '/auth/reset-password') return service.authManager.resetPassword(s, req, res);
+  if (method === 'POST' && path === '/auth/oauth/google') return service.authManager.oauthLogin('google', s, req, res);
+  if (method === 'POST' && path === '/auth/oauth/facebook') return service.authManager.oauthLogin('facebook', s, req, res);
+  if (method === 'POST' && path === '/auth/phone/telegram/start') return service.authManager.startTelegramPhoneChallenge(s, req);
+  if (method === 'POST' && path === '/auth/phone/telegram/poll') return service.authManager.pollTelegramPhoneChallenge(s, req, res);
+  if (method === 'POST' && path === '/auth/passkey/register/options') return service.authManager.passkeyRegisterOptions(s, req);
+  if (method === 'POST' && path === '/auth/passkey/register/verify') return service.authManager.passkeyRegisterVerify(s, req);
+  if (method === 'POST' && path === '/auth/passkey/login/verify') return service.authManager.passkeyLoginVerify(s, req, res);
+  const pkDelMatch = method === 'DELETE' ? path.match(/^\/auth\/passkey\/([A-Za-z0-9_-]{8,512})$/) : null;
+  if (pkDelMatch) return service.authManager.deletePasskey(s, pkDelMatch[1]);
+
   if (method === 'POST' && path === '/auth/login') return service.login(s, req, res);
   if (method === 'POST' && path === '/auth/logout') return service.logout(s, res);
+  if (method === 'POST' && path === '/auth/logout-all') return service.authManager.logoutOtherSessions(s);
   if (method === 'POST' && path === '/auth/otp') {
    await service.rate('otp:' + ip, 3, 600);
    throw new HttpException('Gửi OTP chưa được cấu hình. Cần Firebase Phone Auth có reCAPTCHA phía client.', 503);
@@ -183,7 +220,15 @@ export async function createApp() {
 if (require.main === module) {
  createApp()
   .then((app) => app.listen(Number(process.env.API_PORT || 4100), process.env.API_HOST || '127.0.0.1'))
-  .then(() => console.log('API http://' + (process.env.API_HOST || '127.0.0.1') + ':' + (process.env.API_PORT || 4100)))
+  .then(() => {
+   console.log('API http://' + (process.env.API_HOST || '127.0.0.1') + ':' + (process.env.API_PORT || 4100));
+   // Run 7-day unverified email cleanup on startup and every 60 minutes
+   service.authManager.purgeUnverifiedAccounts().catch(() => {});
+   const timer = setInterval(() => {
+    service.authManager.purgeUnverifiedAccounts().catch(() => {});
+   }, 3600_000);
+   timer.unref();
+  })
   .catch(() => {
    console.error('Không khởi động được API. Kiểm tra cấu hình.');
    process.exitCode = 1;

@@ -8,13 +8,30 @@ import { authConfig, devAuthEnabled, verifyIdentity } from './auth';
 import { directoryPage, searchTerms, allFoodGroups, invalidateCatalogueCache, licenseSql } from './catalogue';
 import { LruCache, MemoryRateLimiter, escapeLike } from './cache';
 import { hashPassword, verifyPassword } from './password';
+import { AccountAuthManager } from './account-auth-service';
 
 const fail = (message: string, status = 400): never => { throw new HttpException(message, status); };
 const hash = (s: string) => createHash('sha256').update(s).digest('hex');
 const hashBytes = (s: string) => createHash('sha256').update(s).digest();
 const uuid = z.string().uuid();
 const COOKIE = 'ag_session';
+const PROD_COOKIE = '__Host-ag_session';
 export const FREE_FAVORITES_LIMIT = 30;
+
+export function getAllowedOrigins(): Set<string> {
+ const base = process.env.WEB_ORIGIN || 'http://127.0.0.1:3100';
+ const set = new Set<string>([base]);
+ for (const extra of (process.env.WEB_EXTRA_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean)) {
+  set.add(extra);
+ }
+ return set;
+}
+
+export function getPublicWebOrigin(): string {
+ const extras = (process.env.WEB_EXTRA_ORIGINS || '').split(',').map((s) => s.trim()).filter((s) => s.startsWith('https://'));
+ if (extras.length > 0) return extras[0];
+ return process.env.WEB_ORIGIN || 'https://timquanngon.com';
+}
 
 const searchSchema = coordinate.extend({
  q: z.string().max(120).default(''),
@@ -44,6 +61,20 @@ export function clientIp(req: Request): string {
 }
 
 export class FoodService {
+ readonly authManager: AccountAuthManager;
+
+ constructor() {
+  this.authManager = new AccountAuthManager({
+   clientIp,
+   readRate: (k, l, sec) => this.readRate(k, l, sec),
+   rate: (k, l, sec) => this.rate(k, l, sec),
+   rotateSessionToAccount: (oldId, accId, res) => this.rotateSessionToAccount(oldId, accId, res),
+   loadUser: (s) => this.user(s),
+   allowedOrigins: getAllowedOrigins,
+   publicWebOrigin: getPublicWebOrigin,
+  });
+ }
+
  readRate(key: string, limit: number, seconds: number) {
   const res = readRateLimiter.check(key, limit, seconds);
   if (!res.allowed) fail('Bạn thao tác hơi nhanh. Vui lòng thử lại sau.', 429);
@@ -72,11 +103,10 @@ export class FoodService {
  }
 
  async session(req: Request, res: Response): Promise<Session> {
-  const token = req.headers.cookie
-   ?.split(';')
-   .map((v) => v.trim())
-   .find((v) => v.startsWith(COOKIE + '='))
-   ?.slice(COOKIE.length + 1);
+  const cookies = (req.headers.cookie || '').split(';').map((v) => v.trim());
+  const hostToken = cookies.find((v) => v.startsWith(PROD_COOKIE + '='))?.slice(PROD_COOKIE.length + 1);
+  const devToken = cookies.find((v) => v.startsWith(COOKIE + '='))?.slice(COOKIE.length + 1);
+  const token = hostToken || devToken;
 
   if (token && /^[a-f0-9]{64}$/.test(token)) {
    const result = await pool.query(
@@ -94,10 +124,11 @@ export class FoodService {
  }
 
  cookie(res: Response, token: string) {
-  res.cookie(COOKIE, token, {
+  const isProd = process.env.NODE_ENV === 'production';
+  res.cookie(isProd ? PROD_COOKIE : COOKIE, token, {
    httpOnly: true,
    sameSite: 'lax',
-   secure: process.env.NODE_ENV === 'production',
+   secure: isProd,
    path: '/',
    maxAge: 24 * 3600 * 1000,
   });
@@ -106,7 +137,16 @@ export class FoodService {
  async user(s: Session) {
   if (!s.account_id) return null;
   const r = await readPool.query(
-   `SELECT a.id, u.display_name, u.created_at, c.username,
+   `SELECT a.id, u.display_name, a.created_at, c.username,
+           a.email, a.email_verified_at, a.phone, a.phone_verified_at,
+           (a.email_verified_at IS NOT NULL OR a.phone_verified_at IS NOT NULL OR EXISTS(SELECT 1 FROM auth_identities ai WHERE ai.account_id = a.id)) AS verified,
+           CASE
+            WHEN a.email IS NOT NULL AND a.email_verified_at IS NULL AND a.phone_verified_at IS NULL
+                 AND NOT EXISTS(SELECT 1 FROM auth_identities ai WHERE ai.account_id = a.id)
+            THEN a.created_at + interval '7 days'
+            ELSE NULL
+           END AS verification_deadline,
+           COALESCE((SELECT array_agg(provider ORDER BY provider) FROM auth_identities ai WHERE ai.account_id = a.id), '{}'::text[]) AS providers,
            COALESCE(p.expires_at > now(), false) AS pro, p.expires_at, p.source AS pro_source
     FROM accounts a
     JOIN users u ON u.id = a.user_id
@@ -176,58 +216,11 @@ export class FoodService {
  }
 
  async register(s: Session, req: Request, res: Response) {
-  await this.rate('register:' + hash(clientIp(req)), 10, 600);
-  const b = z
-   .object({
-    displayName: z.string().trim().min(2, 'Tên hiển thị tối thiểu 2 ký tự').max(50),
-    username: z
-     .string()
-     .trim()
-     .toLowerCase()
-     .min(3, 'Tên đăng nhập / email tối thiểu 3 ký tự')
-     .max(120)
-     .regex(/^[a-z0-9._@+-]+$/, 'Tên đăng nhập chỉ dùng chữ không dấu, số hoặc email'),
-    password: z.string().min(8, 'Mật khẩu cần tối thiểu 8 ký tự').max(128),
-   })
-   .strict()
-   .parse(req.body);
-
-  const pwHash = await hashPassword(b.password);
-  const accountId = await transaction(async (c) => {
-   await c.query('SELECT pg_advisory_xact_lock(hashtext($1))', ['cred:' + b.username]);
-   const exists = await c.query('SELECT 1 FROM account_credentials WHERE username = $1', [b.username]);
-   if (exists.rowCount) fail('Tên đăng nhập hoặc email này đã được đăng ký.', 409);
-
-   const userId = randomUUID();
-   const accId = randomUUID();
-   await c.query('INSERT INTO users(id, display_name) VALUES($1, $2)', [userId, b.displayName]);
-   await c.query('INSERT INTO accounts(id, user_id) VALUES($1, $2)', [accId, userId]);
-   await c.query('INSERT INTO account_credentials(account_id, username, password_hash) VALUES($1, $2, $3)', [accId, b.username, pwHash]);
-   await c.query('INSERT INTO account_preferences(account_id) VALUES($1) ON CONFLICT DO NOTHING', [accId]);
-   await c.query("INSERT INTO audit(actor, action, target) VALUES($1, 'account-register', $1)", [accId]);
-   return accId;
-  });
-
-  const { next, continuation } = await this.rotateSessionToAccount(s.id, accountId, res);
-  return { user: await this.user(next), continuation };
+  return this.authManager.register(s, req, res);
  }
 
  async passwordLogin(s: Session, req: Request, res: Response) {
-  await this.rate('pwlogin:' + hash(clientIp(req)), 15, 300);
-  const b = z
-   .object({
-    username: z.string().trim().toLowerCase().min(3).max(120),
-    password: z.string().min(1).max(128),
-   })
-   .strict()
-   .parse(req.body);
-
-  const cred = (await pool.query('SELECT account_id, password_hash FROM account_credentials WHERE username = $1', [b.username])).rows[0];
-  const valid = await verifyPassword(b.password, cred?.password_hash);
-  if (!valid || !cred) fail('Tên đăng nhập hoặc mật khẩu chưa đúng.', 401);
-
-  const { next, continuation } = await this.rotateSessionToAccount(s.id, cred.account_id, res);
-  return { user: await this.user(next), continuation };
+  return this.authManager.passwordLogin(s, req, res);
  }
 
  async accountHub(s: Session) {
@@ -245,7 +238,7 @@ export class FoodService {
   const favLimit = u.pro ? 200 : FREE_FAVORITES_LIMIT;
   const histLimit = u.pro ? 100 : 15;
 
-  const [favRes, histRes, prefRes, trialRes, colRes, noteRes] = await Promise.all([
+  const [favRes, histRes, prefRes, trialRes, colRes, noteRes, passkeyRes, sessCountRes] = await Promise.all([
    readPool.query(
     `SELECT r.id, r.name, r.address, r.city_slug, r.primary_group, r.image_url, r.popularity_badge, r.lat, r.lng, f.created_at
      FROM favorites f JOIN restaurants r ON r.id = f.restaurant_id
@@ -286,11 +279,20 @@ export class FoodService {
      ORDER BY n.updated_at DESC LIMIT 100`,
     [u.id],
    ),
+   readPool.query(
+    'SELECT credential_id, device_label, created_at, last_used_at FROM passkey_credentials WHERE account_id = $1 ORDER BY created_at DESC LIMIT 10',
+    [u.id],
+   ),
+   readPool.query(
+    "SELECT count(*)::int AS c FROM sessions WHERE account_id = $1 AND last_seen > now() - interval '30 minutes' AND created_at > now() - interval '24 hours'",
+    [u.id],
+   ),
   ]);
 
   return {
    user: u,
    distinctVisits,
+   config: { ...authConfig(), passwordAuth: true },
    trialAvailable: !trialRes.rowCount,
    limits: { freeFavorites: FREE_FAVORITES_LIMIT },
    preferences: prefRes.rows[0] || { excluded_groups: [], default_area: null, pro_boost: true },
@@ -298,6 +300,8 @@ export class FoodService {
    history: histRes.rows,
    collections: colRes.rows,
    notes: noteRes.rows,
+   passkeys: passkeyRes.rows,
+   activeSessions: sessCountRes.rows[0]?.c ?? 1,
   };
  }
 
@@ -352,6 +356,9 @@ export class FoodService {
 
  async claimProTrial(s: Session) {
   const u = await this.requireUser(s);
+  if (!u.verified) {
+   fail('Vui lòng xác thực địa chỉ email (hoặc đăng nhập Google/Facebook/SĐT) trước khi kích hoạt dùng thử Pro 14 ngày.', 403);
+  }
   await this.rate('protrial:' + u.id, 5, 3600);
   await transaction(async (c) => {
    const claimed = await c.query('INSERT INTO pro_trials(account_id) VALUES($1) ON CONFLICT DO NOTHING RETURNING account_id', [u.id]);
@@ -675,6 +682,7 @@ export class FoodService {
  async logout(s: Session, res: Response) {
   await pool.query("UPDATE sessions SET last_seen=now()-interval '25 hours',account_id=NULL WHERE id=$1", [s.id]);
   res.clearCookie(COOKIE, { path: '/' });
+  res.clearCookie(PROD_COOKIE, { path: '/', secure: true });
   return { ok: true };
  }
 

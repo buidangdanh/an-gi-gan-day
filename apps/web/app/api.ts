@@ -106,11 +106,40 @@ export type PlaceNote = {
  updated_at: string;
 };
 
+export type PasskeyItem = {
+ credential_id: string;
+ device_label: string;
+ created_at: string;
+ last_used_at?: string | null;
+};
+
+export type AuthProviderConfig = {
+ development?: boolean;
+ google?: boolean;
+ googleClientId?: string | null;
+ facebook?: boolean;
+ facebookAppId?: string | null;
+ phone?: boolean;
+ telegramPhoneBot?: string | null;
+ passkey?: boolean;
+ emailVerification?: boolean;
+ turnstile?: boolean;
+ turnstileSiteKey?: string | null;
+ passwordAuth?: boolean;
+};
+
 export type AccountHubData = {
  user: {
   id: string;
   display_name: string;
   username?: string | null;
+  email?: string | null;
+  email_verified_at?: string | null;
+  phone?: string | null;
+  phone_verified_at?: string | null;
+  verified?: boolean;
+  verification_deadline?: string | null;
+  providers?: string[];
   pro: boolean;
   expires_at?: string | null;
   pro_source?: string | null;
@@ -140,7 +169,9 @@ export type AccountHubData = {
  }[];
  collections?: UserCollection[];
  notes?: PlaceNote[];
- config?: any;
+ passkeys?: PasskeyItem[];
+ activeSessions?: number;
+ config?: AuthProviderConfig;
 };
 
 export type CategoryKind = 'food' | 'drink';

@@ -41,7 +41,8 @@ const server = http.createServer((req, res) => {
   res.end();
   return;
  }
- if (!['GET', 'HEAD'].includes(method) && !allowedOrigins.has(req.headers.origin || '')) {
+ const isTelegramWebhook = method === 'POST' && pathname === '/api/auth/phone/telegram/webhook';
+ if (!['GET', 'HEAD'].includes(method) && !isTelegramWebhook && !allowedOrigins.has(req.headers.origin || '')) {
   res.writeHead(403);
   res.end('Nguồn yêu cầu không hợp lệ');
   return;
@@ -74,7 +75,22 @@ const server = http.createServer((req, res) => {
  const allowedWrite =
   pathname === '/api/auth/register' ||
   pathname === '/api/auth/password-login' ||
+  pathname === '/api/auth/verify-email' ||
+  pathname === '/api/auth/resend-verification' ||
+  pathname === '/api/auth/forgot-password' ||
+  pathname === '/api/auth/reset-password' ||
+  pathname === '/api/auth/oauth/google' ||
+  pathname === '/api/auth/oauth/facebook' ||
+  pathname === '/api/auth/phone/telegram/start' ||
+  pathname === '/api/auth/phone/telegram/poll' ||
+  (pathname === '/api/auth/phone/telegram/webhook' && Boolean(req.headers['x-telegram-bot-api-secret-token'])) ||
+  pathname === '/api/auth/passkey/register/options' ||
+  pathname === '/api/auth/passkey/register/verify' ||
+  pathname === '/api/auth/passkey/login/options' ||
+  pathname === '/api/auth/passkey/login/verify' ||
+  /^\/api\/auth\/passkey\/[A-Za-z0-9_-]{8,512}$/.test(pathname) ||
   pathname === '/api/auth/logout' ||
+  pathname === '/api/auth/logout-all' ||
   pathname === '/api/account/profile' ||
   pathname === '/api/account/preferences' ||
   pathname === '/api/pro/trial' ||

@@ -26,7 +26,8 @@ docker compose up -d
 
 Write-Host "=== [2/5] Kiem tra Backend API (cong 4100) ===" -ForegroundColor Cyan
 if (-not (Test-PortListening 4100)) {
-  Start-Process -FilePath "cmd.exe" -ArgumentList "/c npm.cmd run start:api" -WorkingDirectory $projectRoot -WindowStyle Minimized
+  $apiCmd = "set WEB_EXTRA_ORIGINS=https://timquanngon.com,https://www.timquanngon.com&& npm.cmd run start:api"
+  Start-Process -FilePath "cmd.exe" -ArgumentList "/c $apiCmd" -WorkingDirectory $projectRoot -WindowStyle Minimized
   Start-Sleep -Seconds 2
 } else {
   Write-Host "API cong 4100 da chay san." -ForegroundColor Green

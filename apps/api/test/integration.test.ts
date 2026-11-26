@@ -29,6 +29,7 @@ before(async()=>{
  await db.query(readFileSync('db/009_restaurant_images.sql','utf8'));
  await db.query(readFileSync('db/010_popularity_and_accounts_pro.sql','utf8'));
  await db.query(readFileSync('db/011_multi_city.sql','utf8'));
+ await db.query(readFileSync('db/012_auth_security_and_verification.sql','utf8'));
  const {createApp}=require('../src/main');app=await createApp();await app.listen(0,'127.0.0.1');base=await app.getUrl();
 });
 after(async()=>{await app?.close();if(db)await db.end();const {closePools}=require('../src/db');await closePools();if(adminDb){if(dbName)await adminDb.query(`DROP DATABASE ${dbName} WITH (FORCE)`);await adminDb.end();}});
