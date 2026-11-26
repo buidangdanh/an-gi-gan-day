@@ -13,6 +13,12 @@ if (!host || !localAddresses.includes(host) || !(/^(10\.|192\.168\.|172\.(1[6-9]
 const origin = externalOrigin || `http://${host}:${port}`;
 if (externalOrigin && new URL(externalOrigin).origin !== externalOrigin) throw Error('Origin HTTPS không hợp lệ.');
 
+const allowedOrigins = new Set([origin]);
+for (const extra of (process.env.PHONE_PREVIEW_EXTRA_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean)) {
+ if (!extra.startsWith('https://') || new URL(extra).origin !== extra) throw Error('Origin phụ không hợp lệ.');
+ allowedOrigins.add(extra);
+}
+
 const redirectOrigin = process.env.PHONE_PREVIEW_REDIRECT;
 if (redirectOrigin && (!redirectOrigin.startsWith('https://') || new URL(redirectOrigin).origin !== redirectOrigin)) {
  throw Error('Đích chuyển HTTPS không hợp lệ.');
@@ -35,7 +41,7 @@ const server = http.createServer((req, res) => {
   res.end();
   return;
  }
- if (!['GET', 'HEAD'].includes(method) && req.headers.origin !== origin) {
+ if (!['GET', 'HEAD'].includes(method) && !allowedOrigins.has(req.headers.origin || '')) {
   res.writeHead(403);
   res.end('Nguồn yêu cầu không hợp lệ');
   return;
@@ -85,7 +91,9 @@ const server = http.createServer((req, res) => {
   pathname === '/goi-y' ||
   pathname === '/about' ||
   pathname.startsWith('/_next/') ||
-  pathname === '/favicon.ico';
+  pathname === '/favicon.ico' ||
+  pathname === '/icon.svg' ||
+  pathname === '/an-gi-day-placeholder.svg';
 
  const isReadMethod = method === 'GET' || method === 'HEAD';
  if (!(isReadMethod ? allowedRead || page : allowedWrite)) {
