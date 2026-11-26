@@ -14,7 +14,7 @@ description: >-
 1. **PostgreSQL (`127.0.0.1:55439`):** Docker container `an-gi-gan-day-db-1` (`docker compose up -d`). Nếu Docker Engine chưa chạy, khởi chạy daemon `"C:\Users\Vimass\AppData\Local\Programs\DockerDesktop\resources\com.docker.backend.exe"`.
 2. **NestJS API (`127.0.0.1:4100`):** `npm.cmd run start:api`
 3. **Next.js Web (`127.0.0.1:3100`):** `npm.cmd run start:web`
-4. **HTTPS Security Gateway (`127.0.0.1:3181`):** Chặn `/admin` và webhook nội bộ, cho phép cả non-www và www:
+4. **HTTPS Security Gateway (`127.0.0.1:3181`):** Chặn khóa `ADMIN_TOKEN` thô và webhook thanh toán nội bộ, mở `/admin` & `/api/admin/cms/*` (chỉ xác thực qua Google OAuth `hnverynice@gmail.com`), cho phép cả non-www và www:
    ```powershell
    $env:PHONE_PREVIEW_HOST='127.0.0.1'
    $env:PHONE_PREVIEW_PORT='3181'

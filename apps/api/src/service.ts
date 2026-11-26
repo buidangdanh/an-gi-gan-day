@@ -9,6 +9,7 @@ import { directoryPage, searchTerms, allFoodGroups, invalidateCatalogueCache, li
 import { LruCache, MemoryRateLimiter, escapeLike } from './cache';
 import { hashPassword, verifyPassword } from './password';
 import { AccountAuthManager } from './account-auth-service';
+import { AdminCmsService } from './admin-cms';
 
 const fail = (message: string, status = 400): never => { throw new HttpException(message, status); };
 const hash = (s: string) => createHash('sha256').update(s).digest('hex');
@@ -43,7 +44,7 @@ const searchSchema = coordinate.extend({
  exclude: z.string().max(1500).default(''),
 });
 
-type Session = { id: string; account_id: string | null; pending_restaurant: string | null; pending_at: Date | null };
+type Session = { id: string; account_id: string | null; pending_restaurant: string | null; pending_at: Date | null; auth_method?: string | null };
 
 const priorCache = new LruCache<number | null>(4);
 const healthCache = new LruCache<{ ok: boolean }>(2);
@@ -62,16 +63,24 @@ export function clientIp(req: Request): string {
 
 export class FoodService {
  readonly authManager: AccountAuthManager;
+ readonly adminCms: AdminCmsService;
 
  constructor() {
   this.authManager = new AccountAuthManager({
    clientIp,
    readRate: (k, l, sec) => this.readRate(k, l, sec),
    rate: (k, l, sec) => this.rate(k, l, sec),
-   rotateSessionToAccount: (oldId, accId, res) => this.rotateSessionToAccount(oldId, accId, res),
+   rotateSessionToAccount: (oldId, accId, res, method) => this.rotateSessionToAccount(oldId, accId, res, method),
    loadUser: (s) => this.user(s),
    allowedOrigins: getAllowedOrigins,
    publicWebOrigin: getPublicWebOrigin,
+  });
+  this.adminCms = new AdminCmsService({
+   clientIp,
+   readRate: (k, l, sec) => this.readRate(k, l, sec),
+   rate: (k, l, sec) => this.rate(k, l, sec),
+   rotateSessionToAccount: (oldId, accId, res, method) => this.rotateSessionToAccount(oldId, accId, res, method),
+   clearPriorCache: () => priorCache.clear(),
   });
  }
 
@@ -125,7 +134,15 @@ export class FoodService {
 
  cookie(res: Response, token: string) {
   const isProd = process.env.NODE_ENV === 'production';
-  res.cookie(isProd ? PROD_COOKIE : COOKIE, token, {
+  const name = isProd ? PROD_COOKIE : COOKIE;
+  const existing = res.getHeader('Set-Cookie');
+  if (existing) {
+   const arr = Array.isArray(existing) ? existing.map(String) : [String(existing)];
+   const filtered = arr.filter((c) => !c.startsWith(name + '='));
+   if (filtered.length === 0) res.removeHeader('Set-Cookie');
+   else res.setHeader('Set-Cookie', filtered);
+  }
+  res.cookie(name, token, {
    httpOnly: true,
    sameSite: 'lax',
    secure: isProd,
@@ -188,19 +205,22 @@ export class FoodService {
   };
  }
 
- private async rotateSessionToAccount(oldSessionId: string, accountId: string, res: Response): Promise<{ next: Session; continuation: any }> {
+ private async rotateSessionToAccount(
+  oldSessionId: string,
+  accountId: string,
+  res: Response,
+  authMethod: string | null = null,
+ ): Promise<{ next: Session; continuation: any }> {
   const token = randomBytes(32).toString('hex');
   const newId = hash(token);
   const next = await transaction(async (c) => {
    const old = (await c.query('SELECT * FROM sessions WHERE id=$1 FOR UPDATE', [oldSessionId])).rows[0];
    if (!old) fail('Phiên đã đổi. Vui lòng tải lại.', 409);
    const created = (
-    await c.query('INSERT INTO sessions(id,account_id,pending_restaurant,pending_at) VALUES($1,$2,$3,$4) RETURNING *', [
-     newId,
-     accountId,
-     old.pending_restaurant,
-     old.pending_at,
-    ])
+    await c.query(
+     'INSERT INTO sessions(id,account_id,pending_restaurant,pending_at,auth_method) VALUES($1,$2,$3,$4,$5) RETURNING *',
+     [newId, accountId, old.pending_restaurant, old.pending_at, authMethod],
+    )
    ).rows[0];
    await c.query('UPDATE visits SET account_id=$2 WHERE session_id=$1 AND account_id IS NULL', [oldSessionId, accountId]);
    await c.query('UPDATE visits SET session_id=$2 WHERE session_id=$1', [oldSessionId, newId]);
@@ -905,7 +925,7 @@ export class FoodService {
   this.admin(req);
   uuid.parse(id);
   await transaction(async (c) => {
-   const r = await c.query('UPDATE restaurants SET active=false,updated_at=now() WHERE id=$1 RETURNING id', [id]);
+   const r = await c.query('UPDATE restaurants SET active=false,deleted_at=now(),updated_at=now() WHERE id=$1 RETURNING id', [id]);
    if (!r.rowCount) fail('Không có quán.', 404);
    await c.query("INSERT INTO audit(actor,action,target) VALUES('admin','restaurant-archive',$1)", [id]);
   });

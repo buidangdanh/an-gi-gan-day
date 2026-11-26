@@ -48,10 +48,13 @@ const server = http.createServer((req, res) => {
   return;
  }
 
- // Strictly block admin, webhooks, legacy dev login, and local data files
+ // Strictly block raw bearer-token admin, webhooks, legacy dev login, and local data files.
+ // On HTTPS public gateway (timquanngon.com), allow /admin and /api/admin/cms/* (protected by Google OAuth hnverynice@gmail.com).
+ const isHttpsPublicGateway = host === '127.0.0.1' && Boolean(externalOrigin?.startsWith('https://'));
+ const isGoogleCmsRoute = isHttpsPublicGateway && (pathname === '/admin' || pathname.startsWith('/api/admin/cms/'));
+
  if (
-  pathname === '/admin' ||
-  pathname.startsWith('/api/admin') ||
+  (!isGoogleCmsRoute && (pathname === '/admin' || pathname.startsWith('/api/admin'))) ||
   pathname === '/api/payments/webhook' ||
   pathname === '/api/auth/login' ||
   pathname.startsWith('/.') ||
@@ -70,9 +73,11 @@ const server = http.createServer((req, res) => {
   pathname === '/api/health' ||
   pathname === '/api/directory' ||
   pathname === '/api/restaurants' ||
-  /^\/api\/restaurants\/[a-f0-9-]{36}(\/eligibility)?$/.test(pathname);
+  /^\/api\/restaurants\/[a-f0-9-]{36}(\/eligibility)?$/.test(pathname) ||
+  (isHttpsPublicGateway && /^\/api\/admin\/cms\/(session|overview|restaurants|lifecycle|accounts|moderation)(\/[a-f0-9-]{36})?$/.test(pathname));
 
  const allowedWrite =
+  pathname === '/api/analytics/visit' ||
   pathname === '/api/auth/register' ||
   pathname === '/api/auth/password-login' ||
   pathname === '/api/auth/verify-email' ||
@@ -98,7 +103,14 @@ const server = http.createServer((req, res) => {
   pathname === '/api/locations/resolve' ||
   pathname === '/api/collections' ||
   /^\/api\/collections\/[a-f0-9-]{36}(\/items(\/[a-f0-9-]{36})?)?$/.test(pathname) ||
-  /^\/api\/restaurants\/[a-f0-9-]{36}\/(visit|favorite|note|reviews|reports)$/.test(pathname);
+  /^\/api\/restaurants\/[a-f0-9-]{36}\/(visit|favorite|note|reviews|reports)$/.test(pathname) ||
+  (isHttpsPublicGateway && (
+   pathname === '/api/admin/cms/auth/google' ||
+   pathname === '/api/admin/cms/analytics' ||
+   pathname === '/api/admin/cms/restaurants' ||
+   /^\/api\/admin\/cms\/restaurants\/[a-f0-9-]{36}(\/restore)?$/.test(pathname) ||
+   /^\/api\/admin\/cms\/(accounts|reviews|reports)\/[a-f0-9-]{36}$/.test(pathname)
+  ));
 
  const page =
   pathname === '/' ||
@@ -106,6 +118,7 @@ const server = http.createServer((req, res) => {
   pathname === '/tim-kiem' ||
   pathname === '/goi-y' ||
   pathname === '/about' ||
+  (isHttpsPublicGateway && pathname === '/admin') ||
   pathname.startsWith('/_next/') ||
   pathname === '/favicon.ico' ||
   pathname === '/icon.svg' ||

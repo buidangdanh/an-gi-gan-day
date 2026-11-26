@@ -6,7 +6,7 @@ async function main(){
  if(mode==='migrate'){
   const exists=await pool.query("SELECT to_regclass('public.schema_migrations') AS t");
   const versions=exists.rows[0].t?(await pool.query('SELECT version FROM schema_migrations')).rows.map(r=>r.version):[];
-  for(const [version,file] of [['001','001_initial.sql'],['002','002_users.sql'],['003','003_filter_privacy.sql'],['004','004_restaurant_imports.sql'],['005','005_live_hanoi.sql'],['006','006_foody_catalogue.sql'],['007','007_search_tokens.sql'],['008','008_performance_and_scale.sql'],['009','009_restaurant_images.sql'],['010','010_popularity_and_accounts_pro.sql'],['011','011_multi_city.sql'],['012','012_auth_security_and_verification.sql']]){
+  for(const [version,file] of [['001','001_initial.sql'],['002','002_users.sql'],['003','003_filter_privacy.sql'],['004','004_restaurant_imports.sql'],['005','005_live_hanoi.sql'],['006','006_foody_catalogue.sql'],['007','007_search_tokens.sql'],['008','008_performance_and_scale.sql'],['009','009_restaurant_images.sql'],['010','010_popularity_and_accounts_pro.sql'],['011','011_multi_city.sql'],['012','012_auth_security_and_verification.sql'],['013','013_admin_cms_and_analytics.sql']]){
    if(versions.includes(version)){console.log('Migration '+version+' đã có.');continue;}
    await transaction(async c=>{await c.query(readFileSync('db/'+file,'utf8'));});console.log('Migration '+version+' OK');
   }

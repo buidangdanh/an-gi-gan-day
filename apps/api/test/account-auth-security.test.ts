@@ -84,6 +84,7 @@ before(async () => {
   '010_popularity_and_accounts_pro.sql',
   '011_multi_city.sql',
   '012_auth_security_and_verification.sql',
+  '013_admin_cms_and_analytics.sql',
  ]) {
   await db.query(readFileSync('db/' + f, 'utf8'));
  }

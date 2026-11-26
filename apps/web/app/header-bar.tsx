@@ -1217,6 +1217,18 @@ export function HeaderBar({
             </div>
            </div>
 
+           {user.email?.toLowerCase() === 'hnverynice@gmail.com' && (
+            <div className="pro-promo-banner" style={{ background: '#eff6ff', borderColor: '#bfdbfe' }}>
+             <div>
+              <b style={{ color: '#0369a1' }}>🛠️ Quyền Quản trị viên ({user.email})</b>
+              <p style={{ color: '#334155' }}>Chỉnh sửa toàn bộ dữ liệu quán ăn, xem thời gian Tạo · Sửa · Xóa & bộ đếm lượt ghé thăm website.</p>
+             </div>
+             <a href="/admin" className="saved-go-btn" style={{ textDecoration: 'none', whiteSpace: 'nowrap' }}>
+              Mở Trang Quản Lý ↗
+             </a>
+            </div>
+           )}
+
            {!isPro && hub?.trialAvailable && (
             <div className="pro-promo-banner">
              <div>

@@ -44,7 +44,12 @@ export type AccountAuthDeps = {
  clientIp: (req: Request) => string;
  readRate: (key: string, limit: number, seconds: number) => void;
  rate: (key: string, limit: number, seconds: number) => Promise<void>;
- rotateSessionToAccount: (oldSessionId: string, accountId: string, res: Response) => Promise<{ next: SessionRow; continuation: any }>;
+ rotateSessionToAccount: (
+  oldSessionId: string,
+  accountId: string,
+  res: Response,
+  authMethod?: string,
+ ) => Promise<{ next: SessionRow; continuation: any }>;
  loadUser: (s: SessionRow) => Promise<any>;
  allowedOrigins: () => Set<string>;
  publicWebOrigin: () => string;
@@ -674,7 +679,7 @@ export class AccountAuthManager {
    return accId!;
   });
 
-  const { next, continuation } = await this.deps.rotateSessionToAccount(s.id, accountId, res);
+  const { next, continuation } = await this.deps.rotateSessionToAccount(s.id, accountId, res, provider);
   return { user: await this.deps.loadUser(next), continuation };
  }
 
@@ -1100,7 +1105,7 @@ export class AccountAuthManager {
    return stored.account_id as string;
   });
 
-  const { next, continuation } = await this.deps.rotateSessionToAccount(s.id, accountId, res);
+  const { next, continuation } = await this.deps.rotateSessionToAccount(s.id, accountId, res, 'passkey');
   return { user: await this.deps.loadUser(next), continuation };
  }
 

@@ -92,6 +92,15 @@ class ApiController {
    return service.detail(detailMatch[1]);
   }
 
+  // Lightweight public website visit counter (origin-checked below on POST, zero guest session bloat)
+  if (method === 'POST' && path === '/analytics/visit') {
+   const allowedOrigins = getAllowedOrigins();
+   if (!req.headers.origin || !allowedOrigins.has(req.headers.origin)) {
+    throw new HttpException('Nguồn yêu cầu không hợp lệ.', 403);
+   }
+   return service.adminCms.recordWebsiteVisit(req);
+  }
+
   // Strict origin & content-type check on all state-changing mutations
   if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) {
    const allowedOrigins = getAllowedOrigins();
@@ -127,9 +136,50 @@ class ApiController {
    return service.authManager.passkeyLoginOptions(req);
   }
 
-  // Session-backed endpoints (Guest / Thường / Pro)
+  // Session-backed endpoints (Guest / Thường / Pro / Google Admin CMS)
   service.readRate('api:' + ip, 300, 60);
   const s = await service.session(req, res);
+
+  // Google-Authenticated Restaurant Management Portal (strictly restricted to hnverynice@gmail.com)
+  if (path.startsWith('/admin/cms/')) {
+   if (method === 'GET' && path === '/admin/cms/session') return service.adminCms.sessionStatus(s);
+   if (method === 'POST' && path === '/admin/cms/auth/google') return service.adminCms.googleLogin(s, req, res);
+   if (method === 'GET' && path === '/admin/cms/overview') return service.adminCms.overview(s);
+   if (method === 'PATCH' && path === '/admin/cms/analytics') return service.adminCms.adjustAnalytics(s, req.body);
+   if (method === 'GET' && path === '/admin/cms/restaurants') return service.adminCms.listRestaurants(s, req.query);
+   if (method === 'POST' && path === '/admin/cms/restaurants') return service.adminCms.saveRestaurant(s, null, req.body);
+   if (method === 'GET' && path === '/admin/cms/lifecycle') return service.adminCms.listLifecycle(s, req.query);
+   if (method === 'GET' && path === '/admin/cms/accounts') return service.adminCms.listAccounts(s, req.query);
+   if (method === 'GET' && path === '/admin/cms/moderation') return service.adminCms.listReviewsAndReports(s);
+
+   const cmsRestRestore = method === 'POST' ? path.match(/^\/admin\/cms\/restaurants\/([^/]+)\/restore$/) : null;
+   if (cmsRestRestore) return service.adminCms.restoreRestaurant(s, cmsRestRestore[1]);
+
+   const cmsRestItem = path.match(/^\/admin\/cms\/restaurants\/([^/]+)$/);
+   if (cmsRestItem) {
+    if (method === 'GET') return service.adminCms.getRestaurant(s, cmsRestItem[1]);
+    if (method === 'PUT') return service.adminCms.saveRestaurant(s, cmsRestItem[1], req.body);
+    if (method === 'DELETE') return service.adminCms.deleteRestaurant(s, cmsRestItem[1], req.query.permanent === 'true');
+   }
+
+   const cmsAccItem = path.match(/^\/admin\/cms\/accounts\/([^/]+)$/);
+   if (cmsAccItem) {
+    if (method === 'PATCH') return service.adminCms.updateAccount(s, cmsAccItem[1], req.body);
+    if (method === 'DELETE') return service.adminCms.deleteAccount(s, cmsAccItem[1]);
+   }
+
+   const cmsRevItem = path.match(/^\/admin\/cms\/reviews\/([^/]+)$/);
+   if (cmsRevItem) {
+    if (method === 'PATCH') return service.adminCms.updateReview(s, cmsRevItem[1], req.body);
+    if (method === 'DELETE') return service.adminCms.deleteReview(s, cmsRevItem[1]);
+   }
+
+   const cmsRepItem = path.match(/^\/admin\/cms\/reports\/([^/]+)$/);
+   if (cmsRepItem) {
+    if (method === 'PATCH') return service.adminCms.updateReport(s, cmsRepItem[1], req.body);
+    if (method === 'DELETE') return service.adminCms.deleteReport(s, cmsRepItem[1]);
+   }
+  }
 
   if (method === 'GET' && path === '/session') return service.status(s);
   if (method === 'GET' && path === '/account/hub') return service.accountHub(s);

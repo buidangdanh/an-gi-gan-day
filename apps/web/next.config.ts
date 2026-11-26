@@ -7,7 +7,7 @@ const csp = [
  `script-src 'self' 'unsafe-inline'${isProd ? '' : " 'unsafe-eval'"} https://accounts.google.com https://connect.facebook.net https://challenges.cloudflare.com`,
  "style-src 'self' 'unsafe-inline' https://accounts.google.com",
  "font-src 'self' data:",
- "img-src 'self' data: https://*.susercontent.com https://*.foody.vn https://*.googleusercontent.com https://*.fbcdn.net",
+ "img-src 'self' data: https:",
  "connect-src 'self' https://accounts.google.com https://graph.facebook.com https://www.facebook.com https://challenges.cloudflare.com",
  "frame-src 'self' https://accounts.google.com https://www.facebook.com https://web.facebook.com https://challenges.cloudflare.com",
  "object-src 'none'",
