@@ -357,7 +357,7 @@ export class FoodService {
  async claimProTrial(s: Session) {
   const u = await this.requireUser(s);
   if (!u.verified) {
-   fail('Vui lòng xác thực địa chỉ email (hoặc đăng nhập Google/Facebook/SĐT) trước khi kích hoạt dùng thử Pro 14 ngày.', 403);
+   fail('Vui lòng xác thực địa chỉ email (hoặc đăng nhập Google / Số điện thoại) trước khi kích hoạt dùng thử Pro 14 ngày.', 403);
   }
   await this.rate('protrial:' + u.id, 5, 3600);
   await transaction(async (c) => {

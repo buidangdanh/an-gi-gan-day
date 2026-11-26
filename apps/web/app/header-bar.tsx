@@ -913,16 +913,18 @@ export function HeaderBar({
         <>
          {!user ? (
           <div className="auth-card-box">
-           {/* PRIORITY #1: 1-CLICK GOOGLE / FACEBOOK / PASSKEY */}
-           <div className="social-auth-grid">
+           {/* PRIORITY #1: 1-CLICK GOOGLE (& OPTIONAL FACEBOOK) */}
+           <div className={`social-auth-grid${authCfg?.facebook ? '' : ' is-single'}`}>
             <button type="button" className="social-auth-btn is-google" disabled={busy} onClick={handleGoogleSignIn}>
              <span className="social-icon" aria-hidden="true">G</span>
              <span>Tiếp tục với Google</span>
             </button>
-            <button type="button" className="social-auth-btn is-facebook" disabled={busy} onClick={handleFacebookSignIn}>
-             <span className="social-icon" aria-hidden="true">f</span>
-             <span>Tiếp tục với Facebook</span>
-            </button>
+            {Boolean(authCfg?.facebook) && (
+             <button type="button" className="social-auth-btn is-facebook" disabled={busy} onClick={handleFacebookSignIn}>
+              <span className="social-icon" aria-hidden="true">f</span>
+              <span>Tiếp tục với Facebook</span>
+             </button>
+            )}
            </div>
 
            {passkeySupported && (
@@ -1519,7 +1521,7 @@ export function HeaderBar({
           <h3>0đ <small>/ mãi mãi</small></h3>
           <p>Đủ gọn nhẹ cho nhu cầu tìm quán hằng ngày.</p>
           <ul>
-           <li>✓ Đăng nhập 1 chạm Google, Facebook, Email & Số điện thoại</li>
+           <li>✓ Đăng nhập 1 chạm Google, Email & Số điện thoại</li>
            <li>✓ Đổi 4 thẻ gợi ý Ăn / Uống không giới hạn</li>
            <li>✓ Mở chỉ đường Google Maps <b>không giới hạn</b></li>
            <li>✓ Lưu đồng bộ tối đa <b>30 quán yêu thích</b></li>
