@@ -121,6 +121,7 @@ const server = http.createServer((req, res) => {
   (isHttpsPublicGateway && pathname === '/admin') ||
   pathname.startsWith('/_next/') ||
   pathname === '/favicon.ico' ||
+  pathname === '/robots.txt' ||
   pathname === '/icon.svg' ||
   pathname === '/an-gi-day-placeholder.svg';
 

@@ -17,7 +17,7 @@ import {
 import { currentDistanceMeters } from '../current-distance';
 import { CardActionSheet, ProCompareModal, SuggestionCard } from '../suggestion-card';
 import { HeaderBar, loadSavedPlaces, SavedPlace, SAVED_PLACES_KEY, toggleLocalSavedPlace } from '../header-bar';
-import { siteName } from '../brand';
+import { siteName, contactEmail, copyrightText } from '../brand';
 import { withMapTab } from '../map-tab';
 
 type CatalogueResponse = {
@@ -927,11 +927,12 @@ export default function UnifiedDiscovery() {
    )}
 
    <footer className="discovery-footer">
-    <span>{siteName} · Ưu tiên quán nhiều lượt yêu thích, sắp xếp từ gần đến xa.</span>
+    <span>{copyrightText}</span>
     <div className="discovery-footer-links">
-     <a href="/about">Về dữ liệu</a>
+     <a href="/about">Bản quyền &amp; Điều khoản</a>
+     <a href={`mailto:${contactEmail}`}>Liên hệ: {contactEmail}</a>
      <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">
-      © OpenStreetMap · ODbL
+      Bản đồ © OpenStreetMap
      </a>
     </div>
    </footer>

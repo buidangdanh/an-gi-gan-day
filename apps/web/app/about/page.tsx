@@ -1,52 +1,103 @@
-export default function About() {
+import type { Metadata } from 'next';
+import { BrandLogo } from '../brand-logo';
+import { contactEmail, copyrightText, siteName, siteUrl } from '../brand';
+
+export const metadata: Metadata = {
+ title: `Bản quyền, Điều khoản & Bảo mật · ${siteName}`,
+ description: `Tuyên bố bản quyền sở hữu trí tuệ, điều khoản sử dụng, chính sách bảo vệ dữ liệu cá nhân và thông tin liên hệ chính thức của ${siteName} (${siteUrl}).`,
+};
+
+export default function AboutLegalPage() {
  return (
   <main className="about-page">
-   <a href="/" className="back">← Về trang 4 gợi ý quán</a>
-   <p className="eyebrow">MINH BẠCH · BẢO MẬT · BẢN QUYỀN</p>
-   <h1>Chỉ chữ.<br />Tôn trọng dữ liệu & bản quyền.</h1>
-
-   <h2>1. Nguyên tắc không vi phạm bản quyền</h2>
-   <ul>
-    <li><strong>Không dùng ảnh có bản quyền:</strong> Website thiết kế thuần chữ (text-only), không cào, không lưu trữ và không hiển thị hình ảnh món ăn/không gian của bên thứ ba.</li>
-    <li><strong>Không sao chép đánh giá hay thực đơn độc quyền:</strong> Điểm số, nhận xét hoặc thực đơn chi tiết từ các nền tảng khác không được sao chép vào hệ thống. Chỉ đánh giá nội bộ do người dùng tự viết và kiểm duyệt mới được tính điểm.</li>
-    <li><strong>Font chữ mã nguồn mở hợp lệ:</strong> Sử dụng <em>Be Vietnam Pro</em> và <em>Lora</em> theo giấy phép <strong>SIL Open Font License 1.1 (OFL-1.1)</strong>, tự host trực tiếp trên hệ thống.</li>
-    <li><strong>Cơ chế lọc bản quyền dữ liệu (<code>STRICT_LICENSE_MODE</code>):</strong> Ở môi trường thương mại (production), hệ thống hỗ trợ khóa chặt chỉ phục vụ các hồ sơ có nguồn dữ liệu hợp pháp gồm: chủ quán tự đăng ký (<code>first_party</code>), dữ liệu mở <strong>OpenStreetMap (ODbL)</strong>, <strong>Overture Maps Places (CDLA-Permissive 2.0)</strong>, hoặc dữ liệu đối tác có thỏa thuận cấp phép (<code>partner_licensed</code>). Dữ liệu tổng hợp thử nghiệm chưa xác minh bản quyền không được phép phát hành thương mại nếu chưa thay thế/xác minh.</li>
-   </ul>
-
-   <h2>2. Nguồn tọa độ & dịch vụ bản đồ</h2>
-   <p>
-    Tọa độ tra cứu mở sử dụng dữ liệu từ{' '}
-    <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">
-     © OpenStreetMap contributors (ODbL)
+   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 32 }}>
+    <a href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none', fontWeight: 700 }}>
+     <BrandLogo size="header" />
+     <span style={{ fontSize: 18 }}>{siteName}</span>
     </a>
-    . Dữ liệu tọa độ chỉ giúp ước tính khoảng cách đường thẳng, không chứng minh quán đang mở cửa hay xác minh thực địa.
-   </p>
-   <p>
-    Nút <strong>Mở bản đồ quán</strong> tạo liên kết ghim vị trí chuẩn theo Google Maps URLs (không lưu cache tọa độ từ Google Geocoding vào cơ sở dữ liệu). Tham khảo{' '}
-    <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">chính sách quyền riêng tư Google</a>,{' '}
-    <a href="https://maps.google.com/help/terms_maps/" target="_blank" rel="noopener noreferrer">điều khoản Google Maps</a> và{' '}
-    <a href="https://developers.google.com/maps/documentation/geocoding/policies" target="_blank" rel="noopener noreferrer">quy định Geocoding</a>.
+    <a href="/" className="back" style={{ margin: 0 }}>← Quay lại trang khám phá quán ngon</a>
+   </div>
+
+   <p className="eyebrow">BẢN QUYỀN SỞ HỮU TRÍ TUỆ · ĐIỀU KHOẢN · BẢO MẬT</p>
+   <h1 style={{ fontSize: 'clamp(32px, 4.4vw, 50px)' }}>
+    Bản quyền &amp; Điều khoản sử dụng.
+   </h1>
+   <p style={{ color: 'var(--muted)', fontSize: 15 }}>
+    Áp dụng cho toàn bộ nền tảng trực tuyến <strong>{siteName}</strong> tại tên miền chính thức{' '}
+    <a href={siteUrl}>{siteUrl}</a> và <code>https://www.timquanngon.com</code>.
    </p>
 
-   <h2>3. Bảo mật & Quyền riêng tư (theo Nghị định 13/2023/NĐ-CP)</h2>
+   <h2>1. Tuyên bố Bản quyền &amp; Quyền sở hữu trí tuệ</h2>
    <ul>
-    <li><strong>Vị trí GPS riêng tư:</strong> Khoảng cách hiển thị trên thẻ được tính ngay trên trình duyệt thiết bị bằng công thức Haversine. Khi gửi yêu cầu xếp quán gần nhất, tọa độ được làm tròn theo ô lưới ~150 m để vừa bảo vệ vị trí chính xác vừa tăng tốc độ bộ nhớ đệm, và <strong>không lưu vào hồ sơ tài khoản</strong>.</li>
-    <li><strong>Phiên & Cookie an toàn:</strong> Cookie <code>HttpOnly</code>, <code>SameSite=Lax</code>, <code>Secure</code> (HTTPS), mã ngẫu nhiên 256-bit chỉ lưu mã băm SHA-256 trên máy chủ. Đọc danh sách công khai không tạo cookie theo dõi.</li>
-    <li><strong>Phòng vệ tấn công Web:</strong> Áp dụng Content-Security-Policy (CSP), kiểm tra <code>Origin</code> + <code>Sec-Fetch-Site</code> chống CSRF, giới hạn kích thước payload JSON, giới hạn tần suất (rate limiting), và bảo vệ khu vực quản trị bằng so sánh khóa chống timing-attack.</li>
+    <li>
+     <strong>Chủ sở hữu quyền tác giả:</strong> Toàn bộ mã nguồn phần mềm, kiến trúc hệ thống, thiết kế giao diện người dùng (UI/UX), biểu trưng nhận diện thương hiệu (logo kính lúp chữ <code>Q</code> kết hợp hình ảnh chiếc bát và đôi đũa), tên sản phẩm <strong>{siteName}</strong>, gói thành viên <strong>Quán Ngon · Pro</strong> và thuật toán xếp hạng gợi ý món ăn thuộc quyền sở hữu hợp pháp của <strong>{siteName} ({siteUrl})</strong>, được bảo hộ theo Luật Sở hữu trí tuệ Việt Nam và Công ước Berne.
+    </li>
+    <li>
+     <strong>Bảo lưu mọi quyền:</strong> <code>{copyrightText}</code> Mọi hành vi sao chép giao diện, làm giả tên miền/thương hiệu hoặc phát tán lại mã nguồn dưới bất kỳ hình thức nào khi chưa có sự chấp thuận bằng văn bản của chủ sở hữu đều là hành vi xâm phạm quyền sở hữu trí tuệ.
+    </li>
    </ul>
 
-   <h2>4. Cách gợi ý & điểm nội bộ</h2>
+   <h2>2. Nghiêm cấm sao chép &amp; Thu thập dữ liệu tự động (Anti-Scraping)</h2>
+   <ul>
+    <li>
+     Người dùng chỉ được sử dụng <strong>{siteName}</strong> cho mục đích tra cứu cá nhân, tìm kiếm địa điểm ăn uống hợp pháp.
+    </li>
+    <li>
+     <strong>Nghiêm cấm tuyệt đối</strong> việc sử dụng công cụ tự động (bot, spider, crawler, scraper, script) để trích xuất hàng loạt danh sách địa điểm, sao chép cơ sở dữ liệu được tuyển chọn/phân loại trên {siteUrl}, hoặc thực hiện tấn công gây quá tải dịch vụ (DDoS).
+    </li>
+   </ul>
+
+   <h2>3. Minh bạch dữ liệu địa điểm &amp; Miễn trừ trách nhiệm</h2>
+   <ul>
+    <li>
+     <strong>Tính chất tham khảo:</strong> Thông tin nhóm món, khoảng giá, khung giờ mở cửa và thời tiết quanh quán được tổng hợp và phân loại nhằm hỗ trợ người dùng ra quyết định nhanh trước bữa ăn. Tình trạng hoạt động hoặc thực đơn thực tế tại quán có thể thay đổi theo thời điểm mà không báo trước.
+    </li>
+    <li>
+     <strong>Bản đồ &amp; Tọa độ:</strong> Tọa độ địa lý mở tham chiếu dữ liệu từ{' '}
+     <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">
+      © OpenStreetMap contributors (ODbL)
+     </a>
+     . Tính năng mở đường đi chuyển hướng trực tiếp sang ứng dụng Google Maps chính thức theo điều khoản sử dụng của Google.
+    </li>
+    <li>
+     <strong>Font chữ hợp chuẩn:</strong> Sử dụng bộ chữ mã nguồn mở <em>Be Vietnam Pro</em> và <em>Lora</em> theo giấy phép <strong>SIL Open Font License 1.1 (OFL-1.1)</strong>.
+    </li>
+   </ul>
+
+   <h2>4. Bảo vệ Dữ liệu cá nhân &amp; An toàn thông tin (Nghị định 13/2023/NĐ-CP)</h2>
+   <ul>
+    <li>
+     <strong>Quyền riêng tư vị trí GPS:</strong> Khoảng cách từ bạn đến quán được tính trực tiếp trên trình duyệt. Khi truy vấn danh sách gần nhất, tọa độ được lượng tử hóa theo ô lưới ~150 m để bảo vệ vị trí chính xác của người dùng và <strong>không lưu trữ lịch sử di chuyển GPS</strong>.
+    </li>
+    <li>
+     <strong>Bảo mật tài khoản:</strong> Mật khẩu được băm một chiều bằng thuật toán <code>scrypt</code>; phiên đăng nhập bảo vệ bằng cookie <code>HttpOnly</code>, <code>Secure</code>, <code>SameSite=Lax</code>, kết hợp xác thực Google OAuth chính chủ và lớp chống bot Cloudflare Turnstile.
+    </li>
+   </ul>
+
+   <h2>5. Liên hệ Bản quyền, Hợp tác &amp; Đính chính / Gỡ bỏ thông tin</h2>
    <p>
-    Trang mở đầu luôn gợi ý <strong>4 thẻ thuộc 4 nhóm món khác nhau</strong> để giảm phân vân khi chưa biết ăn gì. Đổi 4 món khác không tính lượt ghé thăm.
+    Chủ quán ăn, đối tác hoặc cá nhân/tổ chức có nhu cầu cập nhật thông tin địa điểm, yêu cầu đính chính/gỡ bỏ nội dung (Notice &amp; Takedown) hoặc trao đổi về bản quyền &amp; hợp tác vui lòng sử dụng nút <strong>Báo thông tin chưa đúng</strong> ngay trên thẻ quán hoặc gửi email trực tiếp về địa chỉ chính thức:
    </p>
-   <p>
-    Điểm mỗi đánh giá nội bộ = vị 50% + giá trị 25% + phục vụ 15% + không gian 10% (mỗi mục 1–5), điều chỉnh Bayesian (m=10) khi toàn hệ thống đủ tối thiểu 10 bài được duyệt.
+   <p
+    style={{
+     padding: '14px 18px',
+     background: 'var(--surface)',
+     border: '1px solid var(--line)',
+     borderRadius: 12,
+     fontWeight: 600,
+    }}
+   >
+    📧 Email liên hệ chính thức:{' '}
+    <a href={`mailto:${contactEmail}`} style={{ color: 'var(--green)' }}>
+     {contactEmail}
+    </a>
    </p>
 
-   <h2>5. Tiếp nhận chỉnh sửa & gỡ bỏ nội dung (Notice &amp; Takedown)</h2>
-   <p>
-    Chủ quán hoặc chủ sở hữu quyền hợp pháp có thể yêu cầu cập nhật, đính chính hoặc gỡ bỏ thông tin địa điểm thông qua chức năng <strong>Báo thông tin chưa đúng</strong> trên trang chi tiết hoặc liên hệ bộ phận vận hành trước khi công bố chính thức. Các yêu cầu hợp lệ được xử lý và ẩn hồ sơ ngay (giữ nhật ký kiểm toán).
-   </p>
+   <hr />
+   <footer style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, fontSize: 13, color: 'var(--muted)' }}>
+    <span>{copyrightText}</span>
+    <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
+   </footer>
   </main>
  );
 }
