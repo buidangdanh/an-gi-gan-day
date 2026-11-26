@@ -23,7 +23,7 @@ export function authConfig() {
   facebookAppId: process.env.FACEBOOK_APP_ID || null,
   phone: !!process.env.FIREBASE_PROJECT_ID || tg.enabled,
   telegramPhoneBot: tg.botUsername,
-  passkey: true,
+  passkey: process.env.ENABLE_PASSKEY === 'true',
   emailVerification: emailDeliveryConfigured(),
   turnstile: turnstileEnabled(),
   turnstileSiteKey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || null,

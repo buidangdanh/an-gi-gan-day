@@ -178,7 +178,7 @@ export function HeaderBar({
  const favCount = displayedFavs.length;
  const prefs = hub?.preferences || { excluded_groups: [], default_area: null, pro_boost: true };
  const passkeySupported =
-  typeof window !== 'undefined' && Boolean(window.PublicKeyCredential && navigator.credentials);
+  typeof window !== 'undefined' && Boolean(authCfg?.passkey && window.PublicKeyCredential && navigator.credentials);
 
  // Handle 1-click Email Verification (`?verifyEmail=...`) & Password Reset (`?resetToken=...`) links from inbox
  useEffect(() => {
@@ -282,7 +282,7 @@ export function HeaderBar({
      stopped = true;
      setTgChallenge(null);
      await syncGuestFavoritesAndRefresh(res.continuation);
-     setNotice('🎉 Đã xác thực số điện thoại chính chủ thành công! Bạn có thể bật thêm FaceID/Vân tay bên dưới.');
+     setNotice('🎉 Đã xác thực số điện thoại chính chủ thành công!');
     }
    } catch (e) {
     stopped = true;
@@ -395,7 +395,7 @@ export function HeaderBar({
   setNotice('');
   if (!authCfg?.googleClientId) {
    setAuthMode('register');
-   setNotice('Google OAuth sẵn sàng kích hoạt ngay khi thêm GOOGLE_CLIENT_ID vào .env.local — hiện bạn có thể tạo nhanh bằng Email hoặc Passkey!');
+   setNotice('Google OAuth sẵn sàng kích hoạt ngay khi thêm GOOGLE_CLIENT_ID vào .env.local — hiện bạn có thể tạo nhanh bằng Email!');
    return;
   }
   setBusy(true);
@@ -1224,9 +1224,9 @@ export function HeaderBar({
             </div>
            )}
 
-           {/* SECURITY & PASSKEY BIOMETRIC PANEL */}
+           {/* SECURITY & LINKED ACCOUNTS PANEL */}
            <div className="hub-subblock">
-            <div className="account-section-title">🛡️ Bảo mật & Đăng nhập nhanh (FaceID / Vân tay)</div>
+            <div className="account-section-title">🛡️ Bảo mật & Tài khoản liên kết</div>
             <div className="security-pills-row">
              {user.email && (
               <span className={`sec-pill ${user.email_verified_at ? 'is-ok' : 'is-warn'}`}>
@@ -1519,7 +1519,7 @@ export function HeaderBar({
           <h3>0đ <small>/ mãi mãi</small></h3>
           <p>Đủ gọn nhẹ cho nhu cầu tìm quán hằng ngày.</p>
           <ul>
-           <li>✓ Đăng nhập 1 chạm Google, Facebook, Email, SĐT & FaceID</li>
+           <li>✓ Đăng nhập 1 chạm Google, Facebook, Email & Số điện thoại</li>
            <li>✓ Đổi 4 thẻ gợi ý Ăn / Uống không giới hạn</li>
            <li>✓ Mở chỉ đường Google Maps <b>không giới hạn</b></li>
            <li>✓ Lưu đồng bộ tối đa <b>30 quán yêu thích</b></li>
