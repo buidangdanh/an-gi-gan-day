@@ -17,6 +17,36 @@ const CITY_LABELS: Record<string, string> = {
  'ha-long': 'Hạ Long',
 };
 
+const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
+ 'ha-noi': { lat: 21.0285, lng: 105.8542 },
+ 'ho-chi-minh': { lat: 10.7769, lng: 106.7009 },
+ 'da-nang': { lat: 16.0544, lng: 108.2022 },
+ 'hai-phong': { lat: 20.8449, lng: 106.6881 },
+ 'can-tho': { lat: 10.0452, lng: 105.7469 },
+ hue: { lat: 16.4637, lng: 107.5909 },
+ 'nha-trang': { lat: 12.2388, lng: 109.1967 },
+ 'da-lat': { lat: 11.9404, lng: 108.4583 },
+ 'vung-tau': { lat: 10.346, lng: 107.0843 },
+ 'ha-long': { lat: 20.9599, lng: 107.0425 },
+};
+
+function nearestCitySlug(lat: number, lng: number): string {
+ let best = 'ha-noi';
+ let bestDist = Infinity;
+ const rad = (deg: number) => (deg * Math.PI) / 180;
+ for (const [slug, c] of Object.entries(CITY_CENTERS)) {
+  const dLat = rad(c.lat - lat);
+  const dLng = rad(c.lng - lng);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(rad(lat)) * Math.cos(rad(c.lat)) * Math.sin(dLng / 2) ** 2;
+  const km = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  if (km < bestDist) {
+   bestDist = km;
+   best = slug;
+  }
+ }
+ return best;
+}
+
 const BADGE_LABELS: Record<string, string> = {
  top_fav: '🔥 Rất được yêu thích',
  popular: '❤️ Nhiều người ưa chuộng',
@@ -346,7 +376,12 @@ export default function AdminManagementPage() {
   googleClientId: string | null;
   currentUser: { id: string; displayName: string; email: string | null; authMethod: string | null } | null;
   reason: string | null;
+  detectedCity?: string;
  } | null>(null);
+
+ const [visitingCity, setVisitingCity] = useState<string>('ha-noi');
+ const [visitingCoords, setVisitingCoords] = useState<{ lat: number; lng: number } | null>(null);
+ const [visitingSource, setVisitingSource] = useState<'ip' | 'gps'>('ip');
 
  const [tab, setTab] = useState<'restaurants' | 'lifecycle' | 'accounts' | 'moderation'>('restaurants');
  const [busy, setBusy] = useState(false);
@@ -420,6 +455,9 @@ export default function AdminManagementPage() {
   try {
    const info = await cmsApi('/admin/cms/session');
    setSessionInfo(info);
+   if (info?.detectedCity) {
+    setVisitingCity((prev) => (visitingSource === 'gps' ? prev : info.detectedCity));
+   }
    return info;
   } catch (e) {
    setError((e as Error).message);
@@ -432,6 +470,21 @@ export default function AdminManagementPage() {
  useEffect(() => {
   checkSession();
  }, [checkSession]);
+
+ // Automatically detect admin's current accessing city via browser GPS (refining server IP geo)
+ useEffect(() => {
+  if (!sessionInfo?.authorized || typeof navigator === 'undefined' || !navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(
+   (pos) => {
+    const { latitude, longitude } = pos.coords;
+    setVisitingCoords({ lat: latitude, lng: longitude });
+    setVisitingCity(nearestCitySlug(latitude, longitude));
+    setVisitingSource('gps');
+   },
+   () => {},
+   { enableHighAccuracy: false, timeout: 5000, maximumAge: 300_000 },
+  );
+ }, [sessionInfo?.authorized]);
 
  // Render official Google Sign-In button when unauthorized
  useEffect(() => {
@@ -500,7 +553,17 @@ export default function AdminManagementPage() {
     badge: badgeFilter,
    });
    if (debouncedQ) params.set('q', debouncedQ);
-   if (cityFilter) params.set('city', cityFilter);
+   if (cityFilter === '__all_no_prefer__') {
+    params.set('preferCity', 'none');
+   } else if (cityFilter) {
+    params.set('city', cityFilter);
+   } else if (visitingCity) {
+    params.set('preferCity', visitingCity);
+   }
+   if (visitingCoords) {
+    params.set('lat', String(visitingCoords.lat));
+    params.set('lng', String(visitingCoords.lng));
+   }
    if (groupFilter) params.set('group', groupFilter);
    const res = await cmsApi(`/admin/cms/restaurants?${params.toString()}`);
    setRestData({ items: res.items || [], total: res.total || 0 });
@@ -520,6 +583,8 @@ export default function AdminManagementPage() {
   badgeFilter,
   debouncedQ,
   cityFilter,
+  visitingCity,
+  visitingCoords,
   groupFilter,
  ]);
 
@@ -609,7 +674,7 @@ export default function AdminManagementPage() {
  }
 
  function openCreateModal() {
-  const fresh = emptyEditorDraft();
+  const fresh = { ...emptyEditorDraft(), city_slug: visitingCity || 'ha-noi' };
   setEditingId(null);
   setEditingTimestamps(null);
   setDraft(fresh);
@@ -1061,6 +1126,9 @@ export default function AdminManagementPage() {
          <strong style={{ fontSize: 15 }}>
           Danh sách quán ăn ({restData.total.toLocaleString('vi-VN')} bản ghi khớp bộ lọc)
          </strong>
+         <span className="cms-badge is-verified" style={{ marginLeft: 8 }}>
+          📍 Ưu tiên TP đang truy cập: {CITY_LABELS[visitingCity] || visitingCity} ({visitingSource === 'gps' ? 'GPS' : 'IP mạng'})
+         </span>
          <span style={{ fontSize: 12.5, color: '#64748b', marginLeft: 10 }}>
           Hiển thị gọn 1 dòng / quán — bấm vào dòng hoặc nút <b>Xem chi tiết</b> để mở popup đầy đủ thông tin.
          </span>
@@ -1089,9 +1157,12 @@ export default function AdminManagementPage() {
            setPage(0);
           }}
          >
-          <option value="">Tất cả 10 tỉnh/thành</option>
+          <option value="">
+           📍 Ưu tiên {CITY_LABELS[visitingCity] || 'TP đang truy cập'} lên đầu (tất cả 10 tỉnh/thành)
+          </option>
+          <option value="__all_no_prefer__">Tất cả 10 tỉnh/thành (không ưu tiên vị trí)</option>
           {Object.entries(CITY_LABELS).map(([slug, label]) => (
-           <option key={slug} value={slug}>{label} ({slug})</option>
+           <option key={slug} value={slug}>Chỉ hiện: {label} ({slug})</option>
           ))}
          </select>
         </div>
@@ -1188,6 +1259,7 @@ export default function AdminManagementPage() {
           }}
          >
           <option value="updated_desc">🔵 Thời gian sửa gần nhất</option>
+          <option value="nearest">📍 Gần vị trí đang truy cập nhất</option>
           <option value="created_desc">🟢 Thời gian tạo mới nhất</option>
           <option value="deleted_desc">🔴 Thời gian xóa gần nhất</option>
           <option value="saves_desc">❤️ Nhiều lượt thả tim nhất</option>

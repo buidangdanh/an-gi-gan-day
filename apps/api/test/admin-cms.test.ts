@@ -298,4 +298,50 @@ test('Bộ đếm lượt ghé thăm website, đầy đủ 100% thông tin quán
  for (const expected of ['created', 'updated', 'deleted', 'restored', 'hard_deleted']) {
   assert.ok(types.includes(expected), `Expected lifecycle event ${expected}`);
  }
+
+ // 8. Verify visiting-city priority: records in the accessing city (via GPS or Cloudflare IP geo) appear BEFORE newer records in other cities
+ const hanoiRes = await call('/admin/cms/restaurants', {
+  method: 'POST',
+  cookie: adminCookie,
+  body: {
+   name: 'Bún Chả Hàng Mành Ưu Tiên HN',
+   address: '1 Hàng Mành, Hoàn Kiếm, Hà Nội',
+   city_slug: 'ha-noi',
+   lat: 21.031,
+   lng: 105.848,
+   primary_group: 'bún chả',
+   source: 'Test ưu tiên thành phố',
+  },
+ });
+ assert.equal(hanoiRes.status, 200);
+
+ const danangRes = await call('/admin/cms/restaurants', {
+  method: 'POST',
+  cookie: adminCookie,
+  body: {
+   name: 'Mì Quảng 1A Ưu Tiên ĐN',
+   address: '1A Hải Phòng, Hải Châu, Đà Nẵng',
+   city_slug: 'da-nang',
+   lat: 16.071,
+   lng: 108.22,
+   primary_group: 'mì quảng & cao lầu',
+   source: 'Test ưu tiên thành phố',
+  },
+ });
+ assert.equal(danangRes.status, 200);
+
+ // Even though Đà Nẵng was created AFTER Hà Nội, accessing from Hà Nội GPS puts Hà Nội first!
+ const fromHanoiGps = await call('/admin/cms/restaurants?lat=21.0285&lng=105.8542', { cookie: adminCookie });
+ assert.equal(fromHanoiGps.status, 200);
+ assert.equal(fromHanoiGps.data.preferredCity, 'ha-noi');
+ assert.equal(fromHanoiGps.data.items[0].city_slug, 'ha-noi');
+
+ // Accessing with Cloudflare Da Nang IP header puts Đà Nẵng first!
+ const fromDanangIp = await call('/admin/cms/restaurants', {
+  cookie: adminCookie,
+  headers: { 'cf-ipcity': 'Da Nang' },
+ });
+ assert.equal(fromDanangIp.status, 200);
+ assert.equal(fromDanangIp.data.preferredCity, 'da-nang');
+ assert.equal(fromDanangIp.data.items[0].city_slug, 'da-nang');
 });

@@ -210,6 +210,82 @@ function currentVietnamDate(): string {
  }).format(new Date());
 }
 
+const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
+ 'ha-noi': { lat: 21.0285, lng: 105.8542 },
+ 'ho-chi-minh': { lat: 10.7769, lng: 106.7009 },
+ 'da-nang': { lat: 16.0544, lng: 108.2022 },
+ 'hai-phong': { lat: 20.8449, lng: 106.6881 },
+ 'can-tho': { lat: 10.0452, lng: 105.7469 },
+ hue: { lat: 16.4637, lng: 107.5909 },
+ 'nha-trang': { lat: 12.2388, lng: 109.1967 },
+ 'da-lat': { lat: 11.9404, lng: 108.4583 },
+ 'vung-tau': { lat: 10.346, lng: 107.0843 },
+ 'ha-long': { lat: 20.9599, lng: 107.0425 },
+};
+
+export function nearestCityFromCoords(lat: number, lng: number): string {
+ let bestSlug = 'ha-noi';
+ let bestDist = Infinity;
+ const toRad = (deg: number) => (deg * Math.PI) / 180;
+ for (const [slug, c] of Object.entries(CITY_CENTERS)) {
+  const dLat = toRad(c.lat - lat);
+  const dLng = toRad(c.lng - lng);
+  const a =
+   Math.sin(dLat / 2) ** 2 +
+   Math.cos(toRad(lat)) * Math.cos(toRad(c.lat)) * Math.sin(dLng / 2) ** 2;
+  const distKm = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  if (distKm < bestDist) {
+   bestDist = distKm;
+   bestSlug = slug;
+  }
+ }
+ return bestSlug;
+}
+
+export function detectVisitingCity(req?: Request, explicitLat?: number | null, explicitLng?: number | null): string {
+ if (
+  typeof explicitLat === 'number' &&
+  typeof explicitLng === 'number' &&
+  Number.isFinite(explicitLat) &&
+  Number.isFinite(explicitLng) &&
+  explicitLat >= -90 &&
+  explicitLat <= 90 &&
+  explicitLng >= -180 &&
+  explicitLng <= 180
+ ) {
+  return nearestCityFromCoords(explicitLat, explicitLng);
+ }
+
+ if (req) {
+  const cfLat = Number(req.headers['cf-iplatitude']);
+  const cfLng = Number(req.headers['cf-iplongitude']);
+  if (Number.isFinite(cfLat) && Number.isFinite(cfLng) && cfLat >= 8 && cfLat <= 24 && cfLng >= 102 && cfLng <= 110) {
+   return nearestCityFromCoords(cfLat, cfLng);
+  }
+
+  const rawText = `${req.headers['cf-ipcity'] || ''} ${req.headers['cf-region'] || ''}`
+   .normalize('NFD')
+   .replace(/[\u0300-\u036f]/g, '')
+   .replace(/đ/gi, 'd')
+   .toLowerCase();
+
+  if (rawText.trim()) {
+   if (/\b(ho chi minh|saigon|sai gon|thu duc|hcmc)\b/.test(rawText)) return 'ho-chi-minh';
+   if (/\b(da nang|danang)\b/.test(rawText)) return 'da-nang';
+   if (/\b(hai phong|haiphong)\b/.test(rawText)) return 'hai-phong';
+   if (/\b(can tho|cantho)\b/.test(rawText)) return 'can-tho';
+   if (/\b(nha trang|khanh hoa)\b/.test(rawText)) return 'nha-trang';
+   if (/\b(da lat|dalat|lam dong)\b/.test(rawText)) return 'da-lat';
+   if (/\b(vung tau|ba ria)\b/.test(rawText)) return 'vung-tau';
+   if (/\b(ha long|halong|quang ninh)\b/.test(rawText)) return 'ha-long';
+   if (/\b(hue|thua thien)\b/.test(rawText)) return 'hue';
+   if (/\b(ha noi|hanoi)\b/.test(rawText)) return 'ha-noi';
+  }
+ }
+
+ return 'ha-noi';
+}
+
 export class AdminCmsService {
  constructor(private readonly deps: AdminCmsDeps) {}
 
@@ -277,8 +353,12 @@ export class AdminCmsService {
   };
  }
 
- async sessionStatus(s: AdminSessionRow) {
-  return this.inspectAdminSession(s);
+ async sessionStatus(s: AdminSessionRow, req?: Request) {
+  const info = await this.inspectAdminSession(s);
+  return {
+   ...info,
+   detectedCity: detectVisitingCity(req),
+  };
  }
 
  async requireGoogleAdmin(s: AdminSessionRow): Promise<{ accountId: string; email: string; displayName: string }> {
@@ -611,11 +691,25 @@ export class AdminCmsService {
   return { ok: true };
  }
 
- async listRestaurants(s: AdminSessionRow, rawQuery: Record<string, unknown>) {
+ async listRestaurants(s: AdminSessionRow, rawQuery: Record<string, unknown>, req?: Request) {
   await this.requireGoogleAdmin(s);
 
   const q = typeof rawQuery.q === 'string' ? rawQuery.q.trim().slice(0, 160) : '';
   const city = typeof rawQuery.city === 'string' && (VALID_CITY_SLUGS as readonly string[]).includes(rawQuery.city) ? rawQuery.city : '';
+  const rawPreferCity = typeof rawQuery.preferCity === 'string' ? rawQuery.preferCity.trim() : '';
+  const qLat = rawQuery.lat !== undefined && rawQuery.lat !== '' ? Number(rawQuery.lat) : null;
+  const qLng = rawQuery.lng !== undefined && rawQuery.lng !== '' ? Number(rawQuery.lng) : null;
+  const validCoords =
+   qLat !== null && qLng !== null && Number.isFinite(qLat) && Number.isFinite(qLng) && qLat >= -90 && qLat <= 90 && qLng >= -180 && qLng <= 180;
+
+  const preferCity = city
+   ? null
+   : rawPreferCity === 'none'
+     ? null
+     : (VALID_CITY_SLUGS as readonly string[]).includes(rawPreferCity)
+       ? rawPreferCity
+       : detectVisitingCity(req, validCoords ? qLat : null, validCoords ? qLng : null);
+
   const group = typeof rawQuery.group === 'string' ? rawQuery.group.trim().slice(0, 80) : '';
   const status = typeof rawQuery.status === 'string' ? rawQuery.status : 'all';
   const hasImage = typeof rawQuery.hasImage === 'string' ? rawQuery.hasImage : 'all';
@@ -674,15 +768,27 @@ export class AdminCmsService {
   }
 
   const whereSql = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
-
-  let orderSql = 'r.updated_at DESC, r.id';
-  if (sort === 'created_desc') orderSql = 'r.created_at DESC, r.id';
-  else if (sort === 'deleted_desc') orderSql = 'r.deleted_at DESC NULLS LAST, r.updated_at DESC, r.id';
-  else if (sort === 'saves_desc') orderSql = 'r.popularity_saves DESC, r.popularity_score DESC, r.id';
-  else if (sort === 'score_desc') orderSql = 'r.popularity_score DESC, r.popularity_saves DESC, r.id';
-  else if (sort === 'name_asc') orderSql = 'r.name ASC, r.id';
-
   const countArgs = [...args];
+
+  let baseOrderSql = 'r.updated_at DESC, r.id';
+  if (sort === 'created_desc') baseOrderSql = 'r.created_at DESC, r.id';
+  else if (sort === 'deleted_desc') baseOrderSql = 'r.deleted_at DESC NULLS LAST, r.updated_at DESC, r.id';
+  else if (sort === 'saves_desc') baseOrderSql = 'r.popularity_saves DESC, r.popularity_score DESC, r.id';
+  else if (sort === 'score_desc') baseOrderSql = 'r.popularity_score DESC, r.popularity_saves DESC, r.id';
+  else if (sort === 'name_asc') baseOrderSql = 'r.name ASC, r.id';
+  else if (sort === 'nearest' && validCoords) {
+   args.push(qLng, qLat);
+   const lngIdx = args.length - 1;
+   const latIdx = args.length;
+   baseOrderSql = `(CASE WHEN r.location IS NOT NULL THEN ST_Distance(r.location, ST_SetSRID(ST_MakePoint($${lngIdx}, $${latIdx}), 4326)::geography) ELSE 1e12 END) ASC, r.updated_at DESC, r.id`;
+  }
+
+  let orderSql = baseOrderSql;
+  if (preferCity) {
+   args.push(preferCity);
+   orderSql = `(r.city_slug = $${args.length}) DESC, ${baseOrderSql}`;
+  }
+
   args.push(limit, offset);
 
   const [countRes, rowsRes] = await Promise.all([
@@ -706,6 +812,7 @@ export class AdminCmsService {
    total: Number(countRes.rows[0]?.total || 0),
    limit,
    offset,
+   preferredCity: preferCity,
   };
  }
 

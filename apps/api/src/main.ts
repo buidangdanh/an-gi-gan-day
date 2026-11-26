@@ -142,11 +142,11 @@ class ApiController {
 
   // Google-Authenticated Restaurant Management Portal (strictly restricted to hnverynice@gmail.com)
   if (path.startsWith('/admin/cms/')) {
-   if (method === 'GET' && path === '/admin/cms/session') return service.adminCms.sessionStatus(s);
+   if (method === 'GET' && path === '/admin/cms/session') return service.adminCms.sessionStatus(s, req);
    if (method === 'POST' && path === '/admin/cms/auth/google') return service.adminCms.googleLogin(s, req, res);
    if (method === 'GET' && path === '/admin/cms/overview') return service.adminCms.overview(s);
    if (method === 'PATCH' && path === '/admin/cms/analytics') return service.adminCms.adjustAnalytics(s, req.body);
-   if (method === 'GET' && path === '/admin/cms/restaurants') return service.adminCms.listRestaurants(s, req.query);
+   if (method === 'GET' && path === '/admin/cms/restaurants') return service.adminCms.listRestaurants(s, req.query, req);
    if (method === 'POST' && path === '/admin/cms/restaurants') return service.adminCms.saveRestaurant(s, null, req.body);
    if (method === 'GET' && path === '/admin/cms/lifecycle') return service.adminCms.listLifecycle(s, req.query);
    if (method === 'GET' && path === '/admin/cms/accounts') return service.adminCms.listAccounts(s, req.query);

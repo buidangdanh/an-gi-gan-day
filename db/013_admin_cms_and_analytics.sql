@@ -21,6 +21,7 @@ UPDATE restaurants SET created_at = updated_at WHERE created_at > updated_at;
 UPDATE restaurants SET deleted_at = updated_at WHERE NOT active AND deleted_at IS NULL;
 
 CREATE INDEX IF NOT EXISTS restaurants_admin_updated_idx ON restaurants(updated_at DESC, id);
+CREATE INDEX IF NOT EXISTS restaurants_admin_city_updated_idx ON restaurants(city_slug, updated_at DESC, id);
 CREATE INDEX IF NOT EXISTS restaurants_admin_created_idx ON restaurants(created_at DESC, id);
 CREATE INDEX IF NOT EXISTS restaurants_admin_deleted_idx ON restaurants(deleted_at DESC, id) WHERE deleted_at IS NOT NULL;
 
