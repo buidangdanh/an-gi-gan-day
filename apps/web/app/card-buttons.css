@@ -1877,6 +1877,34 @@
  letter-spacing: 0.03em;
 }
 
+.tier-badge.is-clickable {
+ display: inline-flex;
+ align-items: center;
+ gap: 4px;
+ padding: 4px 11px;
+ font-size: 11.5px;
+ font-weight: 800;
+ letter-spacing: 0.01em;
+ cursor: pointer;
+ border: 1px solid #93c5fd;
+ transition: transform 0.12s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.tier-badge.is-clickable.is-pro {
+ border-color: #0284c7;
+ box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
+}
+
+.tier-badge.is-clickable:hover {
+ transform: translateY(-1px);
+ filter: brightness(0.97);
+ box-shadow: 0 3px 10px rgba(2, 132, 199, 0.22);
+}
+
+.tier-badge.is-clickable.is-open {
+ box-shadow: 0 0 0 2.5px rgba(2, 132, 199, 0.35);
+}
+
 .tier-badge.is-pro {
  background: linear-gradient(135deg, #0284c7, #06b6d4);
  color: #ffffff;
@@ -1894,7 +1922,7 @@
 
 .hub-tabs {
  display: grid;
- grid-template-columns: repeat(4, 1fr);
+ grid-template-columns: repeat(3, 1fr);
  border-bottom: 1px solid #d5e7f8;
  background: #f5faff;
 }

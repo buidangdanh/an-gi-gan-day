@@ -870,9 +870,16 @@ export function HeaderBar({
         <div>
          <div className="hub-title-row">
           <h2>{user ? user.display_name : 'Đăng nhập'}</h2>
-          <span className={`tier-badge ${isPro ? 'is-pro' : user ? 'is-free' : 'is-guest'}`}>
-           {isPro ? '✦ PRO' : user ? 'THƯỜNG · 0đ' : 'KHÁCH'}
-          </span>
+          {user && (
+           <button
+            type="button"
+            className={`tier-badge is-clickable ${isPro ? 'is-pro' : 'is-free'}${tab === 'plans' ? ' is-open' : ''}`}
+            onClick={() => setTab(tab === 'plans' ? 'profile' : 'plans')}
+            title="Xem so sánh gói Basic & Pro"
+           >
+            {isPro ? 'Pro' : 'Basic'}
+           </button>
+          )}
          </div>
          {user && (
           <p>
@@ -888,7 +895,7 @@ export function HeaderBar({
        </button>
       </div>
 
-      {/* 4 Hub Navigation Tabs */}
+      {/* 3 Hub Navigation Tabs */}
       <div className="hub-tabs" role="tablist">
        <button type="button" role="tab" aria-selected={tab === 'profile'} className={`hub-tab${tab === 'profile' ? ' is-active' : ''}`} onClick={() => setTab('profile')}>
         Tài khoản
@@ -898,9 +905,6 @@ export function HeaderBar({
        </button>
        <button type="button" role="tab" aria-selected={tab === 'personalize'} className={`hub-tab${tab === 'personalize' ? ' is-active' : ''}`} onClick={() => setTab('personalize')}>
         Khẩu vị Pro
-       </button>
-       <button type="button" role="tab" aria-selected={tab === 'plans'} className={`hub-tab${tab === 'plans' ? ' is-active' : ''}`} onClick={() => setTab('plans')}>
-        Thường vs Pro
        </button>
       </div>
 
@@ -1507,11 +1511,11 @@ export function HeaderBar({
         </>
        )}
 
-       {/* TAB 4: DETAILED TIER COMPARISON (THƯỜNG VS PRO) */}
+       {/* DETAILED TIER COMPARISON (BASIC VS PRO — OPENED BY CLICKING BASIC / PRO BADGE) */}
        {tab === 'plans' && (
         <div className="plans-grid">
          <div className="plan-card">
-          <span className="tier-badge is-free">GÓI THƯỜNG</span>
+          <span className="tier-badge is-free">GÓI BASIC</span>
           <h3>0đ <small>/ mãi mãi</small></h3>
           <p>Đủ gọn nhẹ cho nhu cầu tìm quán hằng ngày.</p>
           <ul>
@@ -1524,7 +1528,7 @@ export function HeaderBar({
           </ul>
           {!user && (
            <button type="button" className="account-secondary-btn" onClick={() => { setTab('profile'); setAuthMode('register'); }}>
-            Đăng ký Thường miễn phí
+            Đăng ký Basic miễn phí
            </button>
           )}
          </div>
@@ -1537,7 +1541,7 @@ export function HeaderBar({
           <h3>29.000đ <small>/ tháng · hoặc 199k/năm</small></h3>
           <p>Trợ lý ẩm thực cá nhân hóa trọn vẹn cho người sành ăn.</p>
           <ul>
-           <li>✦ Toàn bộ quyền lợi gói Thường</li>
+           <li>✦ Toàn bộ quyền lợi gói Basic</li>
            <li>✦ <b>Ưu tiên quán Top Yêu thích</b> trong bán kính gần</li>
            <li>✦ Lưu yêu thích <b>không giới hạn</b> + <b>20 Bộ sưu tập riêng</b></li>
            <li>✦ <b>Tự động ẩn món không ăn / dị ứng</b> khỏi 4 thẻ</li>
