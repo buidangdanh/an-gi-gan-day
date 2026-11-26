@@ -22,6 +22,7 @@
     "admin": "node --env-file-if-exists=.env.local node_modules/tsx/dist/cli.mjs scripts/admin.ts",
     "start:api": "node --env-file-if-exists=.env.local apps/api/dist/src/main.js",
     "start:web": "next start apps/web --hostname 127.0.0.1 --port 3100",
+    "start:online": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-all-timquanngon.ps1",
     "data:import:foody": "node --env-file-if-exists=.env.local node_modules/tsx/dist/cli.mjs scripts/import-foody.ts",
     "data:sync:images": "node --env-file-if-exists=.env.local node_modules/tsx/dist/cli.mjs scripts/sync-foody-images.ts",
     "data:sync:remaining": "node --env-file-if-exists=.env.local node_modules/tsx/dist/cli.mjs scripts/sync-foody-remaining-and-saves.ts",
