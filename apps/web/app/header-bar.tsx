@@ -1057,9 +1057,6 @@ export function HeaderBar({
            {/* MODE C: ZERO-COST PHONE VERIFICATION */}
            {authMode === 'phone' && (
             <div className="phone-verify-box">
-             <p className="hub-desc">
-              Xác thực số điện thoại chính chủ <b>miễn phí 0đ trọn đời</b> qua nút chia sẻ danh bạ xác minh của Telegram Bot (chống hoàn toàn tin nhắn rác & lộ OTP):
-             </p>
              {!tgChallenge ? (
               <button type="button" className="account-primary-btn" disabled={busy} onClick={handleStartTelegramPhone}>
                {busy ? 'Đang khởi tạo phiên…' : '📱 Xác thực SĐT miễn phí qua Telegram (2 giây)'}
